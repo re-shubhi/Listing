@@ -46,7 +46,7 @@ const Login = () => {
         initialValues={{email: '', password: ''}}
         validationSchema={validationSchema}
         onSubmit={() => {
-          navigation?.navigate('SplashScreen');
+          navigation?.navigate('BottomTabNavigation');
         }}>
         {({
           values,

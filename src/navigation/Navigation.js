@@ -6,6 +6,7 @@ import SplashScreen from '../auth/SplashScreen';
 import Login from '../auth/Login';
 import ForgotPassword from '../auth/ForgotPassword';
 import Register from '../auth/Register';
+import BottomTabNavigation from './BottomTabNavigation';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +16,7 @@ const Navigation = () => {
       <Stack.Navigator
         initialRouteName="SplashScreen"
         screenOptions={{headerShown: false}}>
+        <Stack.Screen name="BottomTabNavigation" component={BottomTabNavigation} />
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
