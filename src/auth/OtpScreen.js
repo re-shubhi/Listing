@@ -35,7 +35,7 @@ const OtpScreen = () => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header />
+      <Header  backicon/>
 
       <View style={styles.container}>
         <View style={styles.TextContainer}>
@@ -73,7 +73,7 @@ const OtpScreen = () => {
           <Button
             buttonTxt={'Continue'}
             onPress={() => {
-              console.log('CONTINUE');
+              console.log('CONTINUE',value);
               navigation.navigate('ResetPassword');
             }}
           />

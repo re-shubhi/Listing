@@ -45,7 +45,7 @@ const ResetPassword = () => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header />
+      <Header  backicon/>
       <Formik
         initialValues={{
           password: '',

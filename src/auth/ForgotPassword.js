@@ -34,7 +34,7 @@ const ForgotPassword = () => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header />
+      <Header backicon/>
       <Formik
         initialValues={{email: ''}}
         validationSchema={validationSchema}

@@ -41,7 +41,7 @@ const Login = () => {
   const [secure, setSecure] = useState('');
   return (
     <SafeAreaView style={styles.screen}>
-      <Header />
+      <Header  backicon/>
       <Formik
         initialValues={{email: '', password: ''}}
         validationSchema={validationSchema}

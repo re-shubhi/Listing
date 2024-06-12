@@ -1,24 +1,47 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Dimensions, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {useNavigation} from '@react-navigation/native';
+import COLORS from '../theme/Colors';
+import FONTS from '../theme/Fonts';
 
-const Header = () => {
+const {height, width, fontScale} = Dimensions.get('screen');
+
+const Header = ({headerText,tintColor,backicon}) => {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity
-      style={{paddingVertical: 10}}
-      onPress={() => {
+    <View
+      style={{paddingVertical: 10,flexDirection:"row",justifyContent:"space-between",alignItems:'center'}}
+     >
+        <TouchableOpacity 
+         style={{height: 24, width: 24}}
+        onPress={() => {
         navigation.goBack();
       }}>
-      <Image
+    {backicon&&
+        <Image
         source={require('../assets/images/icons/backicon.png')}
-        style={{height: 24, width: 24, marginLeft: 10}}
+        style={{height: 24, width: 24, marginLeft: 10,tintColor:{tintColor}}}
         resizeMode="contain"
-      />
-    </TouchableOpacity>
+      />}
+        </TouchableOpacity>
+        <Text style={styles.text}>
+         {headerText}
+        </Text>
+        <View
+        style={{height: 24, width: 24, marginLeft: 10}}>
+        </View>
+    </View>
   );
 };
 
 export default Header;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  text:{
+    fontSize:fontScale*20,
+    color:COLORS.white,
+    lineHeight:25,
+    fontFamily:FONTS.Inter500
+
+  }
+});
