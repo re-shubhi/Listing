@@ -39,7 +39,7 @@ const ForgotPassword = () => {
         initialValues={{email: ''}}
         validationSchema={validationSchema}
         onSubmit={() => {
-          navigation?.navigate('SplashScreen');
+          navigation?.navigate('OtpScreen');
         }}>
         {({
           values,
