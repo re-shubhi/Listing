@@ -49,6 +49,25 @@ function MyTabBar({state, descriptors, navigation}) {
           });
         };
 
+        let iconName;
+        switch (route.name) {
+          case 'HomeScreen':
+            iconName = require('../assets/images/icons/home.png');
+            break;
+          case 'Heart':
+            iconName = require('../assets/images/icons/heart.png');
+            break;
+          case 'Chat':
+            iconName = require('../assets/images/icons/chat.png');
+            break;
+          case 'ProfileScreen':
+            iconName = require('../assets/images/icons/user.png');
+            break;
+          default:
+            iconName = require('../assets/images/icons/home.png');
+            break;
+        }
+
         return (
           <TouchableOpacity
             accessibilityRole="button"
@@ -57,17 +76,29 @@ function MyTabBar({state, descriptors, navigation}) {
             testID={options.tabBarTestID}
             onPress={onPress}
             onLongPress={onLongPress}
-            style={{flex: 1, alignItems: 'center',paddingVertical:22}}>
-            <Image
-              source={require('../assets/images/icons/home.png')}
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              paddingBottom: 14,
+              backgroundColor:COLORS.white,
+              paddingHorizontal:10
+            }}>
+            <View
               style={{
-                height: 24,
-                width: 24,
-              }}
-              resizeMode="contain"
-            />
-
-            {/* <Text style={{color: isFocused ? '#673ab7' : '#222'}}>{label}</Text> */}
+                paddingVertical: 10,
+                borderTopWidth: 2,
+                paddingHorizontal: 18,
+                borderColor: isFocused ? COLORS.primary : "transparent"
+              }}>
+              <Image
+                source={iconName}
+                style={{
+                  height: 24,
+                  width: 24,
+                }}
+                resizeMode="contain"
+              />
+            </View>
           </TouchableOpacity>
         );
       })}
@@ -86,27 +117,27 @@ const BottomTabNavigation = () => {
       <BottomTab.Screen
         name="HomeScreen"
         component={HomeScreen}
-        options={{
-          tabBarShowLabel: false,
-          tabBarButton: () => {
-            return (
-              <View
-                style={{
-                  backgroundColor: 'red',
-                  paddingHorizontal: 20,
-                  paddingVertical: 20,
-                }}>
-                <Pressable>
-                  <Image
-                    source={require('../assets/images/icons/home.png')}
-                    style={{height: 24, width: 24}}
-                    resizeMode="contain"
-                  />
-                </Pressable>
-              </View>
-            );
-          },
-        }}
+        // options={{
+        //   tabBarShowLabel: false,
+        //   tabBarButton: () => {
+        //     return (
+        //       <View
+        //         style={{
+        //           backgroundColor: 'red',
+        //           paddingHorizontal: 20,
+        //           paddingVertical: 20,
+        //         }}>
+        //         <Pressable>
+        //           <Image
+        //             source={require('../assets/images/icons/home.png')}
+        //             style={{height: 24, width: 24}}
+        //             resizeMode="contain"
+        //           />
+        //         </Pressable>
+        //       </View>
+        //     );
+        //   },
+        // }}
       />
       <BottomTab.Screen name="Heart" component={Heart} />
       <BottomTab.Screen name="Chat" component={Chat} />
