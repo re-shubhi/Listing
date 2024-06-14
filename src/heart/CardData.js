@@ -1,0 +1,60 @@
+const CardData = [
+  {
+    id: 1,
+    title: 'Moor Mall',
+    address: 'Ferry Road ,Maidenhead',
+    rating: '4.5',
+    distance: '4.5 km',
+    img: require('../assets/images/pictures/slider.png'),
+  },
+  {
+    id: 2,
+    title: 'Moor Mall',
+    address: 'Ferry Road ,Maidenhead',
+    rating: '4.5',
+    distance: '4.5 km',
+    img: require('../assets/images/pictures/slider.png'),
+  },
+  {
+    id: 3,
+    title: 'Moor Mall',
+    address: 'Ferry Road ,Maidenhead',
+    rating: '4.5',
+    distance: '4.5 km',
+    img: require('../assets/images/pictures/slider.png'),
+  },
+  {
+    id: 4,
+    title: 'Moor Mall',
+    address: 'Ferry Road ,Maidenhead',
+    rating: '4.5',
+    distance: '4.5 km',
+    img: require('../assets/images/pictures/slider.png'),
+  },
+  {
+    id: 5,
+    title: 'Moor Mall',
+    address: 'Ferry Road ,Maidenhead',
+    rating: '4.5',
+    distance: '4.5 km',
+    img: require('../assets/images/pictures/slider.png'),
+  },
+  {
+    id: 6,
+    title: 'Moor Mall',
+    address: 'Ferry Road ,Maidenhead',
+    rating: '4.5',
+    distance: '4.5 km',
+    img: require('../assets/images/pictures/slider.png'),
+  },
+  {
+    id: 7,
+    title: 'Moor Mall',
+    address: 'Ferry Road ,Maidenhead',
+    rating: '4.5',
+    distance: '4.5 km',
+    img: require('../assets/images/pictures/slider.png'),
+  },
+];
+
+export default CardData;

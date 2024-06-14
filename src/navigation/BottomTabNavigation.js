@@ -10,9 +10,10 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import ProfileScreen from '../profile/ProfileScreen';
 import HomeScreen from '../home/HomeScreen';
-import Chat from '../chat/Chat';
-import Heart from '../heart/Heart';
+import Notification from '../notification/Notification';
+import Heart from '../heart/Wishlist';
 import COLORS from '../theme/Colors';
+import Wishlist from '../heart/Wishlist';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -54,11 +55,11 @@ function MyTabBar({state, descriptors, navigation}) {
           case 'HomeScreen':
             iconName = require('../assets/images/icons/home.png');
             break;
-          case 'Heart':
+          case 'Wishlist':
             iconName = require('../assets/images/icons/heart.png');
             break;
-          case 'Chat':
-            iconName = require('../assets/images/icons/chat.png');
+          case 'Notification':
+            iconName = require('../assets/images/icons/bell.png');
             break;
           case 'ProfileScreen':
             iconName = require('../assets/images/icons/user.png');
@@ -86,7 +87,7 @@ function MyTabBar({state, descriptors, navigation}) {
             <View
               style={{
                 paddingVertical: 10,
-                borderTopWidth: 2,
+                borderTopWidth: 3,
                 paddingHorizontal: 18,
                 borderColor: isFocused ? COLORS.primary : "transparent"
               }}>
@@ -109,7 +110,7 @@ function MyTabBar({state, descriptors, navigation}) {
 const BottomTabNavigation = () => {
   return (
     <BottomTab.Navigator
-      initialRouteName="HomeScreen"
+      initialRouteName="Wishlist"
       screenOptions={{
         headerShown: false,
       }}
@@ -139,8 +140,8 @@ const BottomTabNavigation = () => {
         //   },
         // }}
       />
-      <BottomTab.Screen name="Heart" component={Heart} />
-      <BottomTab.Screen name="Chat" component={Chat} />
+      <BottomTab.Screen name="Wishlist" component={Wishlist} />
+      <BottomTab.Screen name="Notification" component={Notification} />
       <BottomTab.Screen name="ProfileScreen" component={ProfileScreen} />
     </BottomTab.Navigator>
   );
