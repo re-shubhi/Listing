@@ -13,13 +13,16 @@ import ScreenWithBackground from '../components/ScreenWithBackground';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import CardData from './CardData';
+import CardData from '../heart/CardData';
+import {useNavigation} from '@react-navigation/native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const Wishlist = () => {
-  const [numColumns, setNumColumns] = useState(2); // State for the number of columns
-
+const ParticularCategory = props => {
+  const navigation = useNavigation();
+  const [numColumns, setNumColumns] = useState(2);
+  const Data = props.route.params.data;
+  console.log('Data=====', Data);
   return (
     <ScreenWithBackground>
       <SafeAreaView style={styles.container}>
@@ -27,10 +30,10 @@ const Wishlist = () => {
           backicon={true}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
-          headerText={'Wishlist'}
+          headerText={Data.category}
         />
+
         <View style={styles.fullScreenRed}>
-      
           <FlatList
             data={CardData}
             key={`${numColumns}`} // Change key when numColumns changes
@@ -39,7 +42,10 @@ const Wishlist = () => {
             renderItem={({item}) => {
               return (
                 <>
-                  <TouchableOpacity TouchableOpacity style={[styles.card,styles.boxWithShadow]}>
+                  <TouchableOpacity
+                    TouchableOpacity
+                    style={[styles.card, styles.boxWithShadow]}
+                    onPress={() => navigation.navigate('DetailScreen')}>
                     <Image
                       source={item.img}
                       style={styles.banner}
@@ -92,7 +98,7 @@ const Wishlist = () => {
   );
 };
 
-export default Wishlist;
+export default ParticularCategory;
 
 const styles = StyleSheet.create({
   container: {
@@ -106,7 +112,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     paddingHorizontal: width * 0.04,
-    paddingVertical: height * 0.01,
+    paddingTop: height * 0.01,
   },
   CardTitle: {
     fontSize: fontScale * 17,
@@ -134,7 +140,7 @@ const styles = StyleSheet.create({
     maxHeight: 200,
     borderWidth: 0.15,
     marginHorizontal: 2,
-    borderRadius:10
+    borderRadius: 10,
   },
   banner: {height: 90, width: 170, alignSelf: 'center', borderRadius: 10},
   content: {
@@ -152,14 +158,14 @@ const styles = StyleSheet.create({
   },
   seperator: {height: 10, backgroundColor: 'transparent'},
   boxWithShadow: {
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.30,
+    shadowOpacity: 0.3,
     shadowRadius: 4.65,
-    
+
     elevation: 8,
   },
 });
