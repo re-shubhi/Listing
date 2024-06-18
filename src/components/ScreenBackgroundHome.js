@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   upperHalf: {
-    flex: 0.8,
+    flex: 1,
     backgroundColor:COLORS.base
   },
   lowerHalf: {

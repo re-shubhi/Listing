@@ -81,15 +81,15 @@ function MyTabBar({state, descriptors, navigation}) {
               flex: 1,
               alignItems: 'center',
               paddingBottom: 14,
-              backgroundColor:COLORS.white,
-              paddingHorizontal:10
+              backgroundColor: COLORS.white,
+              paddingHorizontal: 10,
             }}>
             <View
               style={{
                 paddingVertical: 10,
                 borderTopWidth: 3,
                 paddingHorizontal: 18,
-                borderColor: isFocused ? COLORS.primary : "transparent"
+                borderColor: isFocused ? COLORS.primary : 'transparent',
               }}>
               <Image
                 source={iconName}
@@ -110,36 +110,12 @@ function MyTabBar({state, descriptors, navigation}) {
 const BottomTabNavigation = () => {
   return (
     <BottomTab.Navigator
-      initialRouteName="Wishlist"
+      initialRouteName="HomeScreen"
       screenOptions={{
         headerShown: false,
       }}
       tabBar={props => <MyTabBar {...props} />}>
-      <BottomTab.Screen
-        name="HomeScreen"
-        component={HomeScreen}
-        // options={{
-        //   tabBarShowLabel: false,
-        //   tabBarButton: () => {
-        //     return (
-        //       <View
-        //         style={{
-        //           backgroundColor: 'red',
-        //           paddingHorizontal: 20,
-        //           paddingVertical: 20,
-        //         }}>
-        //         <Pressable>
-        //           <Image
-        //             source={require('../assets/images/icons/home.png')}
-        //             style={{height: 24, width: 24}}
-        //             resizeMode="contain"
-        //           />
-        //         </Pressable>
-        //       </View>
-        //     );
-        //   },
-        // }}
-      />
+      <BottomTab.Screen name="HomeScreen" component={HomeScreen} />
       <BottomTab.Screen name="Wishlist" component={Wishlist} />
       <BottomTab.Screen name="Notification" component={Notification} />
       <BottomTab.Screen name="ProfileScreen" component={ProfileScreen} />

@@ -19,7 +19,7 @@ const Navigation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Categories"
+        initialRouteName="BottomTabNavigation"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BottomTabNavigation" component={BottomTabNavigation} />
         <Stack.Screen name="SplashScreen" component={SplashScreen} />

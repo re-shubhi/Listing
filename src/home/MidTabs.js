@@ -12,7 +12,7 @@ const {height, width, fontScale} = Dimensions.get('screen');
 export default function MidTabs() {
   const About = () => {
     return (
-      <View style={{backgroundColor: 'red', padding: 20}}>
+      <View style={{backgroundColor: '#fff', padding: 20}}>
         <Text style={styles.text}>
           Lorem Ipsum is simply dummy text of the printing and typesetting
           industry. Lorem Ipsum has been the industry's standard dummy text ever

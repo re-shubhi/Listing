@@ -8,170 +8,134 @@ import {
   TextInput,
   Dimensions,
   FlatList,
+  TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import {ImageSlider} from '@pembajak/react-native-image-slider-banner';
+import ScreenBackgroundHome from '../components/ScreenBackgroundHome';
+import SwiperFlatList from 'react-native-swiper-flatlist';
+import CategoryListData from './CategoryListData';
+import {useNavigation} from '@react-navigation/native';
+import PopularList from './PopularList';
+import RecentList from './RecentList';
 
 const {fontScale, width, height} = Dimensions.get('screen');
+const images = [
+  require('../assets/images/pictures/slider.png'),
+  require('../assets/images/pictures/slider2.jpg'),
+  require('../assets/images/pictures/slider.png'),
+  require('../assets/images/pictures/slider2.jpg'),
+];
 const HomeScreen = () => {
-  const FlatListRef = useRef();
+  const navigation = useNavigation();
+  const [numColumns, setNumColumns] = useState(4);
   const [search, setSearch] = useState('');
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  //Auto Scroll
-  useEffect(() => { let interval = setInterval(() => {
-      if (activeIndex === imagesData.length - 1) {
-        setActiveIndex(0);
-      } else {
-        setActiveIndex(prevIndex => prevIndex + 1);
-      }
-    }, 5000); // Adjust the interval duration according to your preference
-  
-    return () => clearInterval(interval);
-  }, [activeIndex]);
-  
-  
-  //Layout
-  const getItemLayout = index => ({
-    length: width,
-    offset: width * index,
-    index: index,
-  });
-  //image Data
-  const imagesData = [
-    {
-      id: 1,
-      local: require('../assets/images/pictures/slider.png'),
-    },
-    {
-      id: 2,
-      local: require('../assets/images/pictures/slider2.jpg'),
-    },
-    {
-      id: 3,
-      local: require('../assets/images/pictures/slider.png'),
-    },
-    {
-      id: 4,
-      local: require('../assets/images/pictures/slider2.jpg'),
-    },
-  ];
-  //rendering image banner
-  const renderItem = ({item}) => {
-    return (
-      <View>
-        <Image
-          source={item.local}
-          style={{height: height * 0.15, width: width * 0.88, borderRadius: 10}}
-          resizeMode="cover"
-        />
-      </View>
-    );
-  };
-
-  //handle scroll
-  const handleScroll = event => {
-    //get scroll position
-    const scroolPosition = event.nativeEvent.contentOffset.x;
-    console.log({scroolPosition});
-    //get the index of current visible item
-    const index = scroolPosition / width;
-    console.log('index', index);
-    //update index
-    setActiveIndex(index);
-  };
-
-  //rendering dot indicator
-  const renderDotIndicator = () => {
-    return imagesData.map((dot, index) => {
-      return (
-        <View
-          key={index}
-          style={{
-            height: 10,
-            width: 30,
-            borderRadius: 10,
-            backgroundColor:
-              activeIndex === index ? 'red' : COLORS.lightprimary,
-            marginHorizontal: 5,
-          }}
-        />
-      );
-    });
-  };
-
   return (
-    <SafeAreaView style={styles.head}>
-      <Header headerText={'Home'} />
-      <ScrollView>
-        <View style={styles.screen}>
-          <View style={styles.search}>
-            <Image
-              source={require('../assets/images/icons/search.png')}
-              style={{height: 25, width: 25}}
-              resizeMode="contain"
-            />
-            <TextInput
-              style={styles.textInput}
-              placeholder="Search here"
-              placeholderTextColor={COLORS.white}
-              value={search}
-              onChangeText={search => setSearch(search)}
-            />
-            <Image
-              source={require('../assets/images/icons/filter.png')}
-              style={{height: 25, width: 25}}
-              resizeMode="contain"
+    <ScreenBackgroundHome>
+      <SafeAreaView style={{flex: 1}}>
+        <ScrollView style={{flexGrow: 1}}>
+          <Header backgroundColor={COLORS.base} headerText={'Home'} />
+          <View
+            style={{
+              paddingHorizontal: width * 0.03,
+            }}>
+            <View style={styles.search}>
+              <Image
+                source={require('../assets/images/icons/search.png')}
+                style={{height: 25, width: 25}}
+                resizeMode="contain"
+              />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Search here"
+                placeholderTextColor={COLORS.white}
+                value={search}
+                onChangeText={search => setSearch(search)}
+              />
+              <Image
+                source={require('../assets/images/icons/filter.png')}
+                style={{height: 25, width: 25}}
+                resizeMode="contain"
+              />
+            </View>
+            <SwiperFlatList
+              autoplay
+              autoplayDelay={2}
+              autoplayLoop
+              index={2}
+              showPagination
+              data={images}
+              renderItem={({item}) => (
+                <View style={styles.slide}>
+                  <Image
+                    source={item}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                </View>
+              )}
+              paginationStyle={{marginTop: 100}}
+              paginationStyleItem={{height: 8, width: 30,marginHorizontal:5}}
+              paginationStyleItemActive={{backgroundColor: 'brown'}}
+              paginationStyleItemInactive={{backgroundColor: 'orange'}}
             />
           </View>
-          <View style={{marginVertical: 15}}>
-            <FlatList
-              data={imagesData}
-              ref={FlatListRef}
-              getItemLayout={getItemLayout}
-              renderItem={renderItem}
-              keyExtractor={item => item.id}
-              horizontal={true}
-              pagingEnabled={true}
-              onScroll={handleScroll}
-              showsHorizontalScrollIndicator={false}
-              ItemSeparatorComponent={() => <View style={{width: 30}} />}
-              contentContainerStyle={{paddingHorizontal: 15}}
-            />
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginTop: 10,
-              }}>
-              {renderDotIndicator()}
+          <View style={styles.secondHalf}>
+            {CategoryListData.length > 8 && (
+              <TouchableOpacity
+                style={{alignSelf: 'flex-end'}}
+                onPress={() => navigation.navigate('Categories')}>
+                <Text style={styles.seemore}>See More</Text>
+              </TouchableOpacity>
+            )}
+            <View style={[styles.container]}>
+              <FlatList
+                data={CategoryListData.slice(0, 8)}
+                key={`${numColumns}`}
+                showsVerticalScrollIndicator={false}
+                numColumns={numColumns}
+                renderItem={({item}) => {
+                  return (
+                    <TouchableOpacity
+                      style={[styles.box, styles.boxWithShadow]}
+                      onPress={() =>
+                        navigation.navigate('ParticularCategory', {data: item})
+                      }>
+                      <Image
+                        source={item.CategoryLogo}
+                        style={{height: 24, width: 24}}
+                        resizeMode="contain"
+                      />
+                      <Text numberOfLines={1} style={styles.CategoryText}>
+                        {item.category}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+                ItemSeparatorComponent={() => {
+                  return <View style={styles.seperator} />;
+                }}
+              />
+            </View>
+
+            <View > 
+              <Text style={styles.headingText}>Popular</Text>
+              <PopularList />
+              <Text style={[styles.headingText,{marginTop:10}]}>Recent</Text>
+              <RecentList/>
             </View>
           </View>
-         
-        </View>
-        <View style={styles.remainingScreen}>
-            <Text>hello</Text>
-          </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </ScreenBackgroundHome>
   );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  head: {
-    flex: 1,
-    backgroundColor: COLORS.base,
-  },
-  screen: {
-    flex: 0.4,
-    paddingHorizontal: width * 0.03,
-    paddingVertical: height * 0.008,
-  },
   search: {
     backgroundColor: COLORS.darkgray,
     flexDirection: 'row',
@@ -179,21 +143,78 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 5,
     borderRadius: 10,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.secondary,
+    marginTop: height * 0.01,
   },
   textInput: {
     flex: 1,
     backgroundColor: COLORS.darkgray,
-    paddingVertical: 15,
+    paddingVertical: 12,
     paddingHorizontal: 10,
     fontSize: fontScale * 17,
     fontFamily: FONTS.Inter400,
     color: COLORS.white,
   },
-  remainingScreen:{
-    backgroundColor:COLORS.white,
-  }
+  slide: {
+    width: Dimensions.get('window').width,
+    alignItems: 'center',
+    paddingRight: width * 0.06,
+    paddingTop: height * 0.02,
+    paddingBottom: height * 0.04,
+  },
+  image: {
+    height: height * 0.16,
+    width: width * 0.9,
+    borderRadius: 10,
+  },
+  seemore: {
+    color: COLORS.primary,
+    fontSize: fontScale * 12,
+    fontFamily: FONTS.Inter500,
+    lineHeight: 15,
+  },
+  secondHalf: {
+    backgroundColor: COLORS.white,
+    marginHorizontal: width * 0.02,
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    padding: 10,
+  },
+  CategoryText: {
+    fontSize: fontScale * 13,
+    fontFamily: FONTS.Inter400,
+    lineHeight: 19,
+    color: COLORS.base,
+    textAlign: 'center',
+  },
+  box: {
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.cardsBorderColor,
+    backgroundColor: COLORS.white,
+    padding: 5,
+    borderRadius: 10,
+    height: height * 0.07,
+    width: width * 0.21,
+    marginRight: 5,
+    marginVertical: 8,
+  },
+  seperator: {height: 2, backgroundColor: 'transparent'},
+  boxWithShadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+  headingText: {
+    fontSize: fontScale * 16,
+    color: COLORS.base,
+    fontFamily: FONTS.Inter600,
+    lineHeight: 21,
+    paddingLeft:5
+  },
+  container:{borderWidth:1,borderRadius:10,borderColor:COLORS.cardsBorderColor}
 });

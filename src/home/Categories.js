@@ -58,7 +58,7 @@ const Categories = () => {
             }}
           />
         </View>
-        <MidTabs/>
+       
       </SafeAreaView>
     </ScreenWithBackground>
   );
