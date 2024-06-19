@@ -6,6 +6,7 @@ const CardData = [
     rating: '4.5',
     distance: '4.5 km',
     img: require('../assets/images/pictures/slider.png'),
+    liked:true
   },
   {
     id: 2,
@@ -14,6 +15,7 @@ const CardData = [
     rating: '4.5',
     distance: '4.5 km',
     img: require('../assets/images/pictures/slider.png'),
+    liked:false
   },
   {
     id: 3,
@@ -22,6 +24,7 @@ const CardData = [
     rating: '4.5',
     distance: '4.5 km',
     img: require('../assets/images/pictures/slider.png'),
+    liked:true
   },
   {
     id: 4,
@@ -30,7 +33,9 @@ const CardData = [
     rating: '4.5',
     distance: '4.5 km',
     img: require('../assets/images/pictures/slider.png'),
+    liked:false
   },
+  
   {
     id: 5,
     title: 'Moor Mall',
@@ -38,6 +43,7 @@ const CardData = [
     rating: '4.5',
     distance: '4.5 km',
     img: require('../assets/images/pictures/slider.png'),
+    liked:true
   },
   {
     id: 6,
@@ -46,6 +52,7 @@ const CardData = [
     rating: '4.5',
     distance: '4.5 km',
     img: require('../assets/images/pictures/slider.png'),
+    liked:true
   },
   {
     id: 7,
@@ -54,6 +61,7 @@ const CardData = [
     rating: '4.5',
     distance: '4.5 km',
     img: require('../assets/images/pictures/slider.png'),
+    liked:false
   },
 ];
 

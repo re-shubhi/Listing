@@ -15,7 +15,6 @@ import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import CategoryListData from './CategoryListData';
 import {useNavigation} from '@react-navigation/native';
-import MidTabs from './MidTabs';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 

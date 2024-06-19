@@ -23,34 +23,6 @@ import About from './About';
 
 const Tab = createMaterialTopTabNavigator();
 
-function MyTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarInactiveTintColor: COLORS.base,
-        tabBarActiveTintColor: COLORS.primary,
-
-        tabBarLabelStyle: {
-          textTransform: 'capitalize',
-          fontSize: fontScale * 15,
-          fontFamily: FONTS.Inter500,
-        },
-
-        tabBarStyle: {
-          backgroundColor: '#F7F7F7',
-          elevation: 0,
-        },
-        tabBarIndicatorStyle: {
-          backgroundColor: COLORS.primary, // Set the color of the indicator
-          height: 3,
-        },
-      }}>
-      <Tab.Screen name="About" component={About} />
-      <Tab.Screen name="Reviews" component={Reviews} />
-    </Tab.Navigator>
-  );
-}
-
 const DetailScreen = () => {
   const [scrollY] = useState(new Animated.Value(0));
   const HEADER_MAX_HEIGHT = 290;
@@ -75,7 +47,7 @@ const DetailScreen = () => {
   });
 
   return (
-    <View stye={styles.screen}>
+    <View style={styles.screen}>
       <Animated.View style={[styles.header, {height: headerHeight}]}>
         <Animated.Image
           style={[
@@ -89,13 +61,16 @@ const DetailScreen = () => {
         />
       </Animated.View>
       <ScrollView
-      // onScroll={Animated.event([
-      //   {nativeEvent: {contentOffset: {y: scrollY}}},
+      onScroll={Animated.event([
+        {nativeEvent: {contentOffset: {y: scrollY}}},
 
-      // ])}
-      // scrollEventThrottle={16}
+      ])}
+      scrollEventThrottle={16}
+      contentContainerStyle={{flexGrow:1}}
       >
+       
         <View style={styles.scrollViewContent}>
+        
           <View style={styles.container}>
             <View style={{rowGap: 4}}>
               <Text style={styles.heading}>Moor Mall</Text>
@@ -146,10 +121,9 @@ const DetailScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
-          <View>
           <MidTabs />
-          </View>
         </View>
+      
       </ScrollView>
     </View>
   );
@@ -183,6 +157,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     marginTop: 290,
+    flexGrow:1,
   },
   rate: {
     fontSize: fontScale * 15,

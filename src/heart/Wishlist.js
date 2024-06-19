@@ -14,10 +14,12 @@ import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import CardData from './CardData';
+import { useNavigation } from '@react-navigation/native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Wishlist = () => {
+  const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2); // State for the number of columns
 
   return (
@@ -39,7 +41,7 @@ const Wishlist = () => {
             renderItem={({item}) => {
               return (
                 <>
-                  <TouchableOpacity TouchableOpacity style={[styles.card,styles.boxWithShadow]}>
+                  <TouchableOpacity onPress={()=>navigation.navigate("DetailScreen")} style={[styles.card,styles.boxWithShadow]}>
                     <Image
                       source={item.img}
                       style={styles.banner}

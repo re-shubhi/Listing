@@ -7,13 +7,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import CardData from '../heart/CardData';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 const PopularList = () => {
+  const [data, setData] = useState(CardData);
+  const toggleHeart = index => {
+    const newData = [...CardData];
+    newData[index].liked = !newData[index].liked;
+    setData(newData);
+  };
   return (
     <>
       <FlatList
@@ -21,7 +27,7 @@ const PopularList = () => {
         keyExtractor={item => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={({item}) => {
+        renderItem={({item,index}) => {
           return (
             <TouchableOpacity style={[styles.box, styles.boxWithShadow]}>
               <Image
@@ -36,9 +42,9 @@ const PopularList = () => {
                     justifyContent: 'space-between',
                   }}>
                   <Text style={styles.CardTitle}>{item.title}</Text>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={()=>toggleHeart(index)}>
                     <Image
-                      source={require('../assets/images/icons/heart.png')}
+                      source={ item.liked ?require('../assets/images/icons/redheart.png'): require('../assets/images/icons/heart.png')}
                       style={{height: 15, width: 15}}
                       resizeMode="contain"
                     />

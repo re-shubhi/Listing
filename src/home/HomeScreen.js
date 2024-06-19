@@ -35,7 +35,7 @@ const HomeScreen = () => {
   return (
     <ScreenBackgroundHome>
       <SafeAreaView style={{flex: 1}}>
-        <ScrollView style={{flexGrow: 1}}>
+        <ScrollView style={{flexGrow: 1}} showsVerticalScrollIndicator={false}>
           <Header backgroundColor={COLORS.base} headerText={'Home'} />
           <View
             style={{
@@ -124,7 +124,9 @@ const HomeScreen = () => {
               <Text style={styles.headingText}>Popular</Text>
               <PopularList />
               <Text style={[styles.headingText,{marginTop:10}]}>Recent</Text>
-              <RecentList/>
+            </View>
+            <View style={{alignItems:"center"}}>
+            <RecentList/>
             </View>
           </View>
         </ScrollView>

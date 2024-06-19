@@ -12,10 +12,12 @@ import React from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
+import { useNavigation } from '@react-navigation/native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ProfileScreen = () => {
+  const navigation = useNavigation();
   return (
     <>
       <SafeAreaView style={styles.screen}>
@@ -45,7 +47,7 @@ const ProfileScreen = () => {
         </View>
         <View style={styles.RemainingScreen}>
           <View style={[styles.OptionContainer, styles.boxWithShadow]}>
-            <TouchableOpacity style={styles.IconButton}>
+            <TouchableOpacity style={styles.IconButton} onPress={()=>navigation.navigate("Wishlist")}>
               <Image
                 source={require('../assets/images/icons/heart.png')}
                 style={{height: 24, width: 24}}
