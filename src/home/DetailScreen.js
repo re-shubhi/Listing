@@ -66,7 +66,7 @@ const DetailScreen = () => {
 
       ])}
       scrollEventThrottle={16}
-      contentContainerStyle={{flexGrow:1}}
+      contentContainerStyle={{flexGrow:1,marginBottom:40}}
       >
        
         <View style={styles.scrollViewContent}>
@@ -102,19 +102,19 @@ const DetailScreen = () => {
                 width: 90,
                 borderRadius: 20,
                 borderWidth: 1,
-                borderColor: 'gray',
+                borderColor:COLORS.cardsBorderColor,
               }}
               resizeMode="contain"
             />
             <View>
-              <Text style={[styles.address, {fontSize: fontScale * 16}]}>
+              <Text style={[styles.address, {fontSize: fontScale * 15}]}>
                 Ferry Road ,Maidenhead
               </Text>
               <TouchableOpacity>
                 <Text
                   style={[
                     styles.heading,
-                    {color: COLORS.primary, paddingTop: 5},
+                    {color: COLORS.primary, paddingTop: Platform.OS === 'ios'?5:2},
                   ]}>
                   Open on maps
                 </Text>
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     flexGrow:1,
   },
   rate: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 14,
     lineHeight: 19,
     fontFamily: FONTS.Inter400,
     color: COLORS.base,
@@ -171,17 +171,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.03,
     paddingVertical: height * 0.02,
     borderBottomWidth: 0.5,
-    borderColor: 'gray',
+    borderColor:COLORS.cardsBorderColor,
     marginHorizontal: 12,
   },
   heading: {
-    fontSize: fontScale * 17,
+    fontSize: fontScale * 16,
     fontFamily: FONTS.Inter600,
     lineHeight: 19,
     color: COLORS.base,
   },
   address: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 14,
     lineHeight: 19,
     fontFamily: FONTS.Inter400,
     color: COLORS.base,

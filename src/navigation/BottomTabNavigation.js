@@ -110,7 +110,7 @@ function MyTabBar({state, descriptors, navigation}) {
 const BottomTabNavigation = () => {
   return (
     <BottomTab.Navigator
-      initialRouteName="HomeScreen"
+      initialRouteName="ProfileScreen"
       screenOptions={{
         headerShown: false,
       }}

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View,TouchableOpacity, Dimensions } from 'react-native'
+import { StyleSheet, Text, View,TouchableOpacity, Dimensions, Platform } from 'react-native'
 import React from 'react'
 import COLORS from '../theme/Colors'
 import FONTS from '../theme/Fonts'
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     button:{
         backgroundColor:COLORS.primary,
         alignItems:"center",
-        paddingVertical:20,
+        paddingVertical:Platform.OS ==='ios'?20: 15,
         borderRadius:10,
     },
     buttonText:{

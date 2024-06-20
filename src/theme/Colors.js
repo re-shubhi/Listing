@@ -11,7 +11,7 @@ const COLORS = {
     borderColor:"#5F5F5F",
     red:"#rgb(234,67,53)",
     darkgray:"#211F1F",
-    cardsBorderColor:"#ECECEC"
+    cardsBorderColor:"#dfdfdf"
 
 }
 export default COLORS;

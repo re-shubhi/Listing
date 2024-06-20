@@ -7,13 +7,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import CardData from '../heart/CardData';
+import {useNavigation} from '@react-navigation/native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 const PopularList = () => {
+  const navigation = useNavigation();
   const [data, setData] = useState(CardData);
   const toggleHeart = index => {
     const newData = [...CardData];
@@ -27,9 +29,11 @@ const PopularList = () => {
         keyExtractor={item => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={({item,index}) => {
+        renderItem={({item, index}) => {
           return (
-            <TouchableOpacity style={[styles.box, styles.boxWithShadow]}>
+            <TouchableOpacity
+              style={[styles.box, styles.boxWithShadow]}
+              onPress={() => navigation.navigate('DetailScreen')}>
               <Image
                 source={item.img}
                 style={{height: 90, width: 90, borderRadius: 10}}
@@ -42,9 +46,13 @@ const PopularList = () => {
                     justifyContent: 'space-between',
                   }}>
                   <Text style={styles.CardTitle}>{item.title}</Text>
-                  <TouchableOpacity onPress={()=>toggleHeart(index)}>
+                  <TouchableOpacity onPress={() => toggleHeart(index)}>
                     <Image
-                      source={ item.liked ?require('../assets/images/icons/redheart.png'): require('../assets/images/icons/heart.png')}
+                      source={
+                        item.liked
+                          ? require('../assets/images/icons/redheart.png')
+                          : require('../assets/images/icons/heart.png')
+                      }
                       style={{height: 15, width: 15}}
                       resizeMode="contain"
                     />
@@ -74,8 +82,8 @@ const PopularList = () => {
           );
         }}
         ItemSeparatorComponent={() => {
-            return <View style={styles.seperator} />;
-          }}
+          return <View style={styles.seperator} />;
+        }}
       />
     </>
   );
@@ -116,15 +124,15 @@ const styles = StyleSheet.create({
     marginVertical: height * 0.01,
   },
   boxWithShadow: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-
-    elevation: 4,
+    shadowOpacity: 0.20,
+    shadowRadius: 1.41,
+    
+    elevation: 2,
   },
   seperator: {width: 15, backgroundColor: 'transparent'},
 });

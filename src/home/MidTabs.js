@@ -1,5 +1,6 @@
 import {
   Dimensions,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -84,17 +85,16 @@ export default function MidTabs() {
 }
 const styles = StyleSheet.create({
   text: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 14,
     color: COLORS.black,
     fontFamily: FONTS.Inter400,
     letterSpacing: 0.3,
-   
   },
   seeText: {
     color: COLORS.primary,
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 13,
     fontFamily: FONTS.Inter400,
     letterSpacing: 0.3,
-    top:3
+    top: Platform.OS === 'ios' ? 3 : 5,
   },
 });

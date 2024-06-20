@@ -9,6 +9,7 @@ import {
   Dimensions,
   FlatList,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import Header from '../components/Header';
@@ -35,7 +36,9 @@ const HomeScreen = () => {
   return (
     <ScreenBackgroundHome>
       <SafeAreaView style={{flex: 1}}>
-        <ScrollView style={{flexGrow: 1}} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{flexGrow: 1, paddingBottom: 30}}>
           <Header backgroundColor={COLORS.base} headerText={'Home'} />
           <View
             style={{
@@ -77,7 +80,7 @@ const HomeScreen = () => {
                 </View>
               )}
               paginationStyle={{marginTop: 100}}
-              paginationStyleItem={{height: 8, width: 30,marginHorizontal:5}}
+              paginationStyleItem={{height: 8, width: 30, marginHorizontal: 5}}
               paginationStyleItemActive={{backgroundColor: 'brown'}}
               paginationStyleItemInactive={{backgroundColor: 'orange'}}
             />
@@ -120,13 +123,19 @@ const HomeScreen = () => {
               />
             </View>
 
-            <View > 
+            <View>
               <Text style={styles.headingText}>Popular</Text>
               <PopularList />
-              <Text style={[styles.headingText,{marginTop:10}]}>Recent</Text>
+              <Text
+                style={[
+                  styles.headingText,
+                  {marginTop: Platform.OS === 'ios' ? 10 : 0},
+                ]}>
+                Recent
+              </Text>
             </View>
-            <View style={{alignItems:"center"}}>
-            <RecentList/>
+            <View style={{alignItems: 'center'}}>
+              <RecentList />
             </View>
           </View>
         </ScrollView>
@@ -143,7 +152,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingVertical: Platform.OS === 'ios' ? 5 : 0,
     borderRadius: 10,
     marginTop: height * 0.01,
   },
@@ -182,7 +191,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   CategoryText: {
-    fontSize: fontScale * 13,
+    fontSize: fontScale * 12,
     fontFamily: FONTS.Inter400,
     lineHeight: 19,
     color: COLORS.base,
@@ -200,7 +209,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
     marginVertical: 8,
   },
-  seperator: {height: 2, backgroundColor: 'transparent'},
+  seperator: {height: 0, backgroundColor: 'transparent'},
   boxWithShadow: {
     shadowColor: '#000',
     shadowOffset: {
@@ -209,14 +218,21 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
-    elevation: 4,
+    elevation: 1,
   },
   headingText: {
     fontSize: fontScale * 16,
     color: COLORS.base,
     fontFamily: FONTS.Inter600,
     lineHeight: 21,
-    paddingLeft:5
+    paddingLeft: 5,
+    marginTop: Platform.OS == 'ios' ? 0 : 8,
   },
-  container:{borderWidth:1,borderRadius:10,borderColor:COLORS.cardsBorderColor}
+  container: {
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: COLORS.cardsBorderColor,
+    alignItems: 'center',
+    
+  },
 });

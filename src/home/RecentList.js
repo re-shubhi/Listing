@@ -3,6 +3,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -32,11 +33,11 @@ const RecentList = () => {
         key={`${numColumns}`} // Change key when numColumns changes
         numColumns={numColumns}
         showsVerticalScrollIndicator={false}
-        renderItem={({item,index}) => {
+        contentContainerStyle={{paddingBottom:30}}
+        renderItem={({item, index}) => {
           return (
             <>
               <TouchableOpacity
-                TouchableOpacity
                 style={[styles.card, styles.boxWithShadow]}
                 onPress={() => navigation.navigate('DetailScreen')}>
                 <Image
@@ -98,15 +99,14 @@ export default RecentList;
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
-    maxWidth: 185,
-    padding: 10,
-    maxHeight: 200,
-    borderWidth: 0.15,
+    maxWidth: width * 0.44,
+    padding:  Platform.OS === 'ios' ? 10:5,
+    maxHeight: height * 0.3,
     marginHorizontal: 2,
     borderRadius: 10,
-    marginTop: 5,
+    marginTop: Platform.OS === 'ios' ? 5 : 8,
   },
-  banner: {height: 90, width: 170, alignSelf: 'center', borderRadius: 10},
+  banner: {height:height*0.1, width: width*0.42, alignSelf: 'center', borderRadius: 10},
   boxWithShadow: {
     shadowColor: '#000',
     shadowOffset: {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
 
-    elevation: 8,
+    elevation: 2,
   },
   content: {
     flexDirection: 'row',
@@ -131,22 +131,22 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     alignItems: 'center',
   },
-  seperator: {height: 10, backgroundColor: 'transparent'},
+  seperator: {height:Platform.OS === 'ios'?10: 0, backgroundColor: 'transparent'},
   CardTitle: {
-    fontSize: fontScale * 17,
+    fontSize: fontScale * 16,
     fontFamily: FONTS.Inter600,
     lineHeight: 21,
     color: COLORS.base,
   },
   address: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 14,
     lineHeight: 19,
     fontFamily: FONTS.Inter400,
     color: COLORS.base,
     paddingHorizontal: 5,
   },
   rate: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 13,
     lineHeight: 19,
     fontFamily: FONTS.Inter400,
     color: COLORS.base,

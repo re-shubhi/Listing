@@ -1,6 +1,7 @@
 import {
   Dimensions,
   Image,
+  Platform,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -12,7 +13,7 @@ import React from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -30,7 +31,7 @@ const ProfileScreen = () => {
         <View style={styles.container}>
           <Image
             source={require('../assets/images/pictures/profile.png')}
-            style={{height: 64, width: 64, borderRadius: 10}}
+            style={{height: 100, width: 100, borderRadius: 100}}
             resizeMode="contain"
           />
           <View>
@@ -38,7 +39,7 @@ const ProfileScreen = () => {
             <Text
               style={{
                 ...styles.name,
-                fontSize: fontScale * 15,
+                fontSize: fontScale * 14,
                 lineHeight: 20,
               }}>
               andrewwhitesides@gmail.com
@@ -47,10 +48,12 @@ const ProfileScreen = () => {
         </View>
         <View style={styles.RemainingScreen}>
           <View style={[styles.OptionContainer, styles.boxWithShadow]}>
-            <TouchableOpacity style={styles.IconButton} onPress={()=>navigation.navigate("Wishlist")}>
+            <TouchableOpacity
+              style={styles.IconButton}
+              onPress={() => navigation.navigate('Wishlist')}>
               <Image
                 source={require('../assets/images/icons/heart.png')}
-                style={{height: 24, width: 24}}
+                style={styles.icon}
                 resizeMode="contain"
               />
               <Text style={styles.iconText}>Wishlist</Text>
@@ -58,30 +61,32 @@ const ProfileScreen = () => {
             <TouchableOpacity style={styles.IconButton}>
               <Image
                 source={require('../assets/images/icons/star.png')}
-                style={{height: 24, width: 24}}
+                style={styles.icon}
                 resizeMode="contain"
               />
               <Text style={styles.iconText}>Following</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.IconButton}>
+            <TouchableOpacity
+              style={styles.IconButton}
+              onPress={() => navigation.navigate('EditProfile')}>
               <Image
-                source={require('../assets/images/icons/chat2.png')}
-                style={{height: 24, width: 24}}
+                source={require('../assets/images/icons/edit.png')}
+                style={styles.icon}
                 resizeMode="contain"
               />
-              <Text style={styles.iconText}>Messages</Text>
+              <Text style={styles.iconText}>Edit</Text>
             </TouchableOpacity>
           </View>
           <View style={[styles.ContainerBox, styles.boxWithShadow]}>
             <View style={styles.box}>
               <Text style={styles.Heading}>Basic Details</Text>
-              <TouchableOpacity>
+              {/* <TouchableOpacity>
                 <Image
                   source={require('../assets/images/icons/edit.png')}
                   style={{height: 20, width: 20}}
                   resizeMode="contain"
                 />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             <View style={styles.box}>
               <Text style={styles.Heading}>Name</Text>
@@ -115,13 +120,13 @@ const styles = StyleSheet.create({
   },
   name: {
     color: COLORS.white,
-    fontSize: fontScale * 20,
+    fontSize: fontScale * 18,
     fontFamily: FONTS.Inter500,
     lineHeight: 24.2,
   },
   container: {
     backgroundColor: COLORS.base,
-    paddingVertical: height * 0.02,
+    paddingVertical: Platform.OS === 'ios' ? height * 0.03 : height * 0.04,
     paddingHorizontal: width * 0.05,
     flexDirection: 'row',
     columnGap: 20,
@@ -140,18 +145,21 @@ const styles = StyleSheet.create({
     paddingVertical: height * 0.01,
     paddingHorizontal: width * 0.05,
     borderRadius: 10,
-    borderWidth: 0.16,
   },
   boxWithShadow: {
-    shadowColor: '#000000',
-    shadowOffset: {width: 0, height: 3},
-    shadowOpacity: 0.29,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
     shadowRadius: 4.65,
-    elevation: 5,
+
+    elevation: 2,
   },
   icon: {
-    height: 24,
-    width: 24,
+    height: 22,
+    width: 22,
   },
   IconButton: {
     alignItems: 'center',
@@ -159,7 +167,7 @@ const styles = StyleSheet.create({
     rowGap: 10,
   },
   iconText: {
-    fontSize: fontScale * 16,
+    fontSize: fontScale * 15,
     fontFamily: FONTS.Inter400,
     lineHeight: 21,
     color: COLORS.base,
@@ -175,17 +183,16 @@ const styles = StyleSheet.create({
     paddingVertical: height * 0.01,
     paddingHorizontal: width * 0.05,
     borderRadius: 10,
-    borderWidth: 0.16,
     marginVertical: height * 0.02,
   },
   Heading: {
-    fontSize: fontScale * 17,
+    fontSize: fontScale * 16,
     fontFamily: FONTS.Inter400,
     lineHeight: 21,
     color: COLORS.base,
   },
   subText: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 14,
     fontFamily: FONTS.Inter500,
     lineHeight: 19,
     color: COLORS.base,

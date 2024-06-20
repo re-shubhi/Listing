@@ -33,8 +33,8 @@ const Header = ({headerText, tintColor, backicon,backgroundColor}) => {
           <Image
             source={require('../assets/images/icons/backicon.png')}
             style={{
-              height: 22,
-              width: 22,
+              height: 20,
+              width: 20,
               marginLeft: 10,
               tintColor: tintColor,
             }}
