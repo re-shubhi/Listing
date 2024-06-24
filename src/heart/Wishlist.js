@@ -22,6 +22,21 @@ const {height, width, fontScale} = Dimensions.get('screen');
 const Wishlist = () => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2); // State for the number of columns
+  const [data, setData] = useState(CardData);
+
+  const toggleHeart = index => {
+    const newData = [...data]; // Create a copy of the current data state
+    newData[index].liked = !newData[index].liked; // Toggle liked status
+  
+    // Remove item from wishlist if unliked
+    //splice - At position 2, remove 2 items
+    if (!newData[index].liked) {
+      newData.splice(index, 1); // Remove item from newData array
+    }
+  
+    setData(newData); // Update state with modified newData
+  };
+  
 
   return (
     <ScreenWithBackground>
@@ -34,12 +49,12 @@ const Wishlist = () => {
         />
         <View style={styles.fullScreenRed}>
           <FlatList
-            data={CardData}
+            data={CardData.filter((item)=>item.liked)}
             key={`${numColumns}`} // Change key when numColumns changes
             numColumns={numColumns}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: 30}}
-            renderItem={({item}) => {
+            renderItem={({item,index}) => {
               return (
                 <>
                   <TouchableOpacity
@@ -54,12 +69,16 @@ const Wishlist = () => {
                       <Text numberOfLines={1} style={styles.CardTitle}>
                         {item.title}
                       </Text>
-                      <TouchableOpacity>
-                        <Image
-                          source={require('../assets/images/icons/redheart.png')}
-                          style={{height: 20, width: 20}}
-                          resizeMode="contain"
-                        />
+                      <TouchableOpacity onPress={() => toggleHeart(index)}>
+                      <Image
+                      source={
+                        item.liked
+                          ? require('../assets/images/icons/redheart.png')
+                          : require('../assets/images/icons/heart.png')
+                      }
+                      style={{height: 15, width: 15}}
+                      resizeMode="contain"
+                    />
                       </TouchableOpacity>
                     </View>
                     <Text numberOfLines={1} style={styles.address}>

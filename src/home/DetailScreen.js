@@ -67,6 +67,7 @@ const DetailScreen = () => {
       ])}
       scrollEventThrottle={16}
       contentContainerStyle={{flexGrow:1,marginBottom:40}}
+      showsVerticalScrollIndicator={false}
       >
        
         <View style={styles.scrollViewContent}>

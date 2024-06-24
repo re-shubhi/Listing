@@ -12,6 +12,7 @@ import ResetPassword from '../auth/ResetPassword';
 import Categories from '../home/Categories';
 import ParticularCategory from '../home/ParticularCategory';
 import DetailScreen from '../home/DetailScreen';
+import EditProfile from '../profile/EditProfile';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,7 +20,7 @@ const Navigation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="BottomTabNavigation"
+        initialRouteName="SplashScreen"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="BottomTabNavigation" component={BottomTabNavigation} />
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
@@ -31,6 +32,7 @@ const Navigation = () => {
         <Stack.Screen name="Categories" component={Categories} />
         <Stack.Screen name="ParticularCategory" component={ParticularCategory} />
         <Stack.Screen name="DetailScreen" component={DetailScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
       </Stack.Navigator>
     </NavigationContainer>
   );

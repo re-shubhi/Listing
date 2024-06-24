@@ -10,6 +10,9 @@ import {
   FlatList,
   TouchableOpacity,
   Platform,
+  StatusBar,
+  BackHandler,
+  Alert,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import Header from '../components/Header';
@@ -18,7 +21,7 @@ import FONTS from '../theme/Fonts';
 import ScreenBackgroundHome from '../components/ScreenBackgroundHome';
 import SwiperFlatList from 'react-native-swiper-flatlist';
 import CategoryListData from './CategoryListData';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import PopularList from './PopularList';
 import RecentList from './RecentList';
 
@@ -33,9 +36,43 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(4);
   const [search, setSearch] = useState('');
+
+  const backButtonHandler = () => {
+    Alert.alert(
+      "Exit App",
+      "Are you sure you want to exit the app?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Exit",
+          onPress: () => BackHandler.exitApp(),
+        },
+      ],
+      {
+        cancelable: false,
+      }
+    );
+    return true;
+  };
+
+  useFocusEffect(
+    React.useCallback(()=>{
+      BackHandler.addEventListener("hardwareBackPress",backButtonHandler);
+
+      return()=>{
+        BackHandler.removeEventListener("hardwareBackPress",backButtonHandler)
+      }
+    },[])
+  )
+
   return (
     <ScreenBackgroundHome>
       <SafeAreaView style={{flex: 1}}>
+      <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{flexGrow: 1, paddingBottom: 30}}>
@@ -47,7 +84,7 @@ const HomeScreen = () => {
             <View style={styles.search}>
               <Image
                 source={require('../assets/images/icons/search.png')}
-                style={{height: 25, width: 25}}
+                style={{height: 20, width: 20}}
                 resizeMode="contain"
               />
               <TextInput
@@ -59,7 +96,7 @@ const HomeScreen = () => {
               />
               <Image
                 source={require('../assets/images/icons/filter.png')}
-                style={{height: 25, width: 25}}
+                style={{height: 20, width: 20}}
                 resizeMode="contain"
               />
             </View>
@@ -81,8 +118,8 @@ const HomeScreen = () => {
               )}
               paginationStyle={{marginTop: 100}}
               paginationStyleItem={{height: 8, width: 30, marginHorizontal: 5}}
-              paginationStyleItemActive={{backgroundColor: 'brown'}}
-              paginationStyleItemInactive={{backgroundColor: 'orange'}}
+              paginationStyleItemActive={{backgroundColor: COLORS.primary}}
+              paginationStyleItemInactive={{backgroundColor:COLORS.borderColor}}
             />
           </View>
           <View style={styles.secondHalf}>
@@ -161,7 +198,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.darkgray,
     paddingVertical: 12,
     paddingHorizontal: 10,
-    fontSize: fontScale * 17,
+    fontSize: fontScale * 16,
     fontFamily: FONTS.Inter400,
     color: COLORS.white,
   },

@@ -5,6 +5,7 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -80,7 +81,7 @@ function MyTabBar({state, descriptors, navigation}) {
             style={{
               flex: 1,
               alignItems: 'center',
-              paddingBottom: 14,
+              paddingBottom: Platform.OS === 'ios' ? 14 : 0,
               backgroundColor: COLORS.white,
               paddingHorizontal: 10,
             }}>
@@ -94,8 +95,8 @@ function MyTabBar({state, descriptors, navigation}) {
               <Image
                 source={iconName}
                 style={{
-                  height: 24,
-                  width: 24,
+                  height: 22,
+                  width: 22,
                 }}
                 resizeMode="contain"
               />
@@ -110,7 +111,7 @@ function MyTabBar({state, descriptors, navigation}) {
 const BottomTabNavigation = () => {
   return (
     <BottomTab.Navigator
-      initialRouteName="ProfileScreen"
+      initialRouteName="HomeScreen"
       screenOptions={{
         headerShown: false,
       }}

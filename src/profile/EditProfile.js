@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   StatusBar,
   Alert,
+  PermissionsAndroid,
 } from 'react-native';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
@@ -77,6 +78,8 @@ const data = [
         // includeBase64: true,
       }).then(image => {
         setFieldValue('profilePic', image.path);
+      }).catch((error) => {
+        console.log(error);
       });
     }, 1000);
   };
@@ -90,6 +93,8 @@ const data = [
         quality: 'high',
       }).then(image => {
         setFieldValue('profilePic', image.path);
+      }).catch((error) => {
+        console.log(error);
       });
     }, 1000);
   };
@@ -144,9 +149,15 @@ const data = [
                 <TouchableOpacity
                   style={[
                     styles.edit,
+                    Platform.OS === 'ios'?
                     {
                       bottom: errors.profilePic ? 50 : 20,
-                      right: errors.profilePic ? 165 : 160,
+                      right:errors.profilePic ? 165 : 160,
+                    }:
+
+                    {
+                      bottom: errors.profilePic ? 55 : 30,
+                      right:errors.profilePic ? 132 : 130,
                     },
                   ]}
                   onPress={() => onSelectImage('profilePic', setFieldValue)}
@@ -158,7 +169,7 @@ const data = [
                   />
                 </TouchableOpacity>
                 {errors.profilePic && touched.profilePic && (
-                  <Text style={[styles.errorText, {marginTop: 10}]}>
+                  <Text style={[styles.errorText, {marginTop: Platform.OS==='ios'?10:5}]}>
                     {errors.profilePic}
                   </Text>
                 )}

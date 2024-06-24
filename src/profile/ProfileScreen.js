@@ -22,6 +22,7 @@ const ProfileScreen = () => {
   return (
     <>
       <SafeAreaView style={styles.screen}>
+      <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
         <Header
           backicon={true}
           headerText={'Profile'}

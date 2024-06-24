@@ -7,6 +7,9 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import Header from '../components/Header';
@@ -35,74 +38,83 @@ const OtpScreen = () => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header  backicon/>
-
-      <View style={styles.container}>
-        <View style={styles.TextContainer}>
-          <Text style={styles.heading}>Enter 4 digit code</Text>
-          <Text style={styles.subheading}>
-            Enter the 4 digit code that you received on your email
-          </Text>
-        </View>
-        <View>
-          <CodeField
-            ref={codeInputRef}
-            {...props}
-            value={value}
-            onChangeText={setValue}
-            cellCount={CELL_COUNT}
-            rootStyle={styles.codeFieldRoot}
-            keyboardType="number-pad"
-            textContentType="oneTimeCode"
-            autoComplete={Platform.select({
-              android: 'sms-otp',
-              default: 'one-time-code',
-            })}
-            testID="my-code-input"
-            renderCell={({index, symbol, isFocused}) => (
-              <Text
-                key={index}
-                style={[styles.cell, isFocused && styles.focusCell]}
-                onLayout={getCellOnLayoutHandler(index)}>
-                {symbol || (isFocused ? <Cursor /> : null)}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{flex: 1}}>
+        <Header backicon />
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.container}>
+            <View style={styles.TextContainer}>
+              <Text style={styles.heading}>Enter 4 digit code</Text>
+              <Text style={styles.subheading}>
+                Enter the 4 digit code that you received on your email
               </Text>
-            )}
-          />
-        </View>
-        <View style={{marginTop: 10}}>
-          <Button
-            buttonTxt={'Continue'}
-            onPress={() => {
-              console.log('CONTINUE',value);
-              navigation.navigate('ResetPassword');
-            }}
-          />
-        </View>
-        <View style={styles.forgotView}>
-          <TouchableOpacity
-            onPress={() => {
-              console.log('RESEND');
-            }}>
-            <Text style={styles.forgotText}>Resend OTP</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            </View>
+            <View>
+              <CodeField
+                ref={codeInputRef}
+                {...props}
+                value={value}
+                onChangeText={setValue}
+                cellCount={CELL_COUNT}
+                rootStyle={styles.codeFieldRoot}
+                keyboardType="number-pad"
+                textContentType="oneTimeCode"
+                autoComplete={Platform.select({
+                  android: 'sms-otp',
+                  default: 'one-time-code',
+                })}
+                testID="my-code-input"
+                renderCell={({index, symbol, isFocused}) => (
+                  <Text
+                    key={index}
+                    style={[styles.cell, isFocused && styles.focusCell]}
+                    onLayout={getCellOnLayoutHandler(index)}>
+                    {symbol || (isFocused ? <Cursor /> : null)}
+                  </Text>
+                )}
+              />
+            </View>
+            <View style={{marginTop: 10}}>
+              <Button
+                buttonTxt={'Continue'}
+                onPress={() => {
+                  console.log('CONTINUE', value);
+                  navigation.navigate('ResetPassword');
+                }}
+              />
+            </View>
+            <View style={styles.forgotView}>
+              <TouchableOpacity
+                onPress={() => {
+                  console.log('RESEND');
+                }}>
+                <Text style={styles.forgotText}>Resend OTP</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
-      <View style={styles.registerLink}>
-        <Text
-          style={[
-            styles.linkText,
-            {color: COLORS.black, fontFamily: FONTS.Inter400},
-          ]}>
-          Already have an account ?
-        </Text>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Login');
-          }}>
-          <Text style={styles.linkText}> Login Now</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.registerLink}>
+            <Text
+              style={[
+                styles.linkText,
+                {color: COLORS.black, fontFamily: FONTS.Inter400},
+              ]}>
+              Already have an account ?
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('Login');
+              }}>
+              <Text style={styles.linkText}> Login Now</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -137,6 +149,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
     paddingTop: 5,
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 200,
+  },
   codeinput: {
     color: COLORS.red,
     fontFamily: FONTS.Inter500,
@@ -151,11 +170,14 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   registerLink: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    alignItems: 'center',
     position: 'absolute',
-    bottom: 28,
+    bottom: Platform.OS === 'ios' ? 5 : 22,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
   },
   linkText: {
     fontSize: fontScale * 16,
@@ -164,28 +186,31 @@ const styles = StyleSheet.create({
   },
   root: {flex: 1},
   title: {textAlign: 'center', fontSize: 30},
-  codeFieldRoot: {marginVertical: 15, marginHorizontal: 30},
+  codeFieldRoot: {marginVertical: 15, alignSelf:"center"},
   cell: {
     width: 60,
     height: 60,
     fontSize: fontScale * 20,
     borderWidth: 1,
-    borderColor: COLORS.borderColor,
+    borderColor:Platform.OS === 'ios'?COLORS.base: COLORS.borderColor,
     borderRadius: 10,
     textAlign: 'center',
     color: COLORS.black,
     fontFamily: FONTS.Inter600,
     lineHeight: 55,
+    marginHorizontal: 10, 
   },
+  
   focusCell: {
     borderColor: '#000',
+    paddingHorizontal:10
   },
   forgotView: {
     paddingTop: 20,
     alignItems: 'flex-end',
   },
   forgotText: {
-    fontSize: fontScale * 16,
+    fontSize: fontScale * 14,
     color: COLORS.heading,
     fontFamily: FONTS.Inter400,
   },

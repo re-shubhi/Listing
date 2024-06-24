@@ -3,7 +3,9 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   SafeAreaView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -23,9 +25,16 @@ const ParticularCategory = props => {
   const [numColumns, setNumColumns] = useState(2);
   const Data = props.route.params.data;
   console.log('Data=====', Data);
+  const [data, setData] = useState(CardData);
+  const toggleHeart = index => {
+    const newData = [...CardData];
+    newData[index].liked = !newData[index].liked;
+    setData(newData);
+  };
   return (
     <ScreenWithBackground>
       <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
         <Header
           backicon={true}
           backgroundColor={COLORS.base}
@@ -39,7 +48,7 @@ const ParticularCategory = props => {
             key={`${numColumns}`} // Change key when numColumns changes
             numColumns={numColumns}
             showsVerticalScrollIndicator={false}
-            renderItem={({item}) => {
+            renderItem={({item,index}) => {
               return (
                 <>
                   <TouchableOpacity
@@ -55,12 +64,16 @@ const ParticularCategory = props => {
                       <Text numberOfLines={1} style={styles.CardTitle}>
                         {item.title}
                       </Text>
-                      <TouchableOpacity>
-                        <Image
-                          source={require('../assets/images/icons/redheart.png')}
-                          style={{height: 20, width: 20}}
-                          resizeMode="contain"
-                        />
+                      <TouchableOpacity  onPress={() => toggleHeart(index)}>
+                      <Image
+                      source={
+                        item.liked
+                          ? require('../assets/images/icons/redheart.png')
+                          : require('../assets/images/icons/heart.png')
+                      }
+                      style={{height: 15, width: 15}}
+                      resizeMode="contain"
+                    />
                       </TouchableOpacity>
                     </View>
                     <Text numberOfLines={1} style={styles.address}>
@@ -111,38 +124,43 @@ const styles = StyleSheet.create({
     marginHorizontal: width * 0.02,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
-    paddingHorizontal: width * 0.04,
-    paddingTop: height * 0.01,
+    alignItems: 'center',
+    paddingVertical: Platform.OS === 'ios' ? height * 0.01 : height * 0.005,
   },
   CardTitle: {
-    fontSize: fontScale * 17,
+    fontSize: fontScale * 16,
     fontFamily: FONTS.Inter600,
     lineHeight: 21,
     color: COLORS.black,
   },
   address: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 14,
     lineHeight: 19,
     fontFamily: FONTS.Inter400,
     color: COLORS.base,
     paddingHorizontal: 5,
   },
   rate: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 13,
     lineHeight: 19,
     fontFamily: FONTS.Inter400,
     color: COLORS.base,
   },
   card: {
     backgroundColor: COLORS.white,
-    maxWidth: 185,
-    padding: 10,
-    maxHeight: 200,
-    borderWidth: 0.15,
+    maxWidth: width * 0.44,
+    padding: Platform.OS === 'ios' ? 10 : 5,
+    maxHeight: height * 0.3,
     marginHorizontal: 2,
     borderRadius: 10,
+    marginTop: Platform.OS === 'ios' ? 5 : 8,
   },
-  banner: {height: 90, width: 170, alignSelf: 'center', borderRadius: 10},
+  banner: {
+    height: height * 0.1,
+    width: width * 0.42,
+    alignSelf: 'center',
+    borderRadius: 10,
+  },
   content: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -156,7 +174,7 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     alignItems: 'center',
   },
-  seperator: {height: 10, backgroundColor: 'transparent'},
+  seperator: {height:Platform.OS === 'ios'?10: 0, backgroundColor: 'transparent'},
   boxWithShadow: {
     shadowColor: '#000',
     shadowOffset: {
@@ -166,6 +184,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
 
-    elevation: 8,
+    elevation: 2,
   },
 });

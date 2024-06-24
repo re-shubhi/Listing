@@ -11,6 +11,7 @@ import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import {Rating, AirbnbRating} from 'react-native-ratings';
 import Button from '../components/Button';
+import {showMessage} from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 const Reviews = () => {
@@ -19,7 +20,7 @@ const Reviews = () => {
     <>
       <View
         style={{
-          backgroundColor:COLORS.white,
+          backgroundColor: COLORS.white,
           flex: 1,
           padding: 20,
         }}>
@@ -46,12 +47,26 @@ const Reviews = () => {
           multiline={true}
           numberOfLines={4}
           value={comment}
-          onChangeText={(text)=>{
-            console.log("COMMMENTTT",text)
-            setComment(text)}}
-          />
+          onChangeText={text => {
+            console.log('COMMMENTTT', text);
+            setComment(text);
+          }}
+        />
         <View style={{paddingVertical: height * 0.01}}>
-          <Button buttonTxt={'Submit'} />
+          <Button
+            buttonTxt={'Submit'}
+            onPress={() =>
+              {{
+                console.log("Submitted");
+                showMessage({
+                  message: 'Review Submitted',
+                  icon: 'success',
+                  type: 'success',
+                })
+              }}
+           
+            }
+          />
         </View>
       </View>
     </>
@@ -75,7 +90,7 @@ const styles = StyleSheet.create({
   },
   textinput: {
     backgroundColor: COLORS.white,
-    paddingVertical: Platform.OS === 'ios' ? 20 : height * 0.014,
+    paddingVertical: Platform.OS === 'ios' ? 20 : 10,
     borderRadius: 10,
     paddingHorizontal: 20,
     borderWidth: 1,

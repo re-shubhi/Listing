@@ -1,22 +1,30 @@
-import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import React, { useEffect } from 'react';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
-const SplashScreen = () => {
+const SplashScreen = (props) => {
 const navigation = useNavigation();
 
 //timeout to navigate LoginScreen
-useEffect(()=>{
-  const timer = setTimeout(()=>{
-    navigation.navigate("Login");
-  },4000)
-  return () => clearTimeout(timer)
-},[navigation]);
+useEffect(() => {
+  const timer = setTimeout(() => {
+    props?.navigation?.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Login" }]  
+      })
+    );
+  }, 4000);
+
+  return () => clearTimeout(timer);
+}, [props.navigation]);  // Fixed dependency array to include props.navigation
+
 
   return (
     <SafeAreaView style={styles.screen}>
+      <StatusBar backgroundColor={COLORS.initial} barStyle={'dark-content'}/>
       <View style={styles.container}>
         <Text style={styles.welcome}>Welcome</Text>
         <View style={{flexDirection: 'row'}}>

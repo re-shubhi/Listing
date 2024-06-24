@@ -1,12 +1,14 @@
 import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import FONTS from './src/theme/Fonts';
-import COLORS from './src/theme/Colors';
 import Navigation from './src/navigation/Navigation';
+import FlashMessage from 'react-native-flash-message';
 
 const App = () => {
   return (
+    <>
+      <FlashMessage position="bottom" />
       <Navigation />
+    </>
   );
 };
 

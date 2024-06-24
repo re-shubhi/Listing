@@ -7,6 +7,9 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Platform,
+  ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../components/Header';
@@ -49,155 +52,167 @@ const Register = () => {
 
   const [secure, setSecure] = useState({password: true, confirmPassword: true});
 
-  const toggleSecure = (field) =>{
-    setSecure((prevSecure) => ({ ...prevSecure, [field]: !prevSecure[field] }));
-  }
+  const toggleSecure = field => {
+    setSecure(prevSecure => ({...prevSecure, [field]: !prevSecure[field]}));
+  };
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header  backicon/>
-      <Formik
-        initialValues={{
-          email: '',
-          password: '',
-          username: '',
-          confirmPassword: '',
-        }}
-        validationSchema={validationSchema}
-        onSubmit={() => {
-          navigation?.navigate('Login');
-        }}>
-        {({
-          values,
-          errors,
-          touched,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-        }) => (
-          <View style={styles.container}>
-            <View style={styles.TextContainer}>
-              <Text style={styles.heading}>Hello! Register to get started</Text>
-            </View>
-            <View style={{marginVertical: 10}}>
-              <TextInput
-                style={styles.textinput}
-                placeholder="Username"
-                placeholderTextColor={COLORS.placeholder}
-                value={values.username}
-                onChangeText={handleChange('username')}
-                onBlur={handleBlur('username')}
-                maxLength={60}
-              />
-              {errors.username && touched.username && (
-                <Text style={styles.errorText}>{errors.username}</Text>
-              )}
-            </View>
-            <View style={{marginBottom: 10}}>
-              <TextInput
-                style={styles.textinput}
-                placeholder="Email"
-                placeholderTextColor={COLORS.placeholder}
-                value={values.email}
-                onChangeText={handleChange('email')}
-                onBlur={handleBlur('email')}
-                maxLength={60}
-              />
-              {errors.email && touched.email && (
-                <Text style={styles.errorText}>{errors.email}</Text>
-              )}
-            </View>
-            <View style={styles.textinputPassword}>
-              <TextInput
-                style={[
-                  styles.textinput,
-                  {
-                    flex: 1,
-                    borderWidth: 0,
-                    borderColor: 'transparent',
-                  },
-                ]}
-                placeholder="Password"
-                placeholderTextColor={COLORS.placeholder}
-                secureTextEntry={secure}
-                value={values.password}
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
-              />
-              <TouchableOpacity
-                onPress={() => {
-                    toggleSecure('password');
-                }}>
-                <Image
-                  source={
-                    secure.password
-                      ? require('../assets/images/icons/eye-off.png')
-                      : require('../assets/images/icons/eye.png')
-                  }
-                  style={{height: 24, width: 24}}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-            </View>
-            {errors.password && touched.password && (
-              <Text style={styles.errorText}>{errors.password}</Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{flex: 1}}>
+        <Header backicon />
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <Formik
+            initialValues={{
+              email: '',
+              password: '',
+              username: '',
+              confirmPassword: '',
+            }}
+            validationSchema={validationSchema}
+            onSubmit={() => {
+              navigation?.navigate('Login');
+            }}>
+            {({
+              values,
+              errors,
+              touched,
+              handleBlur,
+              handleChange,
+              handleSubmit,
+            }) => (
+              <View style={styles.container}>
+                <View style={styles.TextContainer}>
+                  <Text style={styles.heading}>
+                    Hello! Register to get started
+                  </Text>
+                </View>
+                <View style={{marginVertical: 10}}>
+                  <TextInput
+                    style={styles.textinput}
+                    placeholder="Username"
+                    placeholderTextColor={COLORS.placeholder}
+                    value={values.username}
+                    onChangeText={handleChange('username')}
+                    onBlur={handleBlur('username')}
+                    maxLength={60}
+                  />
+                  {errors.username && touched.username && (
+                    <Text style={styles.errorText}>{errors.username}</Text>
+                  )}
+                </View>
+                <View style={{marginBottom: 10}}>
+                  <TextInput
+                    style={styles.textinput}
+                    placeholder="Email"
+                    placeholderTextColor={COLORS.placeholder}
+                    value={values.email}
+                    onChangeText={handleChange('email')}
+                    onBlur={handleBlur('email')}
+                    maxLength={60}
+                  />
+                  {errors.email && touched.email && (
+                    <Text style={styles.errorText}>{errors.email}</Text>
+                  )}
+                </View>
+                <View style={styles.textinputPassword}>
+                  <TextInput
+                    style={[
+                      styles.textinput,
+                      {
+                        flex: 1,
+                        borderWidth: 0,
+                        borderColor: 'transparent',
+                      },
+                    ]}
+                    placeholder="Password"
+                    placeholderTextColor={COLORS.placeholder}
+                    // secureTextEntry={secure}
+                    value={values.password}
+                    onChangeText={handleChange('password')}
+                    onBlur={handleBlur('password')}
+                  />
+                  <TouchableOpacity
+                    onPress={() => {
+                      toggleSecure('password');
+                    }}>
+                    <Image
+                      source={
+                        secure.password
+                          ? require('../assets/images/icons/eye-off.png')
+                          : require('../assets/images/icons/eye.png')
+                      }
+                      style={{height: 20, width: 20,tintColor:COLORS.heading}}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                </View>
+                {errors.password && touched.password && (
+                  <Text style={styles.errorText}>{errors.password}</Text>
+                )}
+                <View style={[styles.textinputPassword, {marginTop: 10}]}>
+                  <TextInput
+                    style={[
+                      styles.textinput,
+                      {
+                        flex: 1,
+                        borderWidth: 0,
+                        borderColor: 'transparent',
+                      },
+                    ]}
+                    placeholder="Confirm Password"
+                    placeholderTextColor={COLORS.placeholder}
+                    // secureTextEntry={secure}
+                    value={values.confirmPassword}
+                    onChangeText={handleChange('confirmPassword')}
+                    onBlur={handleBlur('confirmPassword')}
+                  />
+                  <TouchableOpacity
+                    onPress={() => {
+                      toggleSecure('confirmPassword');
+                    }}>
+                    <Image
+                      source={
+                        secure.confirmPassword
+                          ? require('../assets/images/icons/eye-off.png')
+                          : require('../assets/images/icons/eye.png')
+                      }
+                      style={{height: 20, width: 20,tintColor:COLORS.heading}}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                </View>
+                {errors.confirmPassword && touched.confirmPassword && (
+                  <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+                )}
+                <View style={{marginTop: 15}}>
+                  <Button buttonTxt={'Register'} onPress={handleSubmit} />
+                </View>
+              </View>
             )}
-            <View style={[styles.textinputPassword, {marginTop: 10}]}>
-              <TextInput
-                style={[
-                  styles.textinput,
-                  {
-                    flex: 1,
-                    borderWidth: 0,
-                    borderColor: 'transparent',
-                  },
-                ]}
-                placeholder="Confirm Password"
-                placeholderTextColor={COLORS.placeholder}
-                secureTextEntry={secure}
-                value={values.confirmPassword}
-                onChangeText={handleChange('confirmPassword')}
-                onBlur={handleBlur('confirmPassword')}
-              />
-              <TouchableOpacity
-                onPress={() => {
-                    toggleSecure('confirmPassword');
-                }}>
-                <Image
-                  source={
-                    secure.confirmPassword
-                      ? require('../assets/images/icons/eye-off.png')
-                      : require('../assets/images/icons/eye.png')
-                  }
-                  style={{height: 24, width: 24}}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-            </View>
-            {errors.confirmPassword && touched.confirmPassword && (
-              <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-            )}
-            <View style={{marginTop: 15}}>
-              <Button buttonTxt={'Register'} onPress={handleSubmit} />
-            </View>
+          </Formik>
+          <View style={styles.registerLink}>
+            <Text
+              style={[
+                styles.linkText,
+                {color: COLORS.black, fontFamily: FONTS.Inter400},
+              ]}>
+              Already have an account ?
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('Login');
+              }}>
+              <Text style={styles.linkText}> Login Now</Text>
+            </TouchableOpacity>
           </View>
-        )}
-      </Formik>
-      <View style={styles.registerLink}>
-        <Text
-          style={[
-            styles.linkText,
-            {color: COLORS.black, fontFamily: FONTS.Inter400},
-          ]}>
-          Already have an account ?
-        </Text>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('Login');
-          }}>
-          <Text style={styles.linkText}> Login Now</Text>
-        </TouchableOpacity>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -214,9 +229,16 @@ const styles = StyleSheet.create({
     paddingVertical: 22,
     marginTop: height * 0.08,
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 200,
+  },
   heading: {
     color: COLORS.heading,
-    fontSize:fontScale* 30,
+    fontSize: fontScale * 30,
     textAlign: 'left',
     fontFamily: FONTS.Inter600,
     letterSpacing: 0.3,
@@ -227,12 +249,12 @@ const styles = StyleSheet.create({
   },
   textinput: {
     backgroundColor: COLORS.white,
-    paddingVertical: 20,
+    paddingVertical: Platform.OS === 'ios' ? 20 : height * 0.014,
     borderRadius: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
-    fontSize: fontScale * 17,
+    fontSize: fontScale * 16,
     fontFamily: FONTS.Inter400,
     color: COLORS.black,
   },
@@ -253,11 +275,14 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   registerLink: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    alignItems: 'center',
     position: 'absolute',
-    bottom: 28,
+    bottom: Platform.OS === 'ios' ? 40 : 42,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
   },
   linkText: {
     fontSize: fontScale * 16,
