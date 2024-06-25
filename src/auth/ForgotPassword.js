@@ -19,6 +19,7 @@ import {useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
+import { showMessage } from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -51,6 +52,10 @@ const ForgotPassword = () => {
             validationSchema={validationSchema}
             onSubmit={() => {
               navigation?.navigate('OtpScreen');
+              showMessage({
+                message:'OTP send to email',
+                type:'success'
+              })
             }}>
             {({
               values,

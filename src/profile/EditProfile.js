@@ -12,6 +12,8 @@ import {
   StatusBar,
   Alert,
   PermissionsAndroid,
+  KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
@@ -24,6 +26,8 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
+import {showMessage} from 'react-native-flash-message';
+import {useNavigation} from '@react-navigation/native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -38,15 +42,16 @@ const validationSchema = Yup.object().shape({
   dob: Yup.string().required('Date of Birth is required'),
 });
 const EditProfile = () => {
+  const navigation = useNavigation();
   const [value, setValue] = useState(null);
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
 
-const data = [
-  {label: 'Male', value: '1'},
-  {label: 'Female', value: '2'},
-  {label: 'Others', value: '3'},
-];
+  const data = [
+    {label: 'Male', value: '1'},
+    {label: 'Female', value: '2'},
+    {label: 'Others', value: '3'},
+  ];
 
   const onSelectImage = (type, setFieldValue) => {
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
@@ -67,7 +72,7 @@ const data = [
       ]);
     }
   };
-  
+
   const onCamera = (type, setFieldValue) => {
     setTimeout(() => {
       ImagePicker.openCamera({
@@ -75,12 +80,13 @@ const data = [
         height: 400,
         cropping: true,
         quality: 'high',
-        // includeBase64: true,
-      }).then(image => {
-        setFieldValue('profilePic', image.path);
-      }).catch((error) => {
-        console.log(error);
-      });
+      })
+        .then(image => {
+          setFieldValue('profilePic', image.path);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }, 1000);
   };
 
@@ -91,11 +97,13 @@ const data = [
         height: 400,
         cropping: true,
         quality: 'high',
-      }).then(image => {
-        setFieldValue('profilePic', image.path);
-      }).catch((error) => {
-        console.log(error);
-      });
+      })
+        .then(image => {
+          setFieldValue('profilePic', image.path);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }, 1000);
   };
 
@@ -112,8 +120,14 @@ const data = [
             dob: '',
           }}
           validationSchema={validationSchema}
-          onSubmit={values => console.log('Form values:', values)}
-        >
+          onSubmit={values => {
+            console.log('Form values:', values);
+            showMessage({
+              message: 'Data updated',
+              type: 'success',
+            });
+            navigation.navigate('ProfileScreen');
+          }}>
           {({
             values,
             errors,
@@ -124,150 +138,192 @@ const data = [
             setFieldValue,
             setFieldTouched,
           }) => (
-            <KeyboardAvoidingScrollView
+            <KeyboardAvoidingView
               style={{flex: 1, backgroundColor: COLORS.white}}
               contentContainerStyle={{flexGrow: 1}}
-              keyboardShouldPersistTaps="handled"
-            >
+              keyboardShouldPersistTaps="handled">
               <Header
                 backicon={true}
                 headerText={'Update Profile'}
                 backgroundColor={COLORS.base}
                 tintColor={COLORS.white}
               />
-
-              <View style={styles.container}>
-                <Image
-                  source={
-                    values?.profilePic
-                      ? {uri: values?.profilePic}
-                      : require('../assets/images/pictures/profile.png')
-                  }
-                  style={{height: 100, width: 100, borderRadius: 100}}
-                  resizeMode="cover"
-                />
-                <TouchableOpacity
-                  style={[
-                    styles.edit,
-                    Platform.OS === 'ios'?
-                    {
-                      bottom: errors.profilePic ? 50 : 20,
-                      right:errors.profilePic ? 165 : 160,
-                    }:
-
-                    {
-                      bottom: errors.profilePic ? 55 : 30,
-                      right:errors.profilePic ? 132 : 130,
-                    },
-                  ]}
-                  onPress={() => onSelectImage('profilePic', setFieldValue)}
-                >
+              <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContainer}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}>
+                {/* <View style={styles.container}>
                   <Image
-                    source={require('../assets/images/icons/edit.png')}
-                    style={{height: 20, width: 20}}
-                    resizeMode="contain"
+                    source={
+                      values?.profilePic
+                        ? {uri: values?.profilePic}
+                        : require('../assets/images/pictures/profile.png')
+                    }
+                    style={{height: 100, width: 100, borderRadius: 100}}
+                    resizeMode="cover"
                   />
-                </TouchableOpacity>
-                {errors.profilePic && touched.profilePic && (
-                  <Text style={[styles.errorText, {marginTop: Platform.OS==='ios'?10:5}]}>
-                    {errors.profilePic}
-                  </Text>
-                )}
-              </View>
-              <View style={styles.formContainer}>
-                <TextInput
-                  style={styles.textinput}
-                  placeholder="Name"
-                  placeholderTextColor={COLORS.placeholder}
-                  maxLength={60}
-                  value={values.name}
-                  onChangeText={handleChange('name')}
-                  onBlur={handleBlur('name')}
-                />
-                {errors.name && touched.name && (
-                  <Text style={styles.errorText}>{errors.name}</Text>
-                )}
-                <TextInput
-                  style={styles.textinput}
-                  placeholder="Email"
-                  placeholderTextColor={COLORS.placeholder}
-                  maxLength={60}
-                  value={values.email}
-                  onChangeText={handleChange('email')}
-                  onBlur={handleBlur('email')}
-                />
-                {errors.email && touched.email && (
-                  <Text style={styles.errorText}>{errors.email}</Text>
-                )}
-                <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  containerStyle={styles.dropdowncontainer}
-                  itemContainerStyle={{paddingHorizontal: 10}}
-                  iconStyle={styles.iconStyle}
-                  data={data}
-                  maxHeight={300}
-                  labelField="label"
-                  valueField="value"
-                  placeholder="Gender"
-                  value={value}
-                  onChange={item => {
-                    setFieldValue('gender', item.label);
-                    setValue(item.label);
-                  }}
-                />
-                {errors.gender && touched.gender && (
-                  <Text style={styles.errorText}>{errors.gender}</Text>
-                )}
-                <View style={styles.textinputPassword}>
-                  <TextInput
+                  <TouchableOpacity
                     style={[
-                      styles.textinput,
-                      {
-                        flex: 1,
-                        borderWidth: 0,
-                        borderColor: 'transparent',
-                        paddingVertical:
-                          Platform.OS === 'ios'
-                            ? height * 0.016
-                            : height * 0.014,
-                      },
+                      styles.edit,
+                      Platform.OS === 'ios'
+                        ? {
+                            bottom: errors.profilePic ? 50 : 20,
+                            right: errors.profilePic ? 165 : 160,
+                          }
+                        : {
+                            bottom: errors.profilePic ? 55 : 30,
+                            right: errors.profilePic ? 132 : 130,
+                          },
                     ]}
-                    placeholder="DOB"
-                    editable={false}
-                    value={date ? moment(date).format('YYYY-MM-DD') : ''}
-                    placeholderTextColor={COLORS.placeholder}
-                  />
-                  <TouchableOpacity onPress={() => setOpen(true)}>
+                    onPress={() => onSelectImage('profilePic', setFieldValue)}>
                     <Image
-                      source={require('../assets/images/icons/calender.png')}
-                      style={{height: 22, width: 22}}
+                      source={require('../assets/images/icons/edit.png')}
+                      style={{height: 20, width: 20}}
                       resizeMode="contain"
                     />
                   </TouchableOpacity>
-                  <DatePicker
-                    modal
-                    mode='date'
-                    open={open}
-                    date={date}
-                    onConfirm={date => {
-                      setOpen(false);
-                      setDate(date);
-                      setFieldValue('dob', moment(date).format('YYYY-MM-DD'));
-                      setFieldTouched('dob', true); // Mark dob field as touched
-                    }}
-                    onCancel={() => {
-                      setOpen(false);
+                  {errors.profilePic && touched.profilePic && (
+                    <Text
+                      style={[
+                        styles.errorText,
+                        {marginTop: Platform.OS === 'ios' ? 10 : 5},
+                      ]}>
+                      {errors.profilePic}
+                    </Text>
+                  )}
+                </View> */}
+                 <View style={styles.container}>
+                <View style={styles.profileContainer}>
+                    <Image
+                      source={
+                        values?.profilePic
+                          ? { uri: values?.profilePic }
+                          : require('../assets/images/pictures/profile.png')
+                      }
+                      style={{ height: 100, width: 100, borderRadius: 100 }}
+                      resizeMode="cover"
+                    />
+                    <TouchableOpacity
+                      style={styles.edit}
+                      onPress={() => onSelectImage('profilePic', setFieldValue)}
+                    >
+                      <Image
+                        source={require('../assets/images/icons/edit.png')}
+                        style={{ height: 20, width: 20 }}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {errors.profilePic && touched.profilePic && (
+                    <Text
+                      style={[
+                        styles.errorText,
+                        { marginTop: Platform.OS === 'ios' ? 10 : 5 },
+                      ]}
+                    >
+                      {errors.profilePic}
+                    </Text>
+                  )}
+               </View>
+                <View style={styles.formContainer}>
+                  <TextInput
+                    style={styles.textinput}
+                    placeholder="Name"
+                    placeholderTextColor={COLORS.placeholder}
+                    maxLength={60}
+                    value={values.name}
+                    onChangeText={handleChange('name')}
+                    onBlur={handleBlur('name')}
+                  />
+                  {errors.name && touched.name && (
+                    <Text style={styles.errorText}>{errors.name}</Text>
+                  )}
+                  <TextInput
+                    style={styles.textinput}
+                    placeholder="Email"
+                    placeholderTextColor={COLORS.placeholder}
+                    maxLength={60}
+                    value={values.email}
+                    onChangeText={handleChange('email')}
+                    onBlur={handleBlur('email')}
+                  />
+                  {errors.email && touched.email && (
+                    <Text style={styles.errorText}>{errors.email}</Text>
+                  )}
+                  <Dropdown
+                    style={styles.dropdown}
+                    placeholderStyle={styles.placeholderStyle}
+                    selectedTextStyle={styles.selectedTextStyle}
+                    containerStyle={styles.dropdowncontainer}
+                    itemContainerStyle={{paddingHorizontal: 10}}
+                    iconStyle={styles.iconStyle}
+                    data={data}
+                    maxHeight={300}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Gender"
+                    value={value}
+                    onChange={item => {
+                      setFieldValue('gender', item.label);
+                      setValue(item.label);
                     }}
                   />
+                  {errors.gender && touched.gender && (
+                    <Text style={styles.errorText}>{errors.gender}</Text>
+                  )}
+                  <View style={styles.textinputPassword}>
+                    <TextInput
+                      style={[
+                        styles.textinput,
+                        {
+                          flex: 1,
+                          borderWidth: 0,
+                          borderColor: 'transparent',
+                          color: COLORS.black,
+                          paddingVertical:
+                            Platform.OS === 'ios'
+                              ? height * 0.016
+                              : height * 0.008,
+                        },
+                      ]}
+                      placeholder="DOB"
+                      editable={false}
+                      value={date ? moment(date).format('YYYY-MM-DD') : ''}
+                      placeholderTextColor={COLORS.placeholder}
+                    />
+                    <TouchableOpacity onPress={() => setOpen(true)}>
+                      <Image
+                        source={require('../assets/images/icons/calender.png')}
+                        style={{height: 22, width: 22}}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
+                    <DatePicker
+                      modal
+                      mode="date"
+                      open={open}
+                      date={date}
+                      onConfirm={date => {
+                        setOpen(false);
+                        setDate(date);
+                        setFieldValue('dob', moment(date).format('YYYY-MM-DD'));
+                        setFieldTouched('dob', true); // Mark dob field as touched
+                      }}
+                      onCancel={() => {
+                        setOpen(false);
+                      }}
+                    />
+                  </View>
+                  {touched.dob && errors.dob && (
+                    <Text style={styles.errorText}>{errors.dob}</Text>
+                  )}
                 </View>
-                {touched.dob && errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
-              </View>
-              <View style={styles.bottomContainer}>
-                <Button buttonTxt={'Update Profile'} onPress={handleSubmit} />
-              </View>
-            </KeyboardAvoidingScrollView>
+                <View style={styles.bottomContainer}>
+                  <Button buttonTxt={'Update Profile'} onPress={handleSubmit} />
+                </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
           )}
         </Formik>
       </SafeAreaView>
@@ -282,11 +338,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.base,
   },
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 10,
+  },
   container: {
     backgroundColor: COLORS.base,
     paddingVertical: Platform.OS === 'ios' ? height * 0.03 : height * 0.04,
     alignItems: 'center',
+  },
+  profileContainer: {
     position: 'relative',
+    alignItems: 'center',
   },
   formContainer: {
     paddingHorizontal: height * 0.025,
@@ -298,8 +365,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: height * 0.025,
     paddingBottom: height * 0.02,
     backgroundColor: '#F7F7F7',
-    justifyContent: 'flex-end',
-    flex: 1,
+    paddingBottom: 20,
   },
   textinput: {
     backgroundColor: COLORS.white,
@@ -308,18 +374,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
-    fontSize: fontScale * 17,
+    fontSize: fontScale * 16,
     fontFamily: FONTS.Inter400,
     color: COLORS.black,
     marginTop: height * 0.01,
   },
   dropdown: {
-    height: 60,
+    height: Platform.OS === 'ios' ? 60 : 50,
     borderWidth: 1,
     borderColor: COLORS.borderColor,
     borderRadius: 10,
     paddingHorizontal: 20,
     marginTop: height * 0.01,
+    backgroundColor: COLORS.white,
   },
   placeholderStyle: {
     fontSize: fontScale * 17,
@@ -351,17 +418,17 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     marginTop: height * 0.01,
   },
-  edit: {
-    position: 'absolute',
-    backgroundColor: COLORS.primary,
-    borderRadius: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 30,
-    width: 30,
-    bottom: 24,
-    right: 160,
-  },
+    edit: {
+      position: 'absolute',
+      backgroundColor: COLORS.primary,
+      borderRadius: 100,
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 30,
+      width: 30,
+      bottom: 0, 
+      right: -8, 
+    },
   errorText: {
     fontSize: fontScale * 12,
     fontFamily: FONTS.Inter500,

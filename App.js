@@ -6,8 +6,9 @@ import FlashMessage from 'react-native-flash-message';
 const App = () => {
   return (
     <>
-      <FlashMessage position="bottom" />
+    
       <Navigation />
+      <FlashMessage position="top" />
     </>
   );
 };

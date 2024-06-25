@@ -99,17 +99,17 @@ const Login = props => {
             validationSchema={validationSchema}
             onSubmit={() => {
               {
+                showMessage({
+                  message: 'Login successfull',
+                 type:'success'
+                });
                 props?.navigation?.dispatch(
                   CommonActions.reset({
                     index: 0,
                     routes: [{name: 'BottomTabNavigation'}],
                   }),
                 );
-                showMessage({
-                  message: 'Login successfull',
-                  type: 'warning',
-                  icon: 'success',
-                });
+           
               }
             }}>
             {({
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: Platform.OS === 'ios' ? 22 : 15,
     marginTop: Platform.OS === 'ios' ? height * 0.16 : height * 0.1,
-    flex: 1,
+
   },
   heading: {
     color: COLORS.heading,

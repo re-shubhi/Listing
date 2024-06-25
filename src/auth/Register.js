@@ -15,10 +15,11 @@ import React, {useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import {useNavigation} from '@react-navigation/native';
+import {CommonActions, useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
+import { showMessage } from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -76,7 +77,16 @@ const Register = () => {
             }}
             validationSchema={validationSchema}
             onSubmit={() => {
-              navigation?.navigate('Login');
+              showMessage({
+                message:'Registration successfull',
+                type:'success'
+              })
+              navigation.dispatch(
+                CommonActions.reset({
+                  index:0,
+                  routes:[{name:"Login"}]
+                })
+              )
             }}>
             {({
               values,
@@ -276,7 +286,7 @@ const styles = StyleSheet.create({
   },
   registerLink: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 40 : 42,
+    bottom: Platform.OS === 'ios' ? 30 : 42,
     left: 0,
     right: 0,
     flexDirection: 'row',

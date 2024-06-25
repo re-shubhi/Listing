@@ -15,10 +15,11 @@ import React, {useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import {useNavigation} from '@react-navigation/native';
+import {CommonActions, useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
+import {showMessage} from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -65,7 +66,16 @@ const ResetPassword = () => {
             }}
             validationSchema={validationSchema}
             onSubmit={() => {
-              navigation?.navigate('Login');
+              showMessage({
+                message: 'Password reset successfully',
+                type: 'success',
+              });
+              navigation?.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{name: 'Login'}],
+                }),
+              );
             }}>
             {({
               values,

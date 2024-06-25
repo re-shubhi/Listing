@@ -15,7 +15,7 @@ import React, {useRef, useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import {useNavigation} from '@react-navigation/native';
+import {CommonActions, useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
 import {
   CodeField,
@@ -23,6 +23,7 @@ import {
   useBlurOnFulfill,
   useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
+import { showMessage } from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -84,7 +85,16 @@ const OtpScreen = () => {
                 buttonTxt={'Continue'}
                 onPress={() => {
                   console.log('CONTINUE', value);
-                  navigation.navigate('ResetPassword');
+                  showMessage({
+                    message:'OTP Verified successfully',
+                    type:'success'
+                  })
+                  navigation?.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{name: 'ResetPassword'}],
+                    }),
+                  );
                 }}
               />
             </View>
@@ -92,6 +102,10 @@ const OtpScreen = () => {
               <TouchableOpacity
                 onPress={() => {
                   console.log('RESEND');
+                  showMessage({
+                    message:'OTP resend to email',
+                    type:'success'
+                  })
                 }}>
                 <Text style={styles.forgotText}>Resend OTP</Text>
               </TouchableOpacity>
@@ -186,24 +200,24 @@ const styles = StyleSheet.create({
   },
   root: {flex: 1},
   title: {textAlign: 'center', fontSize: 30},
-  codeFieldRoot: {marginVertical: 15, alignSelf:"center"},
+  codeFieldRoot: {marginVertical: 15, alignSelf: 'center'},
   cell: {
     width: 60,
     height: 60,
     fontSize: fontScale * 20,
     borderWidth: 1,
-    borderColor:Platform.OS === 'ios'?COLORS.base: COLORS.borderColor,
+    borderColor: Platform.OS === 'ios' ? COLORS.base : COLORS.borderColor,
     borderRadius: 10,
     textAlign: 'center',
     color: COLORS.black,
     fontFamily: FONTS.Inter600,
     lineHeight: 55,
-    marginHorizontal: 10, 
+    marginHorizontal: 10,
   },
-  
+
   focusCell: {
     borderColor: '#000',
-    paddingHorizontal:10
+    paddingHorizontal: 10,
   },
   forgotView: {
     paddingTop: 20,

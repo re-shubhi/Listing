@@ -12,10 +12,12 @@ import COLORS from '../theme/Colors';
 import {Rating, AirbnbRating} from 'react-native-ratings';
 import Button from '../components/Button';
 import {showMessage} from 'react-native-flash-message';
+import { useNavigation } from '@react-navigation/native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 const Reviews = () => {
   const [comment, setComment] = useState('');
+  const navigation = useNavigation();
   return (
     <>
       <View
@@ -44,6 +46,7 @@ const Reviews = () => {
           style={styles.textinput}
           placeholder="Comment here"
           placeholderTextColor={COLORS.placeholder}
+          textAlignVertical='top'
           multiline={true}
           numberOfLines={4}
           value={comment}
@@ -59,12 +62,11 @@ const Reviews = () => {
               {{
                 console.log("Submitted");
                 showMessage({
-                  message: 'Review Submitted',
-                  icon: 'success',
+                  message: 'Review submitted succesfully',
                   type: 'success',
                 })
+                navigation.navigate("BottomTabNavigation")
               }}
-           
             }
           />
         </View>

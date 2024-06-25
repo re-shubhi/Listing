@@ -16,7 +16,7 @@ useEffect(() => {
         routes: [{ name: "Login" }]  
       })
     );
-  }, 4000);
+  }, 2000);
 
   return () => clearTimeout(timer);
 }, [props.navigation]);  // Fixed dependency array to include props.navigation

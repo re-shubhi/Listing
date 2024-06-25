@@ -18,14 +18,14 @@ const Header = ({headerText, tintColor, backicon,backgroundColor}) => {
   return (
     <View
       style={{
-        paddingVertical: 10,
+        paddingVertical: height*0.02,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor:backgroundColor
       }}>
       <TouchableOpacity
-        style={{height: 24, width: 24}}
+        style={{height: 20, width: 20}}
         onPress={() => {
           navigation.goBack();
         }}>
@@ -52,7 +52,7 @@ export default Header;
 
 const styles = StyleSheet.create({
   text: {
-    fontSize: fontScale * 20,
+    fontSize: fontScale * 18,
     color: COLORS.white,
     lineHeight: 25,
     fontFamily: FONTS.Inter500,
