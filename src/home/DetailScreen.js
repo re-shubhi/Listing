@@ -20,10 +20,12 @@ const {height, width, fontScale} = Dimensions.get('screen');
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import Reviews from './Reviews';
 import About from './About';
+import {useNavigation} from '@react-navigation/native';
 
 const Tab = createMaterialTopTabNavigator();
 
 const DetailScreen = () => {
+  const navigation = useNavigation();
   const [scrollY] = useState(new Animated.Value(0));
   const HEADER_MAX_HEIGHT = 290;
   const HEADER_MIN_HEIGHT = Platform.OS == 'ios' ? 100 : height * 0.07;
@@ -61,17 +63,13 @@ const DetailScreen = () => {
         />
       </Animated.View>
       <ScrollView
-      onScroll={Animated.event([
-        {nativeEvent: {contentOffset: {y: scrollY}}},
-
-      ])}
-      scrollEventThrottle={16}
-      contentContainerStyle={{flexGrow:1,marginBottom:40}}
-      showsVerticalScrollIndicator={false}
-      >
-       
+        onScroll={Animated.event([
+          {nativeEvent: {contentOffset: {y: scrollY}}},
+        ])}
+        scrollEventThrottle={16}
+        contentContainerStyle={{flexGrow: 1, marginBottom: 40}}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.scrollViewContent}>
-        
           <View style={styles.container}>
             <View style={{rowGap: 4}}>
               <Text style={styles.heading}>Moor Mall</Text>
@@ -103,7 +101,7 @@ const DetailScreen = () => {
                 width: 90,
                 borderRadius: 20,
                 borderWidth: 1,
-                borderColor:COLORS.cardsBorderColor,
+                borderColor: COLORS.cardsBorderColor,
               }}
               resizeMode="contain"
             />
@@ -111,11 +109,17 @@ const DetailScreen = () => {
               <Text style={[styles.address, {fontSize: fontScale * 15}]}>
                 Ferry Road ,Maidenhead
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('MapScreen');
+                }}>
                 <Text
                   style={[
                     styles.heading,
-                    {color: COLORS.primary, paddingTop: Platform.OS === 'ios'?5:2},
+                    {
+                      color: COLORS.primary,
+                      paddingTop: Platform.OS === 'ios' ? 5 : 2,
+                    },
                   ]}>
                   Open on maps
                 </Text>
@@ -124,7 +128,6 @@ const DetailScreen = () => {
           </View>
           <MidTabs />
         </View>
-      
       </ScrollView>
     </View>
   );
@@ -158,7 +161,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     marginTop: 290,
-    flexGrow:1,
+    flexGrow: 1,
   },
   rate: {
     fontSize: fontScale * 14,
@@ -172,7 +175,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.03,
     paddingVertical: height * 0.02,
     borderBottomWidth: 0.5,
-    borderColor:COLORS.cardsBorderColor,
+    borderColor: COLORS.cardsBorderColor,
     marginHorizontal: 12,
   },
   heading: {

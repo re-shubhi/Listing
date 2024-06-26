@@ -937,6 +937,8 @@ PODS:
     - React-debug
   - react-native-date-picker (5.0.4):
     - React-Core
+  - react-native-maps (1.15.6):
+    - React-Core
   - react-native-pager-view (6.3.1):
     - DoubleConversion
     - glog
@@ -1258,6 +1260,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
+  - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
@@ -1356,6 +1359,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-date-picker:
     :path: "../node_modules/react-native-date-picker"
+  react-native-maps:
+    :path: "../node_modules/react-native-maps"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
@@ -1445,6 +1450,7 @@ SPEC CHECKSUMS:
   React-logger: 29fa3e048f5f67fe396bc08af7606426d9bd7b5d
   React-Mapbuffer: bf56147c9775491e53122a94c423ac201417e326
   react-native-date-picker: 6891317e850deae5b53d51355226e07a495aba61
+  react-native-maps: 7b2c2cee95271592a92ba485eea1dec66a363a6e
   react-native-pager-view: e2b7c31147cdc1750cb3867d37a145e487653c34
   react-native-safe-area-context: 399a5859f6acbdf67f671c69b53113f535f3b5b0
   React-nativeconfig: 9f223cd321823afdecf59ed00861ab2d69ee0fc1

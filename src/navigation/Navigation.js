@@ -13,6 +13,7 @@ import Categories from '../home/Categories';
 import ParticularCategory from '../home/ParticularCategory';
 import DetailScreen from '../home/DetailScreen';
 import EditProfile from '../profile/EditProfile';
+import MapScreen from '../home/MapScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +34,7 @@ const Navigation = () => {
         <Stack.Screen name="ParticularCategory" component={ParticularCategory} />
         <Stack.Screen name="DetailScreen" component={DetailScreen} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen name="MapScreen" component={MapScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
