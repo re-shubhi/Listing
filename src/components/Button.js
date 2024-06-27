@@ -26,5 +26,6 @@ const styles = StyleSheet.create({
         color:COLORS.white,
         fontSize:fontScale*17,
         fontFamily:FONTS.Inter600
+        
     }
 })
