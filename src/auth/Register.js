@@ -19,13 +19,13 @@ import {CommonActions, useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
-import { showMessage } from 'react-native-flash-message';
+import {showMessage} from 'react-native-flash-message';
+import Phone from '../components/Phone';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Register = () => {
   const navigation = useNavigation();
-
   const validationSchema = Yup.object().shape({
     username: Yup.string()
       .required('Username is required')
@@ -37,6 +37,11 @@ const Register = () => {
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         'Invalid email',
       ),
+    phoneNumber: Yup.string()
+      .required('Phone number is required.')
+      .min(8, 'Phone number must be at least 8 characters.')
+      .max(15, 'Phone number must be at most 15 characters.')
+      .matches(/^\d+$/, 'Invalid phone number. Only digits are allowed.'),
     password: Yup.string()
       .required('Password is required')
       .matches(
@@ -50,9 +55,11 @@ const Register = () => {
         'Confirm Password should match with New Password.',
       ),
   });
-
   const [secure, setSecure] = useState({password: true, confirmPassword: true});
-
+  const [countryCode, setCountryCode] = useState({
+    callingCode: '966',
+    cca2: '🇸🇦',
+  });
   const toggleSecure = field => {
     setSecure(prevSecure => ({...prevSecure, [field]: !prevSecure[field]}));
   };
@@ -71,6 +78,7 @@ const Register = () => {
           <Formik
             initialValues={{
               email: '',
+              phoneNumber: '',
               password: '',
               username: '',
               confirmPassword: '',
@@ -78,15 +86,15 @@ const Register = () => {
             validationSchema={validationSchema}
             onSubmit={() => {
               showMessage({
-                message:'Registration successfull',
-                type:'success'
-              })
+                message: 'Registration successfull',
+                type: 'success',
+              });
               navigation.dispatch(
                 CommonActions.reset({
-                  index:0,
-                  routes:[{name:"Login"}]
-                })
-              )
+                  index: 0,
+                  routes: [{name: 'Login'}],
+                }),
+              );
             }}>
             {({
               values,
@@ -130,7 +138,16 @@ const Register = () => {
                     <Text style={styles.errorText}>{errors.email}</Text>
                   )}
                 </View>
-                <View style={styles.textinputPassword}>
+                <Phone
+                  handleBlur={handleBlur}
+                  errors={errors}
+                  touched={touched}
+                  handleChange={handleChange}
+                  values={values.phoneNumber}
+                  setCountryCode={setCountryCode}
+                  countryCode={countryCode}
+                />
+                <View style={[styles.textinputPassword, {marginTop: 10}]}>
                   <TextInput
                     style={[
                       styles.textinput,
@@ -157,7 +174,7 @@ const Register = () => {
                           ? require('../assets/images/icons/eye-off.png')
                           : require('../assets/images/icons/eye.png')
                       }
-                      style={{height: 20, width: 20,tintColor:COLORS.heading}}
+                      style={{height: 20, width: 20, tintColor: COLORS.heading}}
                       resizeMode="contain"
                     />
                   </TouchableOpacity>
@@ -192,7 +209,7 @@ const Register = () => {
                           ? require('../assets/images/icons/eye-off.png')
                           : require('../assets/images/icons/eye.png')
                       }
-                      style={{height: 20, width: 20,tintColor:COLORS.heading}}
+                      style={{height: 20, width: 20, tintColor: COLORS.heading}}
                       resizeMode="contain"
                     />
                   </TouchableOpacity>
@@ -237,7 +254,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 22,
-    marginTop: height * 0.08,
+    marginTop: height * 0.05,
   },
   scrollView: {
     flex: 1,

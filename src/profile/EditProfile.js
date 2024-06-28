@@ -28,6 +28,7 @@ import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import {showMessage} from 'react-native-flash-message';
 import {useNavigation} from '@react-navigation/native';
+import Phone from '../components/Phone';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -40,19 +41,26 @@ const validationSchema = Yup.object().shape({
   gender: Yup.string().required('Gender is required'),
   profilePic: Yup.string().required('Profile picture is required'),
   dob: Yup.string().required('Date of Birth is required'),
+  phoneNumber: Yup.string()
+    .required('Phone number is required.')
+    .min(8, 'Phone number must be at least 8 characters.')
+    .max(15, 'Phone number must be at most 15 characters.')
+    .matches(/^\d+$/, 'Invalid phone number. Only digits are allowed.'),
 });
 const EditProfile = () => {
   const navigation = useNavigation();
   const [value, setValue] = useState(null);
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
-
   const data = [
     {label: 'Male', value: '1'},
     {label: 'Female', value: '2'},
     {label: 'Others', value: '3'},
   ];
-
+  const [countryCode, setCountryCode] = useState({
+    callingCode: '966',
+    cca2: '🇸🇦',
+  });
   const onSelectImage = (type, setFieldValue) => {
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       Alert.alert('Upload Image', 'Choose an option', [
@@ -118,6 +126,7 @@ const EditProfile = () => {
             profilePic: '',
             gender: '',
             dob: '',
+            phoneNumber: '',
           }}
           validationSchema={validationSchema}
           onSubmit={values => {
@@ -142,12 +151,6 @@ const EditProfile = () => {
               style={{flex: 1, backgroundColor: COLORS.white}}
               contentContainerStyle={{flexGrow: 1}}
               keyboardShouldPersistTaps="handled">
-              <Header
-                backicon={true}
-                headerText={'Update Profile'}
-                backgroundColor={COLORS.base}
-                tintColor={COLORS.white}
-              />
               <ScrollView
                 style={styles.scrollView}
                 contentContainerStyle={styles.scrollContainer}
@@ -193,24 +196,31 @@ const EditProfile = () => {
                     </Text>
                   )}
                 </View> */}
-                 <View style={styles.container}>
-                <View style={styles.profileContainer}>
+                <Header
+                  backicon={true}
+                  headerText={'Update Profile'}
+                  backgroundColor={COLORS.base}
+                  tintColor={COLORS.white}
+                />
+                <View style={styles.container}>
+                  <View style={styles.profileContainer}>
                     <Image
                       source={
                         values?.profilePic
-                          ? { uri: values?.profilePic }
+                          ? {uri: values?.profilePic}
                           : require('../assets/images/pictures/profile.png')
                       }
-                      style={{ height: 100, width: 100, borderRadius: 100 }}
+                      style={{height: 100, width: 100, borderRadius: 100}}
                       resizeMode="cover"
                     />
                     <TouchableOpacity
                       style={styles.edit}
-                      onPress={() => onSelectImage('profilePic', setFieldValue)}
-                    >
+                      onPress={() =>
+                        onSelectImage('profilePic', setFieldValue)
+                      }>
                       <Image
                         source={require('../assets/images/icons/edit.png')}
-                        style={{ height: 20, width: 20 }}
+                        style={{height: 20, width: 20}}
                         resizeMode="contain"
                       />
                     </TouchableOpacity>
@@ -219,13 +229,12 @@ const EditProfile = () => {
                     <Text
                       style={[
                         styles.errorText,
-                        { marginTop: Platform.OS === 'ios' ? 10 : 5 },
-                      ]}
-                    >
+                        {marginTop: Platform.OS === 'ios' ? 10 : 5},
+                      ]}>
                       {errors.profilePic}
                     </Text>
                   )}
-               </View>
+                </View>
                 <View style={styles.formContainer}>
                   <TextInput
                     style={styles.textinput}
@@ -251,6 +260,17 @@ const EditProfile = () => {
                   {errors.email && touched.email && (
                     <Text style={styles.errorText}>{errors.email}</Text>
                   )}
+                  <View style={{marginTop: 10}}>
+                    <Phone
+                      handleBlur={handleBlur}
+                      errors={errors}
+                      touched={touched}
+                      handleChange={handleChange}
+                      values={values.phoneNumber}
+                      setCountryCode={setCountryCode}
+                      countryCode={countryCode}
+                    />
+                  </View>
                   <Dropdown
                     style={styles.dropdown}
                     placeholderStyle={styles.placeholderStyle}
@@ -280,7 +300,7 @@ const EditProfile = () => {
                           flex: 1,
                           borderWidth: 0,
                           borderColor: 'transparent',
-                          color: COLORS.black,
+                          color: COLORS.base,
                           paddingVertical:
                             Platform.OS === 'ios'
                               ? height * 0.016
@@ -390,13 +410,13 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: fontScale * 17,
-    fontFamily: FONTS.Inter400,
-    color: COLORS.black,
+    // fontFamily: FONTS.Inter400,
+    color: COLORS.base,
   },
   selectedTextStyle: {
     fontSize: fontScale * 17,
-    fontFamily: FONTS.Inter400,
-    color: COLORS.black,
+    // fontFamily: FONTS.Inter400,
+    color: COLORS.base,
   },
   iconStyle: {
     width: 20,
@@ -418,17 +438,17 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     marginTop: height * 0.01,
   },
-    edit: {
-      position: 'absolute',
-      backgroundColor: COLORS.primary,
-      borderRadius: 100,
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: 30,
-      width: 30,
-      bottom: 0, 
-      right: -8, 
-    },
+  edit: {
+    position: 'absolute',
+    backgroundColor: COLORS.primary,
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 30,
+    width: 30,
+    bottom: 0,
+    right: -8,
+  },
   errorText: {
     fontSize: fontScale * 12,
     fontFamily: FONTS.Inter500,
