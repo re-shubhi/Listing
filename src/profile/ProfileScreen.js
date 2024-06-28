@@ -59,14 +59,14 @@ const ProfileScreen = () => {
               />
               <Text style={styles.iconText}>Wishlist</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.IconButton}>
+            {/* <TouchableOpacity style={styles.IconButton}>
               <Image
                 source={require('../assets/images/icons/star.png')}
                 style={styles.icon}
                 resizeMode="contain"
               />
               <Text style={styles.iconText}>Following</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               style={styles.IconButton}
               onPress={() => navigation.navigate('EditProfile')}>
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: height * 0.01,
-    paddingHorizontal: width * 0.05,
+    paddingHorizontal: width * 0.08,
     borderRadius: 10,
   },
   boxWithShadow: {

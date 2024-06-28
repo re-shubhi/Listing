@@ -113,7 +113,7 @@ const Register = () => {
                 <View style={{marginVertical: 10}}>
                   <TextInput
                     style={styles.textinput}
-                    placeholder="Username"
+                    placeholder="Name"
                     placeholderTextColor={COLORS.placeholder}
                     value={values.username}
                     onChangeText={handleChange('username')}
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 22,
-    marginTop: height * 0.05,
+    marginTop: Platform.OS === 'ios'? height * 0.05: height*0.038,
   },
   scrollView: {
     flex: 1,
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   },
   registerLink: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 30 : 42,
+    bottom: Platform.OS === 'ios' ? 30 : 45,
     left: 0,
     right: 0,
     flexDirection: 'row',

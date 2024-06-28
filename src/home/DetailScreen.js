@@ -21,10 +21,11 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 import Reviews from './Reviews';
 import About from './About';
 import {useNavigation} from '@react-navigation/native';
+import Header from '../components/Header';
 
 const Tab = createMaterialTopTabNavigator();
 
-const DetailScreen = () => {
+const DetailScreen = props => {
   const navigation = useNavigation();
   const [scrollY] = useState(new Animated.Value(0));
   const HEADER_MAX_HEIGHT = 290;
@@ -61,6 +62,22 @@ const DetailScreen = () => {
           ]}
           source={require('../assets/images/pictures/slider.png')}
         />
+        <Animated.View style={{marginTop: 35}}>
+          <Header backicon={true} tintColor={COLORS.white} />
+        </Animated.View>
+        <Animated.View style={{marginTop: Platform.OS === 'ios' ? 225 : 190}}>
+          <View />
+          <TouchableOpacity
+            style={styles.Btn}
+            onPress={() => props.navigation.navigate('GridImageView', {})}>
+            <Image
+              resizeMode="contain"
+              style={{height: 15, width: 15}}
+              source={require('../assets/images/icons/imgIcon.png')}
+            />
+            <Text style={{color: '#000', fontWeight: '800'}}>4</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </Animated.View>
       <ScrollView
         onScroll={Animated.event([
@@ -204,5 +221,17 @@ const styles = StyleSheet.create({
     columnGap: 10,
     paddingLeft: width * 0.05,
     paddingVertical: height * 0.02,
+  },
+  Btn: {
+    backgroundColor: 'white',
+    position: 'absolute',
+    width: 50,
+    height: 30,
+    alignItems: 'center',
+    borderRadius: 8,
+    right: 15,
+    bottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
   },
 });
