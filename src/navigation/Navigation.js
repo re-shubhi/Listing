@@ -15,6 +15,7 @@ import DetailScreen from '../home/DetailScreen';
 import EditProfile from '../profile/EditProfile';
 import MapScreen from '../home/MapScreen';
 import GridImageView from '../home/GridImageView';
+import VerifyOtp from '../auth/VerifyOtp';
 
 
 const Stack = createNativeStackNavigator();
@@ -29,6 +30,7 @@ const Navigation = () => {
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="OtpScreen" component={OtpScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPassword} />

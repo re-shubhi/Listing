@@ -5,9 +5,9 @@ import FONTS from '../theme/Fonts'
 
 const{height,width,fontScale} = Dimensions.get("screen")
 
-const Button = ({buttonTxt,onPress}) => {
+const Button = ({buttonTxt,onPress,disabled}) => {
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
+    <TouchableOpacity style={styles.button} onPress={onPress} disabled={disabled}>
       <Text style={styles.buttonText}>{buttonTxt}</Text>
     </TouchableOpacity>
   )

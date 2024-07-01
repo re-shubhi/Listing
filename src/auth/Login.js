@@ -28,12 +28,17 @@ import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import Button from '../components/Button';
 import {showMessage} from 'react-native-flash-message';
+import axios from 'axios';
+import {login} from '../restapi/ApiConfig';
+import ScreenLoader from '../components/ScreenLoader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Login = props => {
   const navigation = useNavigation();
   const [secure, setSecure] = useState(true);
+  const [loader, setLoader] = useState(false);
   const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email('Invalid email')
@@ -49,7 +54,6 @@ const Login = props => {
         'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
       ),
   });
-
   const backButtonHandler = () => {
     Alert.alert(
       'Exit App',
@@ -71,7 +75,6 @@ const Login = props => {
     );
     return true;
   };
-
   useFocusEffect(
     React.useCallback(() => {
       BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
@@ -81,6 +84,46 @@ const Login = props => {
       };
     }, []),
   );
+
+  //Login Api
+  const LoginApi = async values => {
+    try {
+      setLoader(true);
+      const response = await axios({
+        method: 'POST',
+        url: login,
+        data: {
+          email: values.email,
+          password: values.password,
+          deviceToken: 'mskm.msd',
+        },
+      });
+      console.log('Login Res----', response);
+      if (response?.data?.status === true) {
+        setLoader(false);
+        await AsyncStorage.setItem('token',response?.data?.token)
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+        });
+        navigation?.dispatch(
+          CommonActions.reset({
+            index:0,
+            routes:[{name:'BottomTabNavigation'}]
+          })
+        )
+      }
+    } catch (error) {
+      console.log('Login error---', error);
+      setLoader(false);
+      if (error?.response?.data?.status === false) {
+        showMessage({
+          message:error?.response?.data?.message,
+          type:'danger',
+        })
+      }
+    }
+  };
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -97,21 +140,26 @@ const Login = props => {
           <Formik
             initialValues={{email: '', password: ''}}
             validationSchema={validationSchema}
-            onSubmit={() => {
-              {
-                showMessage({
-                  message: 'Login successfull',
-                 type:'success'
-                });
-                props?.navigation?.dispatch(
-                  CommonActions.reset({
-                    index: 0,
-                    routes: [{name: 'BottomTabNavigation'}],
-                  }),
-                );
-           
+            onSubmit={
+              values => {
+                console.log('Valuesss--', values);
+                LoginApi(values);
               }
-            }}>
+
+              // {
+              //   showMessage({
+              //     message: 'Login successfull',
+              //    type:'success'
+              //   });
+              //   props?.navigation?.dispatch(
+              //     CommonActions.reset({
+              //       index: 0,
+              //       routes: [{name: 'BottomTabNavigation'}],
+              //     }),
+              //   );
+
+              // }
+            }>
             {({
               values,
               errors,
@@ -202,6 +250,7 @@ const Login = props => {
               <Text style={styles.linkText}> Register Now</Text>
             </TouchableOpacity>
           </View>
+          {loader && <ScreenLoader isProcessing={loader} />}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -229,7 +278,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: Platform.OS === 'ios' ? 22 : 15,
     marginTop: Platform.OS === 'ios' ? height * 0.16 : height * 0.1,
-
   },
   heading: {
     color: COLORS.heading,

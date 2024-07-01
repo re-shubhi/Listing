@@ -21,6 +21,9 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import {showMessage} from 'react-native-flash-message';
 import Phone from '../components/Phone';
+import axios from 'axios';
+import {ServerUrl, register} from '../restapi/ApiConfig';
+import ScreenLoader from '../components/ScreenLoader';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -28,8 +31,8 @@ const Register = () => {
   const navigation = useNavigation();
   const validationSchema = Yup.object().shape({
     username: Yup.string()
-      .required('Username is required')
-      .matches(/^[a-zA-Z][a-zA-Z0-9_-]{2,15}$/, 'Invalid username'),
+      .required('Name is required')
+      .matches(/^[a-zA-Z][a-zA-Z0-9_-]{2,15}$/, 'Invalid name'),
     email: Yup.string()
       .email('Invalid email')
       .required('Email is required')
@@ -56,12 +59,56 @@ const Register = () => {
       ),
   });
   const [secure, setSecure] = useState({password: true, confirmPassword: true});
+  const [loader, setLoader] = useState(false);
   const [countryCode, setCountryCode] = useState({
     callingCode: '966',
     cca2: '🇸🇦',
   });
   const toggleSecure = field => {
     setSecure(prevSecure => ({...prevSecure, [field]: !prevSecure[field]}));
+  };
+  //api for register
+  const RegisterApi = async values => {
+    console.log('values-----', values);
+    try {
+      setLoader(true);
+      const response = await axios({
+        method: 'POST',
+        url: register,
+        data: {
+          name: values.username,
+          email: values.email,
+          mobile: values.phoneNumber,
+          password: values.confirmPassword,
+          deviceType:Platform.OS == 'ios'? "2":"1",
+        },
+      });
+      console.log('response---', response?.data);
+      if (response?.data?.status == true) {
+        setLoader(false);
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+        });
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              {name: 'VerifyOtp', params: {userId: response?.data?.userId}},
+            ],
+          }),
+        );
+      }
+    } catch (error) {
+      console.log('error Register', error);
+      setLoader(false);
+      if (error?.response?.data?.status === false) {
+        showMessage({
+          message: error?.response?.data?.message,
+          type: 'danger',
+        });
+      }
+    }
   };
 
   return (
@@ -84,17 +131,9 @@ const Register = () => {
               confirmPassword: '',
             }}
             validationSchema={validationSchema}
-            onSubmit={() => {
-              showMessage({
-                message: 'Registration successfull',
-                type: 'success',
-              });
-              navigation.dispatch(
-                CommonActions.reset({
-                  index: 0,
-                  routes: [{name: 'Login'}],
-                }),
-              );
+            onSubmit={values => {
+              console.log('values', values);
+              RegisterApi(values);
             }}>
             {({
               values,
@@ -238,6 +277,7 @@ const Register = () => {
               <Text style={styles.linkText}> Login Now</Text>
             </TouchableOpacity>
           </View>
+          {loader && <ScreenLoader isProcessing={loader} />}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -254,7 +294,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 22,
-    marginTop: Platform.OS === 'ios'? height * 0.05: height*0.038,
+    marginTop: Platform.OS === 'ios' ? height * 0.05 : height * 0.038,
   },
   scrollView: {
     flex: 1,

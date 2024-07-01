@@ -116,10 +116,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
-  modalCloseText: {
-    fontSize: 16,
-    color: COLORS.base,
-  },
   modalImage: {
     width: width * 0.9,
     height: height * 0.7,
