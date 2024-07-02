@@ -19,13 +19,16 @@ import {useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
-import { showMessage } from 'react-native-flash-message';
+import {showMessage} from 'react-native-flash-message';
+import axios from 'axios';
+import {forgotpassword_send_request} from '../restapi/ApiConfig';
+import ScreenLoader from '../components/ScreenLoader';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ForgotPassword = () => {
   const navigation = useNavigation();
-
+  const [loader, setLoader] = useState(false);
   const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email('Invalid email')
@@ -35,6 +38,39 @@ const ForgotPassword = () => {
         'Invalid email',
       ),
   });
+
+  //ForgotPassword Api
+  const PasswordForgot = async values => {
+    console.log('EMAIL', values);
+    try {
+      setLoader(true);
+      const response = await axios({
+        method: 'POST',
+        url: forgotpassword_send_request,
+        data: {
+          email: values.email,
+        },
+      });
+      console.log('Response Email', response);
+      if (response?.data?.status === true) {
+        setLoader(false);
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+        });
+        navigation?.navigate('OtpScreen',{tempId:response?.data?.tempId,email:response?.data?.email});
+      }
+    } catch (error) {
+      console.log('Errorr Forgot', error);
+      if (error?.response?.data?.status === false) {
+        setLoader(false);
+        showMessage({
+          message: error?.response?.data?.message,
+          type: 'danger',
+        });
+      }
+    }
+  };
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -50,12 +86,8 @@ const ForgotPassword = () => {
           <Formik
             initialValues={{email: ''}}
             validationSchema={validationSchema}
-            onSubmit={() => {
-              navigation?.navigate('OtpScreen');
-              showMessage({
-                message:'OTP send to email',
-                type:'success'
-              })
+            onSubmit={values => {
+              PasswordForgot(values);
             }}>
             {({
               values,
@@ -108,6 +140,7 @@ const ForgotPassword = () => {
               <Text style={styles.linkText}> Login Now</Text>
             </TouchableOpacity>
           </View>
+          {loader && <ScreenLoader isProcessing={loader} />}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

@@ -20,12 +20,17 @@ import Button from '../components/Button';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import {showMessage} from 'react-native-flash-message';
+import axios from 'axios';
+import {reset_password} from '../restapi/ApiConfig';
+import ScreenLoader from '../components/ScreenLoader';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const ResetPassword = () => {
+const ResetPassword = ({route}) => {
   const navigation = useNavigation();
 
+  const tempId = route?.params?.tempId;
+  console.log('TEMP', tempId);
   const validationSchema = Yup.object().shape({
     password: Yup.string()
       .required('Password is required')
@@ -41,11 +46,43 @@ const ResetPassword = () => {
       ),
   });
 
-  // const [secure, setSecure] = useState(true);
+  const [loader, setLoader] = useState(false);
   const [secure, setSecure] = useState({password: true, confirmPassword: true});
 
   const toggleSecure = field => {
     setSecure(prevSecure => ({...prevSecure, [field]: !prevSecure[field]}));
+  };
+
+  const PasswordResetApi = async values => {
+    try {
+      setLoader(true);
+      const response = await axios({
+        method: 'POST',
+        url: reset_password,
+        data: {
+          tempId: tempId,
+          password: values.password,
+          password_confirmation: values.confirmPassword,
+        },
+      });
+      console.log('Reset Res--', response);
+      if (response?.data?.status === true) {
+        setLoader(false);
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+        });
+        navigation?.dispatch(
+          CommonActions?.reset({
+            index: 0,
+            routes: [{name: 'Login'}],
+          }),
+        );
+      }
+    } catch (error) {
+      console.log('error', error);
+      setLoader(false);
+    }
   };
 
   return (
@@ -65,17 +102,8 @@ const ResetPassword = () => {
               confirmPassword: '',
             }}
             validationSchema={validationSchema}
-            onSubmit={() => {
-              showMessage({
-                message: 'Password reset successfully',
-                type: 'success',
-              });
-              navigation?.dispatch(
-                CommonActions.reset({
-                  index: 0,
-                  routes: [{name: 'Login'}],
-                }),
-              );
+            onSubmit={values => {
+              PasswordResetApi(values);
             }}>
             {({
               values,
@@ -185,6 +213,7 @@ const ResetPassword = () => {
               <Text style={styles.linkText}> Login Now</Text>
             </TouchableOpacity>
           </View>
+          {loader && <ScreenLoader isProcessing={loader} />}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

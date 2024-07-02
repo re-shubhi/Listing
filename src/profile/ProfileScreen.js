@@ -8,21 +8,28 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Modal
 } from 'react-native';
 import React from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import {useNavigation} from '@react-navigation/native';
+import Button from '../components/Button';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
   return (
     <>
       <SafeAreaView style={styles.screen}>
-      <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
+        <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
         <Header
           backicon={true}
           headerText={'Profile'}
@@ -106,7 +113,25 @@ const ProfileScreen = () => {
               <Text style={styles.subText}>1993-12-12</Text>
             </View>
           </View>
+          <TouchableOpacity style={styles.logout} onPress={()=>
+            setModalVisible(true)
+          } >
+            <Image
+              source={require('../assets/images/icons/exit.png')}
+              style={{height: 20, width: 20, tintColor: COLORS.base}}
+              resizeMode="contain"
+            />
+            <Text style={styles.iconText}>Logout</Text>
+          </TouchableOpacity>
         </View>
+        <Modal visible={modalVisible} onRequestClose={closeModal}>
+          <Text>Are you sure you want to Logout?</Text>
+          <View>
+            <Button buttonTxt={"Yes"}/>
+            <Button buttonTxt={"No"}/>
+          </View>
+
+        </Modal>
       </SafeAreaView>
     </>
   );
@@ -197,5 +222,12 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.Inter500,
     lineHeight: 19,
     color: COLORS.base,
+  },
+  logout: {
+    paddingTop: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 15,
+    paddingLeft: 10,
   },
 });

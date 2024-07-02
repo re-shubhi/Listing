@@ -5,5 +5,8 @@ export const otpVerify = ServerUrl + "/api/otpVerify";
 export const resendOtp = ServerUrl + "/api/resendOtp";
 export const login = ServerUrl + "/api/login";
 export const forgotpassword_send_request = ServerUrl + "/api/forgotpassword_send_request";
-export const forgotpassword_otp_verify = ServerUrl + "api/forgotpassword_otp_verify";
+export const forgotpassword_otp_verify = ServerUrl + "/api/forgotpassword_otp_verify";
+export const reset_password = ServerUrl + "/api/reset_password";
+export const getPopnProfile = ServerUrl + "/api/getProfile";
+export const updateProfile = ServerUrl + "/api/updateProfile";
 

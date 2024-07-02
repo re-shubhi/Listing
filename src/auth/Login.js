@@ -145,20 +145,6 @@ const Login = props => {
                 console.log('Valuesss--', values);
                 LoginApi(values);
               }
-
-              // {
-              //   showMessage({
-              //     message: 'Login successfull',
-              //    type:'success'
-              //   });
-              //   props?.navigation?.dispatch(
-              //     CommonActions.reset({
-              //       index: 0,
-              //       routes: [{name: 'BottomTabNavigation'}],
-              //     }),
-              //   );
-
-              // }
             }>
             {({
               values,

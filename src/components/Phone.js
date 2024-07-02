@@ -66,7 +66,7 @@ const Phone = ({
             }
           ]}>
           <CountryPicker
-            placeholderTextColor={'grey'}
+            placeholderTextColor={COLORS.black}
             show={isPickerVisible}
             lang={'en'}
             style={{
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderColor,
   },
   countryCodeText: {
-    fontSize: fontScale*15,
+    fontSize: fontScale*16,
     color: COLORS.black,
   },
   verticalLine: {

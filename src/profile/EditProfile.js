@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -29,6 +29,11 @@ import moment from 'moment';
 import {showMessage} from 'react-native-flash-message';
 import {useNavigation} from '@react-navigation/native';
 import Phone from '../components/Phone';
+import {AuthContext} from '../restapi/AuthContext';
+import axios from 'axios';
+import {updateProfile} from '../restapi/ApiConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ScreenLoader from '../components/ScreenLoader';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -39,7 +44,7 @@ const validationSchema = Yup.object().shape({
     .required('Email address is required.')
     .matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email.'),
   gender: Yup.string().required('Gender is required'),
-  profilePic: Yup.string().required('Profile picture is required'),
+  // profilePic: Yup.string().required('Profile picture is required'),
   dob: Yup.string().required('Date of Birth is required'),
   phoneNumber: Yup.string()
     .required('Phone number is required.')
@@ -49,9 +54,14 @@ const validationSchema = Yup.object().shape({
 });
 const EditProfile = () => {
   const navigation = useNavigation();
-  const [value, setValue] = useState(null);
-  const [date, setDate] = useState(new Date());
+  const {userData, getProfileData} = useContext(AuthContext);
+  console.log('userData----EDIT', userData?.gender);
+  const [value, setValue] = useState(1);
+  const [date, setDate] = useState(
+    userData ? new Date(userData?.dob) : new Date(),
+  );
   const [open, setOpen] = useState(false);
+  const [loader, setLoader] = useState(false);
   const data = [
     {label: 'Male', value: '1'},
     {label: 'Female', value: '2'},
@@ -115,27 +125,59 @@ const EditProfile = () => {
     }, 1000);
   };
 
+  //Update profile Api
+  const ProfileUpdate = async values => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      setLoader(true);
+      const response = await axios({
+        method: 'POST',
+        url: updateProfile,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          profileImage: '',
+          name: values.name,
+          email: values.email,
+          mobile: values.phoneNumber,
+          gender: values.gender,
+          dob: values.dob,
+        },
+      });
+      console.log('UPDATE--', response);
+      if (response?.data?.status === true) {
+        setLoader(false);
+        await getProfileData();
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+        });
+        navigation?.navigate("ProfileScreen")
+      }
+    } catch (error) {
+      console.log('error', error);
+      setLoader(false);
+    }
+  };
+
   return (
     <>
       <StatusBar backgroundColor={COLORS.base} />
       <SafeAreaView style={styles.screen}>
         <Formik
           initialValues={{
-            name: '',
-            email: '',
-            profilePic: '',
-            gender: '',
-            dob: '',
-            phoneNumber: '',
+            name: userData?.name ?? '',
+            email: userData?.email ?? '',
+            // profilePic:userData?.profileImage ?? '',
+            gender: userData?.gender ?? '',
+            dob: userData?.dob ?? '',
+            phoneNumber: userData?.mobile ?? '',
           }}
           validationSchema={validationSchema}
           onSubmit={values => {
             console.log('Form values:', values);
-            showMessage({
-              message: 'Data updated',
-              type: 'success',
-            });
-            navigation.navigate('ProfileScreen');
+            ProfileUpdate(values);
           }}>
           {({
             values,
@@ -282,7 +324,12 @@ const EditProfile = () => {
                     maxHeight={300}
                     labelField="label"
                     valueField="value"
-                    placeholder="Gender"
+                    placeholder={
+                      userData?.gender
+                        ? userData.gender.charAt(0).toUpperCase() +
+                          userData.gender.slice(1)
+                        : 'Gender'
+                    }
                     value={value}
                     onChange={item => {
                       setFieldValue('gender', item.label);
@@ -323,7 +370,7 @@ const EditProfile = () => {
                       modal
                       mode="date"
                       open={open}
-                      date={date}
+                      date={userData ? new Date(userData?.dob) : date}
                       onConfirm={date => {
                         setOpen(false);
                         setDate(date);
@@ -342,6 +389,7 @@ const EditProfile = () => {
                 <View style={styles.bottomContainer}>
                   <Button buttonTxt={'Update Profile'} onPress={handleSubmit} />
                 </View>
+                {loader && <ScreenLoader isProcessing={loader} />}
               </ScrollView>
             </KeyboardAvoidingView>
           )}

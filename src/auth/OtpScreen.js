@@ -23,19 +23,111 @@ import {
   useBlurOnFulfill,
   useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
-import { showMessage } from 'react-native-flash-message';
+import {showMessage} from 'react-native-flash-message';
+import axios from 'axios';
+import {
+  forgotpassword_otp_verify,
+  forgotpassword_send_request,
+} from '../restapi/ApiConfig';
+import ScreenLoader from '../components/ScreenLoader';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const OtpScreen = () => {
+const OtpScreen = ({route}) => {
   const navigation = useNavigation();
+  const {tempId, email} = route?.params;
+  console.log('emailll', email, tempId);
   const CELL_COUNT = 4;
   const [value, setValue] = useState('');
+  const [error, setError] = useState('');
+  const [loader, setLoader] = useState(false);
   const codeInputRef = useBlurOnFulfill({value, cellCount: CELL_COUNT});
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
     value,
     setValue,
   });
+
+  const handleContinue = () => {
+    if (value.length != CELL_COUNT) {
+      setError('OTP must be 4 digits');
+    } else {
+      setError('');
+      OtpVerifyApi();
+    }
+  };
+
+  const handleChangeText = otp => {
+    setValue(otp);
+    if (otp.length !== CELL_COUNT) {
+      setError('OTP must be 4 digits');
+    } else {
+      setError('');
+      console.log('Otp--', otp);
+      setValue(otp);
+    }
+  };
+
+  //Otp verification Api
+  const OtpVerifyApi = async () => {
+    try {
+      setLoader(true);
+      const response = await axios({
+        method: 'POST',
+        url: forgotpassword_otp_verify,
+        data: {
+          tempId: tempId,
+          otp: value,
+        },
+      });
+      console.log('OTP res--', response);
+      if (response?.data?.status === true) {
+        setLoader(false);
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+        });
+        navigation?.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{name: 'ResetPassword', params: {tempId: tempId}}],
+          }),
+        );
+      }
+    } catch (error) {
+      console.log('error', error);
+      setLoader(false);
+      if (error?.response?.data?.status === false) {
+        showMessage({
+          message: error?.response?.data?.message,
+          type: 'danger',
+        });
+      }
+    }
+  };
+
+  //Resend Otp Api
+  const ResendApi = async () => {
+    try {
+      setLoader(true)
+      const response = await axios({
+        method: 'POST',
+        url: forgotpassword_send_request,
+        data: {email: email},
+      });
+      console.log('resend Res--', response);
+      if(response?.data?.status === true)
+        {
+          setLoader(false)
+          showMessage({
+            message:response?.data?.message,
+            type:'success'
+          })
+        }
+    } catch (error) {
+      console.log('Error', error);
+      setLoader(false)
+    }
+  };
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -60,7 +152,7 @@ const OtpScreen = () => {
                 ref={codeInputRef}
                 {...props}
                 value={value}
-                onChangeText={setValue}
+                onChangeText={handleChangeText}
                 cellCount={CELL_COUNT}
                 rootStyle={styles.codeFieldRoot}
                 keyboardType="number-pad"
@@ -80,32 +172,18 @@ const OtpScreen = () => {
                 )}
               />
             </View>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <View style={{marginTop: 10}}>
               <Button
                 buttonTxt={'Continue'}
-                onPress={() => {
-                  console.log('CONTINUE', value);
-                  showMessage({
-                    message:'OTP Verified successfully',
-                    type:'success'
-                  })
-                  navigation?.dispatch(
-                    CommonActions.reset({
-                      index: 0,
-                      routes: [{name: 'ResetPassword'}],
-                    }),
-                  );
-                }}
+                disabled={value.length != CELL_COUNT}
+                onPress={handleContinue}
               />
             </View>
             <View style={styles.forgotView}>
               <TouchableOpacity
                 onPress={() => {
-                  console.log('RESEND');
-                  showMessage({
-                    message:'OTP resend to email',
-                    type:'success'
-                  })
+                  ResendApi();
                 }}>
                 <Text style={styles.forgotText}>Resend OTP</Text>
               </TouchableOpacity>
@@ -127,6 +205,7 @@ const OtpScreen = () => {
               <Text style={styles.linkText}> Login Now</Text>
             </TouchableOpacity>
           </View>
+          {loader && <ScreenLoader isProcessing={loader} />}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
