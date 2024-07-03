@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -55,7 +55,7 @@ const validationSchema = Yup.object().shape({
 const EditProfile = () => {
   const navigation = useNavigation();
   const {userData, getProfileData} = useContext(AuthContext);
-  console.log('userData----EDIT', userData?.gender);
+  console.log('userData----EDIT', userData);
   const [value, setValue] = useState(1);
   const [date, setDate] = useState(
     userData ? new Date(userData?.dob) : new Date(),
@@ -117,7 +117,9 @@ const EditProfile = () => {
         quality: 'high',
       })
         .then(image => {
+          console.log("imagee",image)
           setFieldValue('profilePic', image.path);
+          // setFieldValue("profilePic", `data:${image.mime};base64,${image.data}`)
         })
         .catch(error => {
           console.log(error);
@@ -126,26 +128,70 @@ const EditProfile = () => {
   };
 
   //Update profile Api
+  // const ProfileUpdate = async values => {
+  //   const token = await AsyncStorage.getItem('token');
+  //   try {
+  //     setLoader(true);
+  //     const response = await axios({
+  //       method: 'POST',
+  //       url: updateProfile,
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       data: {
+  //         profileImage: '',
+  //         name: values.name,
+  //         email: values.email,
+  //         mobile: values.phoneNumber,
+  //         gender: values.gender,
+  //         dob: values.dob,
+  //       },
+  //     });
+  //     console.log('UPDATE--', response);
+  //     if (response?.data?.status === true) {
+  //       setLoader(false);
+  //       await getProfileData();
+  //       showMessage({
+  //         message: response?.data?.message,
+  //         type: 'success',
+  //       });
+  //       navigation?.navigate("ProfileScreen")
+  //     }
+  //   } catch (error) {
+  //     console.log('error', error);
+  //     setLoader(false);
+  //   }
+  // };
+
   const ProfileUpdate = async values => {
     const token = await AsyncStorage.getItem('token');
     try {
       setLoader(true);
+      
+      // Create form data
+      const formData = new FormData();
+      formData.append('profileImage', {
+        uri: values.profilePic,  // Assuming profilePic is a valid local file path
+        type: 'image/jpeg',      // Adjust mime type according to the image type you receive
+        name: 'profile.jpg',     // Adjust the filename as needed
+      });
+      formData.append('name', values.name);
+      formData.append('email', values.email);
+      formData.append('mobile', values.phoneNumber);
+      formData.append('gender', values.gender);
+      formData.append('dob', values.dob);
+  
+      // Make API request
       const response = await axios({
         method: 'POST',
         url: updateProfile,
         headers: {
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         },
-        data: {
-          profileImage: '',
-          name: values.name,
-          email: values.email,
-          mobile: values.phoneNumber,
-          gender: values.gender,
-          dob: values.dob,
-        },
+        data: formData,
       });
-      console.log('UPDATE--', response);
+  
       if (response?.data?.status === true) {
         setLoader(false);
         await getProfileData();
@@ -153,13 +199,14 @@ const EditProfile = () => {
           message: response?.data?.message,
           type: 'success',
         });
-        navigation?.navigate("ProfileScreen")
+        navigation?.navigate('ProfileScreen');
       }
     } catch (error) {
       console.log('error', error);
       setLoader(false);
     }
   };
+  
 
   return (
     <>
@@ -169,7 +216,7 @@ const EditProfile = () => {
           initialValues={{
             name: userData?.name ?? '',
             email: userData?.email ?? '',
-            // profilePic:userData?.profileImage ?? '',
+            profilePic:userData?.profileImage ?? '',
             gender: userData?.gender ?? '',
             dob: userData?.dob ?? '',
             phoneNumber: userData?.mobile ?? '',
@@ -198,46 +245,6 @@ const EditProfile = () => {
                 contentContainerStyle={styles.scrollContainer}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}>
-                {/* <View style={styles.container}>
-                  <Image
-                    source={
-                      values?.profilePic
-                        ? {uri: values?.profilePic}
-                        : require('../assets/images/pictures/profile.png')
-                    }
-                    style={{height: 100, width: 100, borderRadius: 100}}
-                    resizeMode="cover"
-                  />
-                  <TouchableOpacity
-                    style={[
-                      styles.edit,
-                      Platform.OS === 'ios'
-                        ? {
-                            bottom: errors.profilePic ? 50 : 20,
-                            right: errors.profilePic ? 165 : 160,
-                          }
-                        : {
-                            bottom: errors.profilePic ? 55 : 30,
-                            right: errors.profilePic ? 132 : 130,
-                          },
-                    ]}
-                    onPress={() => onSelectImage('profilePic', setFieldValue)}>
-                    <Image
-                      source={require('../assets/images/icons/edit.png')}
-                      style={{height: 20, width: 20}}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  {errors.profilePic && touched.profilePic && (
-                    <Text
-                      style={[
-                        styles.errorText,
-                        {marginTop: Platform.OS === 'ios' ? 10 : 5},
-                      ]}>
-                      {errors.profilePic}
-                    </Text>
-                  )}
-                </View> */}
                 <Header
                   backicon={true}
                   headerText={'Update Profile'}

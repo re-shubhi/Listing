@@ -8,24 +8,44 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Modal
+  Modal,
 } from 'react-native';
-import React from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import {useNavigation} from '@react-navigation/native';
+import {CommonActions, useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AuthContext} from '../restapi/AuthContext';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
-
+  const {userData, setUserData, getProfileData} = useContext(AuthContext);
+  console.log('SCREEN USERdATA===', userData);
   const closeModal = () => {
     setModalVisible(false);
   };
+  const logout = async () => {
+    setTimeout(() => {
+      AsyncStorage.removeItem('token');
+      setUserData(null);
+      setModalVisible(false),
+        navigation?.dispatch(
+          CommonActions?.reset({
+            index: 0,
+            routes: [{name: 'Login'}],
+          }),
+        );
+    }, 500);
+  };
+
+  useEffect(() => {
+    getProfileData();
+  }, [navigation]);
   return (
     <>
       <SafeAreaView style={styles.screen}>
@@ -38,19 +58,23 @@ const ProfileScreen = () => {
         />
         <View style={styles.container}>
           <Image
-            source={require('../assets/images/pictures/profile.png')}
+            source={
+              userData?.profileImage
+                ? {uri: userData?.profileImage}
+                : require('../assets/images/pictures/profile.png')
+            }
             style={{height: 100, width: 100, borderRadius: 100}}
-            resizeMode="contain"
+            resizeMode="cover"
           />
           <View>
-            <Text style={styles.name}>Andrew R. Whitesides</Text>
+            <Text style={styles.name}>{userData?.name}</Text>
             <Text
               style={{
                 ...styles.name,
                 fontSize: fontScale * 14,
                 lineHeight: 20,
               }}>
-              andrewwhitesides@gmail.com
+              {userData?.email}
             </Text>
           </View>
         </View>
@@ -66,14 +90,6 @@ const ProfileScreen = () => {
               />
               <Text style={styles.iconText}>Wishlist</Text>
             </TouchableOpacity>
-            {/* <TouchableOpacity style={styles.IconButton}>
-              <Image
-                source={require('../assets/images/icons/star.png')}
-                style={styles.icon}
-                resizeMode="contain"
-              />
-              <Text style={styles.iconText}>Following</Text>
-            </TouchableOpacity> */}
             <TouchableOpacity
               style={styles.IconButton}
               onPress={() => navigation.navigate('EditProfile')}>
@@ -88,34 +104,27 @@ const ProfileScreen = () => {
           <View style={[styles.ContainerBox, styles.boxWithShadow]}>
             <View style={styles.box}>
               <Text style={styles.Heading}>Basic Details</Text>
-              {/* <TouchableOpacity>
-                <Image
-                  source={require('../assets/images/icons/edit.png')}
-                  style={{height: 20, width: 20}}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity> */}
             </View>
             <View style={styles.box}>
               <Text style={styles.Heading}>Name</Text>
-              <Text style={styles.subText}>Andrew R. Whitesides</Text>
+              <Text style={styles.subText}>{userData?.name}</Text>
             </View>
             <View style={styles.box}>
               <Text style={styles.Heading}>Email</Text>
-              <Text style={styles.subText}>andrewwhitesides@gmail.com</Text>
+              <Text style={styles.subText}>{userData?.email}</Text>
             </View>
             <View style={styles.box}>
               <Text style={styles.Heading}>Gander</Text>
-              <Text style={styles.subText}>Male</Text>
+              <Text style={styles.subText}>{userData?.gender}</Text>
             </View>
             <View style={styles.box}>
               <Text style={styles.Heading}>DOB</Text>
-              <Text style={styles.subText}>1993-12-12</Text>
+              <Text style={styles.subText}>{userData?.dob}</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.logout} onPress={()=>
-            setModalVisible(true)
-          } >
+          <TouchableOpacity
+            style={styles.logout}
+            onPress={() => setModalVisible(true)}>
             <Image
               source={require('../assets/images/icons/exit.png')}
               style={{height: 20, width: 20, tintColor: COLORS.base}}
@@ -124,13 +133,31 @@ const ProfileScreen = () => {
             <Text style={styles.iconText}>Logout</Text>
           </TouchableOpacity>
         </View>
-        <Modal visible={modalVisible} onRequestClose={closeModal}>
-          <Text>Are you sure you want to Logout?</Text>
-          <View>
-            <Button buttonTxt={"Yes"}/>
-            <Button buttonTxt={"No"}/>
+        <Modal visible={modalVisible} onRequestClose={closeModal} transparent>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Image
+                source={require('../assets/images/icons/exit.png')}
+                style={{height: 25, width: 25, tintColor: COLORS.base}}
+                resizeMode="contain"
+              />
+              <Text style={[styles.iconText, {marginTop: 20}]}>
+                Are you sure you want to Logout?
+              </Text>
+              <View style={styles.logoutBox}>
+                <Button
+                  buttonTxt={'Yes'}
+                  onPress={logout}
+                  width={width * 0.28}
+                />
+                <Button
+                  buttonTxt={'No'}
+                  onPress={closeModal}
+                  width={width * 0.28}
+                />
+              </View>
+            </View>
           </View>
-
         </Modal>
       </SafeAreaView>
     </>
@@ -229,5 +256,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     columnGap: 15,
     paddingLeft: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    height: height * 0.3,
+    width: '80%',
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    columnGap: 20,
   },
 });
