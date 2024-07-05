@@ -14,65 +14,98 @@ import {
   BackHandler,
   Alert,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import ScreenBackgroundHome from '../components/ScreenBackgroundHome';
 import SwiperFlatList from 'react-native-swiper-flatlist';
 import CategoryListData from './CategoryListData';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
 import PopularList from './PopularList';
 import RecentList from './RecentList';
+import axios from 'axios';
+import {homescreen} from '../restapi/ApiConfig';
+import { AuthContext } from '../restapi/AuthContext';
+import ScreenLoader from '../components/ScreenLoader';
 
 const {fontScale, width, height} = Dimensions.get('screen');
-const images = [
-  require('../assets/images/pictures/slider.png'),
-  require('../assets/images/pictures/slider2.jpg'),
-  require('../assets/images/pictures/slider.png'),
-  require('../assets/images/pictures/slider2.jpg'),
-];
+
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const isfocus = useIsFocused();
   const [numColumns, setNumColumns] = useState(4);
   const [search, setSearch] = useState('');
+  const [categoryList, setCategoryList] = useState([]);
+  const [slider, setSLider] = useState([]);
+  const [loader, setLoader] = useState(false);
+
 
   const backButtonHandler = () => {
     Alert.alert(
-      "Exit App",
-      "Are you sure you want to exit the app?",
+      'Exit App',
+      'Are you sure you want to exit the app?',
       [
         {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
         },
         {
-          text: "Exit",
+          text: 'Exit',
           onPress: () => BackHandler.exitApp(),
         },
       ],
       {
         cancelable: false,
-      }
+      },
     );
     return true;
   };
 
   useFocusEffect(
-    React.useCallback(()=>{
-      BackHandler.addEventListener("hardwareBackPress",backButtonHandler);
+    React.useCallback(() => {
+      BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
 
-      return()=>{
-        BackHandler.removeEventListener("hardwareBackPress",backButtonHandler)
-      }
-    },[])
-  )
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', backButtonHandler);
+      };
+    }, []),
+  );
+
+  //Banner Slider Api 
+  const Banner = async () =>{
+    try {
+      setLoader(true)
+      const response = await axios({
+        method:'POST',
+        url:homescreen
+      })
+      console.log("Home response", response?.data)
+      if(response?.data?.status === true)
+        {
+          setLoader(false)
+          setSLider(response?.data?.slider)
+          setCategoryList(response?.data?.category)
+        }
+    } catch (error) {
+      console.log("error",error?.response?.data?.message)
+      setLoader(false)
+    }
+  }
+
+  useEffect(() => {
+    Banner()
+  }, [isfocus]);
 
   return (
     <ScreenBackgroundHome>
       <SafeAreaView style={{flex: 1}}>
-      <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
+        <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{flexGrow: 1, paddingBottom: 30}}>
@@ -106,11 +139,11 @@ const HomeScreen = () => {
               autoplayLoop
               index={2}
               showPagination
-              data={images}
+              data={slider}
               renderItem={({item}) => (
                 <View style={styles.slide}>
                   <Image
-                    source={item}
+                    source={{uri:item?.image}}
                     style={styles.image}
                     resizeMode="cover"
                   />
@@ -119,21 +152,24 @@ const HomeScreen = () => {
               paginationStyle={{marginTop: 100}}
               paginationStyleItem={{height: 8, width: 30, marginHorizontal: 5}}
               paginationStyleItemActive={{backgroundColor: COLORS.primary}}
-              paginationStyleItemInactive={{backgroundColor:COLORS.borderColor}}
+              paginationStyleItemInactive={{
+                backgroundColor: COLORS.borderColor,
+              }}
             />
           </View>
           <View style={styles.secondHalf}>
-            {CategoryListData.length > 8 && (
+            {categoryList.length > 8 && (
               <TouchableOpacity
                 style={{alignSelf: 'flex-end'}}
-                onPress={() => navigation.navigate('Categories')}>
+                onPress={() => navigation.navigate('Categories',{data:categoryList})}>
                 <Text style={styles.seemore}>See More</Text>
               </TouchableOpacity>
             )}
             <View style={[styles.container]}>
               <FlatList
-                data={CategoryListData.slice(0, 8)}
+                data={categoryList}
                 key={`${numColumns}`}
+                // keyExtractor={(item, index) => index.toString()} 
                 showsVerticalScrollIndicator={false}
                 numColumns={numColumns}
                 renderItem={({item}) => {
@@ -144,12 +180,12 @@ const HomeScreen = () => {
                         navigation.navigate('ParticularCategory', {data: item})
                       }>
                       <Image
-                        source={item.CategoryLogo}
+                        source={{uri:item.category_icon}}
                         style={{height: 24, width: 24}}
                         resizeMode="contain"
                       />
                       <Text numberOfLines={1} style={styles.CategoryText}>
-                        {item.category}
+                        {item.title}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -175,6 +211,7 @@ const HomeScreen = () => {
               <RecentList />
             </View>
           </View>
+          {loader&&<ScreenLoader isProcessing={loader}/>}
         </ScrollView>
       </SafeAreaView>
     </ScreenBackgroundHome>
@@ -270,6 +307,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: COLORS.cardsBorderColor,
     alignItems: 'center',
-    
   },
 });

@@ -57,14 +57,12 @@ const VerifyOtp = ({route}) => {
       setError('OTP must be 4 digits');
     } else {
       setError('');
-      console.log('Otp--', otp);
+      // console.log('Otp--', otp);
       setValue(otp);
     }
   };
   // Otp verification Api
   const OtpVerifyApi = async () => {
-    console.log('OTP', value);
-    console.log('userId', userId);
     try {
       setLoader(true);
       const response = await axios({
@@ -75,7 +73,7 @@ const VerifyOtp = ({route}) => {
           userId: userId,
         },
       });
-      console.log('res---', response);
+      // console.log('res---', response);
       if (response?.data?.status === true) {
         setLoader(false);
         showMessage({
@@ -90,7 +88,7 @@ const VerifyOtp = ({route}) => {
         );
       }
     } catch (error) {
-      console.log('Error Otp', error);
+      // console.log('Error Otp', error);
       if (error?.response?.data?.status === false) {
         setLoader(false);
         showMessage({
@@ -112,7 +110,7 @@ const VerifyOtp = ({route}) => {
           userId: userId,
         },
       });
-      console.log('Resend res--', response);
+      // console.log('Resend res--', response);
       if (response?.data?.status === true) {
         setLoader(false);
         showMessage({
@@ -121,7 +119,7 @@ const VerifyOtp = ({route}) => {
         });
       }
     } catch (error) {
-      console.log('error--', error);
+      // console.log('error--', error);
       setLoader(false);
     }
   };

@@ -15,35 +15,19 @@ import COLORS from '../theme/Colors';
 import { useNavigation } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('screen');
-const GridImageView = () => {
+const GridImageView = (props) => {
   const navigation = useNavigation();
+  const {data} = props?.route?.params;
+  console.log("Image----",data)
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  const data = [
-    {
-      id: 1,
-      img: require('../assets/images/pictures/slider.png'),
-    },
-    {
-      id: 2,
-      img: require('../assets/images/pictures/slider2.jpg'),
-    },
-    {
-      id: 3,
-      img: require('../assets/images/pictures/slider.png'),
-    },
-    {
-      id: 4,
-      img: require('../assets/images/pictures/slider.png'),
-    },
-  ];
 
   const renderItem = ({ item }) => (
     <View style={styles.item}>
-      <TouchableOpacity onPress={() => handleImagePress(item.img)}>
-        <Image source={item.img} style={styles.image} resizeMode="cover" />
+      <TouchableOpacity onPress={() => handleImagePress(item?.image)}>
+        <Image source={{uri:item?.image}} style={styles.image} resizeMode="cover" />
       </TouchableOpacity>
     </View>
   );
@@ -55,7 +39,7 @@ const GridImageView = () => {
 
   const closeModal = () => {
     setModalVisible(false);
-    setSelectedImage(null);
+    setSelectedImage('');
   };
 
   const numColumns = 3; 
@@ -71,16 +55,25 @@ const GridImageView = () => {
       <FlatList
         data={data}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
         numColumns={numColumns} // Use numColumns directly here
         contentContainerStyle={styles.flatlist}
+        ListEmptyComponent={()=>{
+          return(
+            <View style={{justifyContent:'center',height:height*0.7,backgroundColor:COLORS.white,alignItems:'center'}}>
+            <Text>No Photos</Text>
+            </View>
+          )
+         
+        }}
       />
       <Modal visible={modalVisible} transparent={true} onRequestClose={closeModal}>
         <View style={styles.modalContainer}>
           <TouchableOpacity style={styles.modalClose} onPress={closeModal}>
             <Image source={require('../assets/images/icons/close.png')} style={{height:15,width:15}}/>
           </TouchableOpacity>
-          <Image source={selectedImage} style={styles.modalImage} resizeMode="contain" />
+          <Image source={{uri:selectedImage}} style={styles.modalImage} resizeMode="contain" />
         </View>
       </Modal>
     </SafeAreaView>

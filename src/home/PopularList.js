@@ -7,16 +7,24 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import CardData from '../heart/CardData';
 import {useNavigation} from '@react-navigation/native';
+import {AuthContext} from '../restapi/AuthContext';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 const PopularList = () => {
   const navigation = useNavigation();
   const [data, setData] = useState(CardData);
+  const {productListing} = useContext(AuthContext);
+  
+  //Popular Listing
+  const PopularList = productListing.filter(
+    item => item.product_type === 'popular',
+  );
+  console.log('Popular List ===', PopularList);
   const toggleHeart = index => {
     const newData = [...CardData];
     newData[index].liked = !newData[index].liked;
@@ -25,17 +33,18 @@ const PopularList = () => {
   return (
     <>
       <FlatList
-        data={CardData}
+        data={PopularList}
         keyExtractor={item => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({item, index}) => {
+          // console.log("item---",item)
           return (
             <TouchableOpacity
               style={[styles.box, styles.boxWithShadow]}
-              onPress={() => navigation.navigate('DetailScreen')}>
+              onPress={() => navigation.navigate('DetailScreen',{data:item?.category_id})}>
               <Image
-                source={item.img}
+                source={{uri:item?.image}}
                 style={{height: 90, width: 90, borderRadius: 10}}
                 resizeMode="cover"
               />
@@ -44,6 +53,7 @@ const PopularList = () => {
                   style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
+                    paddingRight:15
                   }}>
                   <Text style={styles.CardTitle}>{item.title}</Text>
                   <TouchableOpacity onPress={() => toggleHeart(index)}>
@@ -58,7 +68,9 @@ const PopularList = () => {
                     />
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.address}>{item.address}</Text>
+                <View style={{width:width*0.5}}>
+                <Text  style={styles.address}>{item?.address.substring(0, 30)}</Text>
+                </View>
                 <View style={styles.lastcontainer}>
                   <View style={{flexDirection: 'row', columnGap: 5}}>
                     <Image
@@ -107,7 +119,7 @@ const styles = StyleSheet.create({
     color: COLORS.base,
   },
   address: {
-    fontSize: fontScale * 15,
+    fontSize: fontScale * 13,
     lineHeight: 19,
     fontFamily: FONTS.Inter400,
     color: COLORS.base,
@@ -124,14 +136,14 @@ const styles = StyleSheet.create({
     marginVertical: height * 0.01,
   },
   boxWithShadow: {
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.20,
+    shadowOpacity: 0.2,
     shadowRadius: 1.41,
-    
+
     elevation: 2,
   },
   seperator: {width: 15, backgroundColor: 'transparent'},

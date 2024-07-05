@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   Dimensions,
   FlatList,
@@ -17,15 +17,22 @@ import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import CardData from '../heart/CardData';
 import {useNavigation} from '@react-navigation/native';
+import { AuthContext } from '../restapi/AuthContext';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const ParticularCategory = props => {
+const ParticularCategory = (props) => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2);
-  const Data = props.route.params.data;
-  console.log('Data=====', Data);
-  const [data, setData] = useState(CardData);
+  const {data} = props?.route?.params;
+  console.log("CATEGORY name---",data?.title);
+  const {productListing} = useContext(AuthContext);
+  console.log("PARTICULAR--productListing",productListing)
+  
+  const Listing = productListing?.filter((item)=>item.category == data?.title)
+  console.log("LISTINGG",Listing)
+  
+  // const [data, setData] = useState(CardData);
   const toggleHeart = index => {
     const newData = [...CardData];
     newData[index].liked = !newData[index].liked;
@@ -39,12 +46,12 @@ const ParticularCategory = props => {
           backicon={true}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
-          headerText={Data.category}
+          headerText={data?.title}
         />
 
         <View style={styles.fullScreenRed}>
           <FlatList
-            data={CardData}
+            data={Listing}
             key={`${numColumns}`} // Change key when numColumns changes
             numColumns={numColumns}
             showsVerticalScrollIndicator={false}
@@ -54,9 +61,9 @@ const ParticularCategory = props => {
                   <TouchableOpacity
                     TouchableOpacity
                     style={[styles.card, styles.boxWithShadow]}
-                    onPress={() => navigation.navigate('DetailScreen')}>
+                    onPress={() => navigation.navigate('DetailScreen',{data:item})}>
                     <Image
-                      source={item.img}
+                      source={{uri:item?.image}}
                       style={styles.banner}
                       resizeMode="cover"
                     />
@@ -104,6 +111,14 @@ const ParticularCategory = props => {
             ItemSeparatorComponent={() => {
               return <View style={styles.seperator} />;
             }}
+            ListEmptyComponent={()=>{
+              return(
+                <View style={{justifyContent:'center',height:height*0.7,backgroundColor:COLORS.white,alignItems:'center'}}>
+                <Text>No Data Found</Text>
+                </View>
+              )
+             
+            }}
           />
         </View>
       </SafeAreaView>
@@ -149,7 +164,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
     maxWidth: width * 0.44,
-    padding: Platform.OS === 'ios' ? 10 : 5,
+    padding:  Platform.OS === 'ios' ? 10:5,
     maxHeight: height * 0.3,
     marginHorizontal: 2,
     borderRadius: 10,

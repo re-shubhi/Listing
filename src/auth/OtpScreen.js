@@ -36,7 +36,6 @@ const {height, width, fontScale} = Dimensions.get('screen');
 const OtpScreen = ({route}) => {
   const navigation = useNavigation();
   const {tempId, email} = route?.params;
-  console.log('emailll', email, tempId);
   const CELL_COUNT = 4;
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
@@ -62,7 +61,6 @@ const OtpScreen = ({route}) => {
       setError('OTP must be 4 digits');
     } else {
       setError('');
-      console.log('Otp--', otp);
       setValue(otp);
     }
   };
@@ -79,7 +77,7 @@ const OtpScreen = ({route}) => {
           otp: value,
         },
       });
-      console.log('OTP res--', response);
+      // console.log('OTP res--', response);
       if (response?.data?.status === true) {
         setLoader(false);
         showMessage({
@@ -94,7 +92,7 @@ const OtpScreen = ({route}) => {
         );
       }
     } catch (error) {
-      console.log('error', error);
+      // console.log('error', error);
       setLoader(false);
       if (error?.response?.data?.status === false) {
         showMessage({
@@ -114,7 +112,7 @@ const OtpScreen = ({route}) => {
         url: forgotpassword_send_request,
         data: {email: email},
       });
-      console.log('resend Res--', response);
+      // console.log('resend Res--', response);
       if(response?.data?.status === true)
         {
           setLoader(false)
@@ -124,7 +122,7 @@ const OtpScreen = ({route}) => {
           })
         }
     } catch (error) {
-      console.log('Error', error);
+      // console.log('Error', error);
       setLoader(false)
     }
   };

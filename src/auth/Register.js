@@ -69,7 +69,7 @@ const Register = () => {
   };
   //api for register
   const RegisterApi = async values => {
-    console.log('values-----', values);
+    // console.log('values-----', values);
     try {
       setLoader(true);
       const response = await axios({
@@ -83,7 +83,7 @@ const Register = () => {
           deviceType:Platform.OS == 'ios'? "2":"1",
         },
       });
-      console.log('response---', response?.data);
+      // console.log('response---', response?.data);
       if (response?.data?.status == true) {
         setLoader(false);
         showMessage({
@@ -100,7 +100,7 @@ const Register = () => {
         );
       }
     } catch (error) {
-      console.log('error Register', error);
+      // console.log('error Register', error);
       setLoader(false);
       if (error?.response?.data?.status === false) {
         showMessage({
@@ -132,7 +132,7 @@ const Register = () => {
             }}
             validationSchema={validationSchema}
             onSubmit={values => {
-              console.log('values', values);
+              // console.log('values', values);
               RegisterApi(values);
             }}>
             {({

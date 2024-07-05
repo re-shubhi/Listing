@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   Dimensions,
   FlatList,
@@ -14,6 +14,7 @@ import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import CardData from '../heart/CardData';
 import {useNavigation} from '@react-navigation/native';
+import { AuthContext } from '../restapi/AuthContext';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -21,6 +22,8 @@ const RecentList = () => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2);
   const [data, setData] = useState(CardData);
+  const {productListing} = useContext(AuthContext);
+  console.log("productListingproductListing",productListing)
   const toggleHeart = index => {
     const newData = [...CardData];
     newData[index].liked = !newData[index].liked;
@@ -29,7 +32,7 @@ const RecentList = () => {
   return (
     <>
       <FlatList
-        data={CardData}
+        data={productListing}
         key={`${numColumns}`} // Change key when numColumns changes
         numColumns={numColumns}
         showsVerticalScrollIndicator={false}
@@ -39,9 +42,9 @@ const RecentList = () => {
             <>
               <TouchableOpacity
                 style={[styles.card, styles.boxWithShadow]}
-                onPress={() => navigation.navigate('DetailScreen')}>
+                onPress={() => navigation.navigate('DetailScreen',{data:item})}>
                 <Image
-                  source={item.img}
+                  source={{uri:item?.image}}
                   style={styles.banner}
                   resizeMode="cover"
                 />
@@ -56,13 +59,13 @@ const RecentList = () => {
                           ? require('../assets/images/icons/redheart.png')
                           : require('../assets/images/icons/heart.png')
                       }
-                      style={{height: 20, width: 20}}
+                      style={{height: 18, width: 18}}
                       resizeMode="contain"
                     />
                   </TouchableOpacity>
                 </View>
                 <Text numberOfLines={1} style={styles.address}>
-                  {item.address}
+                 {item?.address.substring(0, 30)}
                 </Text>
                 <View style={styles.lastcontainer}>
                   <View style={{flexDirection: 'row', columnGap: 5}}>

@@ -41,7 +41,7 @@ const ForgotPassword = () => {
 
   //ForgotPassword Api
   const PasswordForgot = async values => {
-    console.log('EMAIL', values);
+    // console.log('EMAIL', values);
     try {
       setLoader(true);
       const response = await axios({
@@ -51,7 +51,7 @@ const ForgotPassword = () => {
           email: values.email,
         },
       });
-      console.log('Response Email', response);
+      // console.log('Response Email', response);
       if (response?.data?.status === true) {
         setLoader(false);
         showMessage({
@@ -61,7 +61,7 @@ const ForgotPassword = () => {
         navigation?.navigate('OtpScreen',{tempId:response?.data?.tempId,email:response?.data?.email});
       }
     } catch (error) {
-      console.log('Errorr Forgot', error);
+      // console.log('Errorr Forgot', error);
       if (error?.response?.data?.status === false) {
         setLoader(false);
         showMessage({

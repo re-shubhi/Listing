@@ -30,7 +30,6 @@ const ResetPassword = ({route}) => {
   const navigation = useNavigation();
 
   const tempId = route?.params?.tempId;
-  console.log('TEMP', tempId);
   const validationSchema = Yup.object().shape({
     password: Yup.string()
       .required('Password is required')
@@ -65,7 +64,7 @@ const ResetPassword = ({route}) => {
           password_confirmation: values.confirmPassword,
         },
       });
-      console.log('Reset Res--', response);
+      // console.log('Reset Res--', response);
       if (response?.data?.status === true) {
         setLoader(false);
         showMessage({
@@ -80,7 +79,7 @@ const ResetPassword = ({route}) => {
         );
       }
     } catch (error) {
-      console.log('error', error);
+      // console.log('error', error);
       setLoader(false);
     }
   };

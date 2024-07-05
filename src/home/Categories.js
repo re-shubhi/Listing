@@ -18,9 +18,11 @@ import {useNavigation} from '@react-navigation/native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const Categories = () => {
+const Categories = (props) => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(4);
+  const {data} = props?.route?.params;
+  console.log("CATEGORYYY",data)
   return (
     <ScreenWithBackground>
       <SafeAreaView style={styles.container}>
@@ -32,7 +34,7 @@ const Categories = () => {
         />
         <View style={styles.fullScreenRed}>
           <FlatList
-            data={CategoryListData}
+            data={data}
             key={`${numColumns}`}
             showsVerticalScrollIndicator={false}
             numColumns={numColumns}
@@ -42,12 +44,12 @@ const Categories = () => {
                   style={[styles.box, styles.boxWithShadow]}
                   onPress={() => navigation.navigate('ParticularCategory',{data:item})}>
                   <Image
-                    source={item.CategoryLogo}
+                    source={{uri:item.category_icon}}
                     style={{height: 24, width: 24}}
                     resizeMode="contain"
                   />
                   <Text numberOfLines={1} style={styles.CategoryText}>
-                    {item.category}
+                  {item.title}
                   </Text>
                 </TouchableOpacity>
               );

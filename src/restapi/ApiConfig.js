@@ -9,4 +9,9 @@ export const forgotpassword_otp_verify = ServerUrl + "/api/forgotpassword_otp_ve
 export const reset_password = ServerUrl + "/api/reset_password";
 export const getPopnProfile = ServerUrl + "/api/getProfile";
 export const updateProfile = ServerUrl + "/api/updateProfile";
+export const category = ServerUrl + "/api/category";
+export const product = ServerUrl + "/api/product";
+export const productDetails = ServerUrl + "/api/productDetails";
+export const homescreen = ServerUrl + "/api/home-screen";
+export const addReview = ServerUrl + "/api/addReview";
 

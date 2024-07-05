@@ -10,7 +10,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import MidTabs from './MidTabs';
@@ -20,18 +20,21 @@ const {height, width, fontScale} = Dimensions.get('screen');
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import Reviews from './Reviews';
 import About from './About';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Header from '../components/Header';
+import axios from 'axios';
+import {productDetails} from '../restapi/ApiConfig';
+import ScreenLoader from '../components/ScreenLoader';
 
 const Tab = createMaterialTopTabNavigator();
 
 const DetailScreen = props => {
   const navigation = useNavigation();
+  const isfocus = useIsFocused();
   const [scrollY] = useState(new Animated.Value(0));
   const HEADER_MAX_HEIGHT = 290;
   const HEADER_MIN_HEIGHT = Platform.OS == 'ios' ? 100 : height * 0.07;
   const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
-
   //header Hieght
   const headerHeight = scrollY.interpolate({
     inputRange: [0, HEADER_SCROLL_DISTANCE],
@@ -48,6 +51,38 @@ const DetailScreen = props => {
     outputRange: [0, -50],
     extrapolate: 'clamp',
   });
+  const {data} = props?.route?.params;
+  console.log('category_id', data);
+  const [detail, setDetail] = useState([]);
+  const [loader, setLoader] = useState(false);
+
+  //Detail Product Api
+
+  const ProductDetail = async () => {
+    try {
+      setLoader(true);
+      const response = await axios({
+        method: 'POST',
+        url: productDetails,
+        data: {
+          id: data,
+        },
+      });
+      console.log('Details---', response);
+      if (response?.data?.status === true) {
+        setLoader(false);
+        setDetail(response?.data?.data);
+      }
+    } catch (error) {
+      console.log('error Detail', error?.response);
+      setLoader(false);
+    }
+  };
+  console.log('00000', detail?.[0]?.category);
+
+  useEffect(() => {
+    ProductDetail();
+  }, [isfocus]);
 
   return (
     <View style={styles.screen}>
@@ -60,7 +95,7 @@ const DetailScreen = props => {
               transform: [{translateY: imageTranslate}],
             },
           ]}
-          source={require('../assets/images/pictures/slider.png')}
+          source={{uri: detail?.[0]?.image}}
         />
         <Animated.View style={{marginTop: 35}}>
           <Header backicon={true} tintColor={COLORS.white} />
@@ -69,13 +104,13 @@ const DetailScreen = props => {
           <View />
           <TouchableOpacity
             style={styles.Btn}
-            onPress={() => props.navigation.navigate('GridImageView', {})}>
+            onPress={() => props.navigation.navigate('GridImageView', {data:detail?.[0]?.galleryData})}>
             <Image
               resizeMode="contain"
               style={{height: 15, width: 15}}
               source={require('../assets/images/icons/imgIcon.png')}
             />
-            <Text style={{color: '#000', fontWeight: '800'}}>4</Text>
+            <Text style={{color: '#000', fontWeight: '800'}}>{detail?.[0]?.galleryData.length}</Text>
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>
@@ -88,16 +123,16 @@ const DetailScreen = props => {
         showsVerticalScrollIndicator={false}>
         <View style={styles.scrollViewContent}>
           <View style={styles.container}>
-            <View style={{rowGap: 4}}>
-              <Text style={styles.heading}>Moor Mall</Text>
-              <Text style={styles.address}>Ferry Road ,Maidenhead</Text>
-              <View style={{flexDirection: 'row', columnGap: 5}}>
+            <View style={{rowGap: 4, width: width * 0.65}}>
+              <Text style={styles.heading}>{detail?.[0]?.title}</Text>
+              <Text style={styles.address}>{detail?.[0]?.address}</Text>
+              <View style={{flexDirection: 'row', columnGap: 5, paddingTop: 5}}>
                 <Image
                   source={require('../assets/images/icons/star2.png')}
                   style={{height: 16, width: 16}}
                   resizeMode="contain"
                 />
-                <Text style={styles.rate}>4.5</Text>
+                <Text style={styles.rate}>{detail?.[0]?.rating}</Text>
               </View>
             </View>
             <View style={styles.distanceCont}>
@@ -122,9 +157,9 @@ const DetailScreen = props => {
               }}
               resizeMode="contain"
             />
-            <View>
-              <Text style={[styles.address, {fontSize: fontScale * 15}]}>
-                Ferry Road ,Maidenhead
+            <View style={{width: width * 0.6}}>
+              <Text style={[styles.address, {fontSize: fontScale * 13}]}>
+                {detail?.[0]?.address}
               </Text>
               <TouchableOpacity
                 onPress={() => {
@@ -135,7 +170,7 @@ const DetailScreen = props => {
                     styles.heading,
                     {
                       color: COLORS.primary,
-                      paddingTop: Platform.OS === 'ios' ? 5 : 2,
+                      paddingTop: 5,
                     },
                   ]}>
                   Open on maps
@@ -143,8 +178,9 @@ const DetailScreen = props => {
               </TouchableOpacity>
             </View>
           </View>
-          <MidTabs />
+          <MidTabs route={{ params: { detail } }}/>
         </View>
+        {loader && <ScreenLoader isProcessing={loader} />}
       </ScrollView>
     </View>
   );
@@ -214,6 +250,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     marginVertical: 15,
     borderRadius: 30,
+    height: height * 0.04,
   },
   mapsContent: {
     flexDirection: 'row',

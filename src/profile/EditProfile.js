@@ -55,8 +55,7 @@ const validationSchema = Yup.object().shape({
 const EditProfile = () => {
   const navigation = useNavigation();
   const {userData, getProfileData} = useContext(AuthContext);
-  console.log('userData----EDIT', userData);
-  const [value, setValue] = useState(1);
+  const [value, setValue] = useState(userData?.gender || '');
   const [date, setDate] = useState(
     userData ? new Date(userData?.dob) : new Date(),
   );
@@ -77,13 +76,13 @@ const EditProfile = () => {
         {
           text: 'Camera',
           onPress: () => {
-            onCamera(type, setFieldValue);
+            onCamera(setFieldValue);
           },
         },
         {
           text: 'Photo',
           onPress: () => {
-            onGallary(type, setFieldValue);
+            onGallary(setFieldValue);
           },
         },
         {text: 'Cancel', onPress: () => {}},
@@ -91,7 +90,7 @@ const EditProfile = () => {
     }
   };
 
-  const onCamera = (type, setFieldValue) => {
+  const onCamera = (setFieldValue) => {
     setTimeout(() => {
       ImagePicker.openCamera({
         width: 300,
@@ -100,6 +99,7 @@ const EditProfile = () => {
         quality: 'high',
       })
         .then(image => {
+          // console.log("imagee",image)
           setFieldValue('profilePic', image.path);
         })
         .catch(error => {
@@ -108,7 +108,7 @@ const EditProfile = () => {
     }, 1000);
   };
 
-  const onGallary = (type, setFieldValue) => {
+  const onGallary = (setFieldValue) => {
     setTimeout(() => {
       ImagePicker.openPicker({
         width: 300,
@@ -117,9 +117,8 @@ const EditProfile = () => {
         quality: 'high',
       })
         .then(image => {
-          console.log("imagee",image)
+          // console.log("imagee",image)
           setFieldValue('profilePic', image.path);
-          // setFieldValue("profilePic", `data:${image.mime};base64,${image.data}`)
         })
         .catch(error => {
           console.log(error);
@@ -127,41 +126,6 @@ const EditProfile = () => {
     }, 1000);
   };
 
-  //Update profile Api
-  // const ProfileUpdate = async values => {
-  //   const token = await AsyncStorage.getItem('token');
-  //   try {
-  //     setLoader(true);
-  //     const response = await axios({
-  //       method: 'POST',
-  //       url: updateProfile,
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       data: {
-  //         profileImage: '',
-  //         name: values.name,
-  //         email: values.email,
-  //         mobile: values.phoneNumber,
-  //         gender: values.gender,
-  //         dob: values.dob,
-  //       },
-  //     });
-  //     console.log('UPDATE--', response);
-  //     if (response?.data?.status === true) {
-  //       setLoader(false);
-  //       await getProfileData();
-  //       showMessage({
-  //         message: response?.data?.message,
-  //         type: 'success',
-  //       });
-  //       navigation?.navigate("ProfileScreen")
-  //     }
-  //   } catch (error) {
-  //     console.log('error', error);
-  //     setLoader(false);
-  //   }
-  // };
 
   const ProfileUpdate = async values => {
     const token = await AsyncStorage.getItem('token');
@@ -223,7 +187,7 @@ const EditProfile = () => {
           }}
           validationSchema={validationSchema}
           onSubmit={values => {
-            console.log('Form values:', values);
+            // console.log('Form values:', values);
             ProfileUpdate(values);
           }}>
           {({
@@ -257,7 +221,7 @@ const EditProfile = () => {
                       source={
                         values?.profilePic
                           ? {uri: values?.profilePic}
-                          : require('../assets/images/pictures/profile.png')
+                          : require('../assets/images/pictures/profile3.png')
                       }
                       style={{height: 100, width: 100, borderRadius: 100}}
                       resizeMode="cover"
@@ -339,6 +303,7 @@ const EditProfile = () => {
                     }
                     value={value}
                     onChange={item => {
+                      // console.log("slected",item)
                       setFieldValue('gender', item.label);
                       setValue(item.label);
                     }}

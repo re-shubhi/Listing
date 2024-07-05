@@ -14,7 +14,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import {CommonActions, useNavigation} from '@react-navigation/native';
+import {CommonActions, useIsFocused, useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../restapi/AuthContext';
@@ -23,9 +23,9 @@ const {height, width, fontScale} = Dimensions.get('screen');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const isfocus = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
   const {userData, setUserData, getProfileData} = useContext(AuthContext);
-  console.log('SCREEN USERdATA===', userData);
   const closeModal = () => {
     setModalVisible(false);
   };
@@ -45,7 +45,7 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     getProfileData();
-  }, [navigation]);
+  }, [isfocus]);
   return (
     <>
       <SafeAreaView style={styles.screen}>
@@ -57,15 +57,17 @@ const ProfileScreen = () => {
           tintColor={COLORS.white}
         />
         <View style={styles.container}>
+          <View style={{borderRadius: 100,borderWidth:1,borderColor:COLORS?.white}}>
           <Image
             source={
               userData?.profileImage
                 ? {uri: userData?.profileImage}
-                : require('../assets/images/pictures/profile.png')
+                : require('../assets/images/pictures/profile3.png')
             }
             style={{height: 100, width: 100, borderRadius: 100}}
             resizeMode="cover"
           />
+          </View>
           <View>
             <Text style={styles.name}>{userData?.name}</Text>
             <Text
@@ -114,7 +116,7 @@ const ProfileScreen = () => {
               <Text style={styles.subText}>{userData?.email}</Text>
             </View>
             <View style={styles.box}>
-              <Text style={styles.Heading}>Gander</Text>
+              <Text style={styles.Heading}>Gender</Text>
               <Text style={styles.subText}>{userData?.gender}</Text>
             </View>
             <View style={styles.box}>

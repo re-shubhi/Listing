@@ -98,7 +98,7 @@ const Login = props => {
           deviceToken: 'mskm.msd',
         },
       });
-      console.log('Login Res----', response);
+      // console.log('Login Res----', response);
       if (response?.data?.status === true) {
         setLoader(false);
         await AsyncStorage.setItem('token',response?.data?.token)
@@ -114,7 +114,7 @@ const Login = props => {
         )
       }
     } catch (error) {
-      console.log('Login error---', error);
+      // console.log('Login error---', error);
       setLoader(false);
       if (error?.response?.data?.status === false) {
         showMessage({
@@ -142,7 +142,7 @@ const Login = props => {
             validationSchema={validationSchema}
             onSubmit={
               values => {
-                console.log('Valuesss--', values);
+                // console.log('Valuesss--', values);
                 LoginApi(values);
               }
             }>
