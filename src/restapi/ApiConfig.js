@@ -14,4 +14,7 @@ export const product = ServerUrl + "/api/product";
 export const productDetails = ServerUrl + "/api/productDetails";
 export const homescreen = ServerUrl + "/api/home-screen";
 export const addReview = ServerUrl + "/api/addReview";
+export const getWishList = ServerUrl + "/api/getWishList";
+export const addRemoveWishlist = ServerUrl + "/api/addRemoveWishlist";
+export const getNotification = ServerUrl + "/api/getNotification";
 

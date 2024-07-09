@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Dimensions,
   FlatList,
@@ -17,31 +17,148 @@ import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import CardData from '../heart/CardData';
 import {useNavigation} from '@react-navigation/native';
-import { AuthContext } from '../restapi/AuthContext';
+import {AuthContext} from '../restapi/AuthContext';
+import {addRemoveWishlist} from '../restapi/ApiConfig';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {showMessage} from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const ParticularCategory = (props) => {
+const ParticularCategory = props => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2);
+  const [distance, setDistance] = useState({});
   const {data} = props?.route?.params;
-  console.log("CATEGORY name---",data?.title);
-  const {productListing} = useContext(AuthContext);
-  console.log("PARTICULAR--productListing",productListing)
-  
-  const Listing = productListing?.filter((item)=>item.category == data?.title)
-  console.log("LISTINGG",Listing)
-  
-  // const [data, setData] = useState(CardData);
-  const toggleHeart = index => {
-    const newData = [...CardData];
-    newData[index].liked = !newData[index].liked;
-    setData(newData);
+  console.log('CATEGORY name---', data?.title);
+  const {productListing, ListWishlist, location} = useContext(AuthContext);
+  console.log('PARTICULAR--productListing', productListing);
+
+  const Listing = productListing?.filter(item => item.category == data?.title);
+  console.log('LISTINGG', Listing);
+
+  useEffect(() => {
+    // Calculate distances for all items when location or productListing changes
+    const distances = {};
+    productListing.forEach(item => {
+      const lat1 = location?.coords?.latitude;
+      const lon1 = location?.coords?.longitude;
+      const lat2 = item.latitude;
+      const lon2 = item.longitude;
+      distances[item.id] = calculateDistance(lat1, lon1, lat2, lon2);
+    });
+    setDistance(distances);
+  }, [location, productListing]);
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in kilometers
+
+    return distance;
+  }
+
+  function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+  }
+
+  //Api to add remove wishList
+  const AddRemove = async id => {
+    console.log('ListWishlist====idddd', id);
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: addRemoveWishlist,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          product_id: id,
+        },
+      });
+      console.log('resss addd/remove---', response?.data);
+      if (response?.data?.status === true) {
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+        });
+        await ListWishlist();
+      }
+    } catch (error) {
+      console.log('error add', error?.response);
+    }
   };
+
+  const renderItem = ({item}) => {
+    const itemDistance = distance[item.id]?.toFixed(2) || '';
+    return (
+      <>
+        <TouchableOpacity
+          TouchableOpacity
+          style={[styles.card, styles.boxWithShadow]}
+          onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+          <Image
+            source={{uri: item?.image}}
+            style={styles.banner}
+            resizeMode="cover"
+          />
+          <View style={styles.content}>
+            <Text numberOfLines={1} style={styles.CardTitle}>
+              {item.title}
+            </Text>
+            <TouchableOpacity onPress={() => AddRemove(item?.category_id)}>
+              <Image
+                source={
+                  item.liked
+                    ? require('../assets/images/icons/redheart.png')
+                    : require('../assets/images/icons/heart.png')
+                }
+                style={{height: 15, width: 15}}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
+          <Text numberOfLines={1} style={styles.address}>
+            {item.address}
+          </Text>
+          <View style={styles.lastcontainer}>
+            <View style={{flexDirection: 'row', columnGap: 5}}>
+              <Image
+                source={require('../assets/images/icons/star2.png')}
+                style={{height: 18, width: 18}}
+                resizeMode="contain"
+              />
+              <Text style={styles.rate}>{Math.ceil(item.rating)}</Text>
+            </View>
+            <View style={{flexDirection: 'row', columnGap: 5}}>
+              <Image
+                source={require('../assets/images/icons/location.png')}
+                style={{height: 18, width: 18}}
+                resizeMode="contain"
+              />
+              <Text style={styles.rate}>{Math.ceil(itemDistance)} km</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </>
+    );
+  };
+  
   return (
     <ScreenWithBackground>
       <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
+        <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
         <Header
           backicon={true}
           backgroundColor={COLORS.base}
@@ -55,69 +172,22 @@ const ParticularCategory = (props) => {
             key={`${numColumns}`} // Change key when numColumns changes
             numColumns={numColumns}
             showsVerticalScrollIndicator={false}
-            renderItem={({item,index}) => {
-              return (
-                <>
-                  <TouchableOpacity
-                    TouchableOpacity
-                    style={[styles.card, styles.boxWithShadow]}
-                    onPress={() => navigation.navigate('DetailScreen',{data:item})}>
-                    <Image
-                      source={{uri:item?.image}}
-                      style={styles.banner}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.content}>
-                      <Text numberOfLines={1} style={styles.CardTitle}>
-                        {item.title}
-                      </Text>
-                      <TouchableOpacity  onPress={() => toggleHeart(index)}>
-                      <Image
-                      source={
-                        item.liked
-                          ? require('../assets/images/icons/redheart.png')
-                          : require('../assets/images/icons/heart.png')
-                      }
-                      style={{height: 15, width: 15}}
-                      resizeMode="contain"
-                    />
-                      </TouchableOpacity>
-                    </View>
-                    <Text numberOfLines={1} style={styles.address}>
-                      {item.address}
-                    </Text>
-                    <View style={styles.lastcontainer}>
-                      <View style={{flexDirection: 'row', columnGap: 5}}>
-                        <Image
-                          source={require('../assets/images/icons/star2.png')}
-                          style={{height: 18, width: 18}}
-                          resizeMode="contain"
-                        />
-                        <Text style={styles.rate}>{item.rating}</Text>
-                      </View>
-                      <View style={{flexDirection: 'row', columnGap: 5}}>
-                        <Image
-                          source={require('../assets/images/icons/location.png')}
-                          style={{height: 18, width: 18}}
-                          resizeMode="contain"
-                        />
-                        <Text style={styles.rate}>{item.distance}</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                </>
-              );
-            }}
+            renderItem={renderItem}
             ItemSeparatorComponent={() => {
               return <View style={styles.seperator} />;
             }}
-            ListEmptyComponent={()=>{
-              return(
-                <View style={{justifyContent:'center',height:height*0.7,backgroundColor:COLORS.white,alignItems:'center'}}>
-                <Text>No Data Found</Text>
+            ListEmptyComponent={() => {
+              return (
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    height: height * 0.7,
+                    backgroundColor: COLORS.white,
+                    alignItems: 'center',
+                  }}>
+                  <Text>No Data Found</Text>
                 </View>
-              )
-             
+              );
             }}
           />
         </View>
@@ -164,7 +234,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
     maxWidth: width * 0.44,
-    padding:  Platform.OS === 'ios' ? 10:5,
+    padding: Platform.OS === 'ios' ? 10 : 5,
     maxHeight: height * 0.3,
     marginHorizontal: 2,
     borderRadius: 10,
@@ -189,7 +259,10 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     alignItems: 'center',
   },
-  seperator: {height:Platform.OS === 'ios'?10: 0, backgroundColor: 'transparent'},
+  seperator: {
+    height: Platform.OS === 'ios' ? 10 : 0,
+    backgroundColor: 'transparent',
+  },
   boxWithShadow: {
     shadowColor: '#000',
     shadowOffset: {

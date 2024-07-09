@@ -30,8 +30,8 @@ import PopularList from './PopularList';
 import RecentList from './RecentList';
 import axios from 'axios';
 import {homescreen} from '../restapi/ApiConfig';
-import { AuthContext } from '../restapi/AuthContext';
 import ScreenLoader from '../components/ScreenLoader';
+import { AuthContext } from '../restapi/AuthContext';
 
 const {fontScale, width, height} = Dimensions.get('screen');
 
@@ -43,7 +43,7 @@ const HomeScreen = () => {
   const [categoryList, setCategoryList] = useState([]);
   const [slider, setSLider] = useState([]);
   const [loader, setLoader] = useState(false);
-
+  const{getLocation} = useContext(AuthContext);
 
   const backButtonHandler = () => {
     Alert.alert(
@@ -77,29 +77,29 @@ const HomeScreen = () => {
     }, []),
   );
 
-  //Banner Slider Api 
-  const Banner = async () =>{
+  //Banner Slider Api
+  const Banner = async () => {
     try {
-      setLoader(true)
+      setLoader(true);
       const response = await axios({
-        method:'POST',
-        url:homescreen
-      })
-      console.log("Home response", response?.data)
-      if(response?.data?.status === true)
-        {
-          setLoader(false)
-          setSLider(response?.data?.slider)
-          setCategoryList(response?.data?.category)
-        }
+        method: 'POST',
+        url: homescreen,
+      });
+      console.log('Home response', response?.data);
+      if (response?.data?.status === true) {
+        setLoader(false);
+        setSLider(response?.data?.slider);
+        setCategoryList(response?.data?.category);
+      }
     } catch (error) {
-      console.log("error",error?.response?.data?.message)
-      setLoader(false)
+      console.log('error', error?.response?.data?.message);
+      setLoader(false);
     }
-  }
+  };
 
   useEffect(() => {
-    Banner()
+    Banner();
+    getLocation()
   }, [isfocus]);
 
   return (
@@ -143,7 +143,7 @@ const HomeScreen = () => {
               renderItem={({item}) => (
                 <View style={styles.slide}>
                   <Image
-                    source={{uri:item?.image}}
+                    source={{uri: item?.image}}
                     style={styles.image}
                     resizeMode="cover"
                   />
@@ -161,7 +161,9 @@ const HomeScreen = () => {
             {categoryList.length > 8 && (
               <TouchableOpacity
                 style={{alignSelf: 'flex-end'}}
-                onPress={() => navigation.navigate('Categories',{data:categoryList})}>
+                onPress={() =>
+                  navigation.navigate('Categories', {data: categoryList})
+                }>
                 <Text style={styles.seemore}>See More</Text>
               </TouchableOpacity>
             )}
@@ -169,7 +171,7 @@ const HomeScreen = () => {
               <FlatList
                 data={categoryList}
                 key={`${numColumns}`}
-                // keyExtractor={(item, index) => index.toString()} 
+                // keyExtractor={(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
                 numColumns={numColumns}
                 renderItem={({item}) => {
@@ -180,7 +182,7 @@ const HomeScreen = () => {
                         navigation.navigate('ParticularCategory', {data: item})
                       }>
                       <Image
-                        source={{uri:item.category_icon}}
+                        source={{uri: item.category_icon}}
                         style={{height: 24, width: 24}}
                         resizeMode="contain"
                       />
@@ -211,7 +213,7 @@ const HomeScreen = () => {
               <RecentList />
             </View>
           </View>
-          {loader&&<ScreenLoader isProcessing={loader}/>}
+          {loader && <ScreenLoader isProcessing={loader} />}
         </ScrollView>
       </SafeAreaView>
     </ScreenBackgroundHome>

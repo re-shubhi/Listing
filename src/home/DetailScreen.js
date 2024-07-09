@@ -10,7 +10,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import MidTabs from './MidTabs';
@@ -25,6 +25,7 @@ import Header from '../components/Header';
 import axios from 'axios';
 import {productDetails} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
+import {AuthContext} from '../restapi/AuthContext';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -55,9 +56,10 @@ const DetailScreen = props => {
   console.log('category_id', data);
   const [detail, setDetail] = useState([]);
   const [loader, setLoader] = useState(false);
+  const [distance, setDistance] = useState(null);
+  const {location, addressLocation} = useContext(AuthContext);
 
   //Detail Product Api
-
   const ProductDetail = async () => {
     try {
       setLoader(true);
@@ -78,11 +80,53 @@ const DetailScreen = props => {
       setLoader(false);
     }
   };
-  console.log('00000', detail?.[0]?.category);
+  console.log('00000', detail);
+  console.log('locationlocation', location);
+  console.log('locationloaddressLocationcation', addressLocation);
+  const lat1 = location?.coords?.latitude;
+  const lon1 = location?.coords?.longitude;
+  const lat2 = parseFloat(detail?.[0]?.latitude);
+  const lon2 = parseFloat(detail?.[0]?.longitude);
+  // console.log('lat1:', lat1); // Check latitude of location
+  // console.log('lon1:', lon1); // Check longitude of location
+  // console.log('lat2:', lat2); // Check latitude of destination
+  // console.log('lon2:', lon2); // Check longitude of destination
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in kilometers
+    console.log('distance ====', distance);
+    setDistance(distance);
+    return;
+    distance;
+  }
+  function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+  }
 
   useEffect(() => {
     ProductDetail();
   }, [isfocus]);
+  useEffect(() => {
+    if (location && detail && detail.length > 0) {
+      const lat1 = location?.coords?.latitude;
+      const lon1 = location?.coords?.longitude;
+      const lat2 = parseFloat(detail?.[0]?.latitude);
+      const lon2 = parseFloat(detail?.[0]?.longitude);
+      calculateDistance(lat1, lon1, lat2, lon2);
+    }
+  }, [location, detail]);
 
   return (
     <View style={styles.screen}>
@@ -104,13 +148,19 @@ const DetailScreen = props => {
           <View />
           <TouchableOpacity
             style={styles.Btn}
-            onPress={() => props.navigation.navigate('GridImageView', {data:detail?.[0]?.galleryData})}>
+            onPress={() =>
+              props.navigation.navigate('GridImageView', {
+                data: detail?.[0]?.galleryData,
+              })
+            }>
             <Image
               resizeMode="contain"
               style={{height: 15, width: 15}}
               source={require('../assets/images/icons/imgIcon.png')}
             />
-            <Text style={{color: '#000', fontWeight: '800'}}>{detail?.[0]?.galleryData.length}</Text>
+            <Text style={{color: '#000', fontWeight: '800'}}>
+              {detail?.[0]?.galleryData.length}
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>
@@ -122,7 +172,7 @@ const DetailScreen = props => {
         contentContainerStyle={{flexGrow: 1, marginBottom: 40}}
         showsVerticalScrollIndicator={false}>
         <View style={styles.scrollViewContent}>
-          <View style={styles.container}>
+          <View style={[styles.container]}>
             <View style={{rowGap: 4, width: width * 0.65}}>
               <Text style={styles.heading}>{detail?.[0]?.title}</Text>
               <Text style={styles.address}>{detail?.[0]?.address}</Text>
@@ -132,16 +182,19 @@ const DetailScreen = props => {
                   style={{height: 16, width: 16}}
                   resizeMode="contain"
                 />
-                <Text style={styles.rate}>{detail?.[0]?.rating}</Text>
+                <Text style={styles.rate}>
+                  {Math.ceil(detail?.[0]?.rating)}
+                </Text>
               </View>
             </View>
-            <View style={styles.distanceCont}>
+            <View style={[styles.distanceCont, {width: width * 0.28}]}>
               <Text
+                numberOfLines={1}
                 style={[
                   styles.heading,
                   {color: COLORS.white, fontSize: fontScale * 15},
                 ]}>
-                1.5 Km
+                {Math.ceil(distance)} km 
               </Text>
             </View>
           </View>
@@ -163,7 +216,7 @@ const DetailScreen = props => {
               </Text>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('MapScreen');
+                  navigation.navigate('MapScreen', {data: detail?.[0]});
                 }}>
                 <Text
                   style={[
@@ -178,7 +231,7 @@ const DetailScreen = props => {
               </TouchableOpacity>
             </View>
           </View>
-          <MidTabs route={{ params: { detail } }}/>
+          <MidTabs route={{params: {detail}}} />
         </View>
         {loader && <ScreenLoader isProcessing={loader} />}
       </ScrollView>

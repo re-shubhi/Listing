@@ -30,9 +30,7 @@ const {height, width, fontScale} = Dimensions.get('screen');
 const Register = () => {
   const navigation = useNavigation();
   const validationSchema = Yup.object().shape({
-    username: Yup.string()
-      .required('Name is required')
-      .matches(/^[a-zA-Z][a-zA-Z0-9_-]{2,15}$/, 'Invalid name'),
+    username: Yup.string().min(3, 'Name is too short!').required('Name is required.'),
     email: Yup.string()
       .email('Invalid email')
       .required('Email is required')
@@ -70,6 +68,7 @@ const Register = () => {
   //api for register
   const RegisterApi = async values => {
     // console.log('values-----', values);
+    console.log("callingCode",countryCode)
     try {
       setLoader(true);
       const response = await axios({
@@ -78,6 +77,7 @@ const Register = () => {
         data: {
           name: values.username,
           email: values.email,
+          phone_code: countryCode?.callingCode,
           mobile: values.phoneNumber,
           password: values.confirmPassword,
           deviceType:Platform.OS == 'ios'? "2":"1",

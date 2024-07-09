@@ -961,6 +961,27 @@ PODS:
     - React-debug
   - react-native-date-picker (5.0.4):
     - React-Core
+  - react-native-geolocation (3.2.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-google-maps (1.15.6):
     - Google-Maps-iOS-Utils (= 4.2.2)
     - GoogleMaps (= 7.4.0)
@@ -1290,6 +1311,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
+  - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
   - react-native-google-maps (from `../node_modules/react-native-maps`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -1393,6 +1415,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   react-native-date-picker:
     :path: "../node_modules/react-native-date-picker"
+  react-native-geolocation:
+    :path: "../node_modules/@react-native-community/geolocation"
   react-native-google-maps:
     :path: "../node_modules/react-native-maps"
   react-native-maps:
@@ -1490,6 +1514,7 @@ SPEC CHECKSUMS:
   React-logger: 29fa3e048f5f67fe396bc08af7606426d9bd7b5d
   React-Mapbuffer: bf56147c9775491e53122a94c423ac201417e326
   react-native-date-picker: 6891317e850deae5b53d51355226e07a495aba61
+  react-native-geolocation: fe0562c94eb0b6334f266aea717448dfd9b08cd0
   react-native-google-maps: 7ca1d252585c9ee2bbe2a3f64e4c061801b43d64
   react-native-maps: 7b2c2cee95271592a92ba485eea1dec66a363a6e
   react-native-pager-view: e2b7c31147cdc1750cb3867d37a145e487653c34

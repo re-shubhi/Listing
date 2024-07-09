@@ -33,6 +33,10 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string></string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Need access to update pictures</string>
 	<key>UIAppFonts</key>
