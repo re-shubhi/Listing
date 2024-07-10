@@ -11,7 +11,7 @@ const MapScreen = props => {
   console.log('data--', data);
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header backicon={true} tintColor={'#000'} />
+      <Header backicon={true} tintColor={'#000'} backgroundColor={'transparent'}/>
       <MapView
         provider={PROVIDER_GOOGLE}
         style={styles.map}

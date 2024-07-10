@@ -19,15 +19,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {addRemoveWishlist} from '../restapi/ApiConfig';
 import axios from 'axios';
 import {showMessage} from 'react-native-flash-message';
+import useDebounce from '../restapi/useDebounce';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const RecentList = () => {
+const RecentList = ({search}) => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2);
   const [distance, setDistance] = useState({});
-  const {productListing, ListWishlist, location} = useContext(AuthContext);
-  // console.log('productListingproductListing', productListing);
+  const [likedItems, setLikedItems] = useState({});
+  const {productListing, ListWishlist, location, wishlist} =
+    useContext(AuthContext);
+  console.log('productListingproductListing', productListing);
+  console.log('searchsearch', search);
+  const debouncedSearchTerm = (search, 500);
+
+  const data = debouncedSearchTerm
+    ? productListing?.filter(item =>
+        item?.title?.toLowerCase().includes(search.toLowerCase()),
+      )
+    : productListing;
 
   useEffect(() => {
     // Calculate distances for all items when location or productListing changes
@@ -40,7 +51,14 @@ const RecentList = () => {
       distances[item.id] = calculateDistance(lat1, lon1, lat2, lon2);
     });
     setDistance(distances);
-  }, [location, productListing]);
+
+    const initialLikedItems = {};
+    wishlist?.forEach(item => {
+      initialLikedItems[item?.product_id] = true;
+      console.log('initialLikedItems', initialLikedItems);
+    });
+    setLikedItems(initialLikedItems);
+  }, [location, productListing, wishlist]);
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the Earth in kilometers
@@ -85,36 +103,46 @@ const RecentList = () => {
           message: response?.data?.message,
           type: 'success',
         });
+        setLikedItems(prevState => ({
+          ...prevState,
+          [id]: !prevState[id],
+        }));
         await ListWishlist();
       }
     } catch (error) {
       console.log('error add', error?.response);
     }
   };
+
   const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
+    const isLiked = likedItems[item?.id];
     return (
       <>
-        <TouchableOpacity
-          style={[styles.card, styles.boxWithShadow]}
-          onPress={() => navigation.navigate('DetailScreen', {data: item})}>
-          <Image
-            source={{uri: item?.image}}
-            style={styles.banner}
-            resizeMode="cover"
-          />
+        <View style={[styles.card, styles.boxWithShadow]}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+            <Image
+              source={{uri: item?.image}}
+              style={styles.banner}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
           <View style={styles.content}>
-            <Text numberOfLines={1} style={styles.CardTitle}>
-              {item.title}
-            </Text>
-            <TouchableOpacity onPress={() => AddRemove(item?.category_id)}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+              <Text numberOfLines={1} style={styles.CardTitle}>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => AddRemove(item?.id)}>
               <Image
                 source={
-                  item.liked
-                    ? require('../assets/images/icons/redheart.png')
-                    : require('../assets/images/icons/heart.png')
+                  isLiked
+                    ? require('../assets/images/icons/heart2.png')
+                    : require('../assets/images/icons/heartBlank.png')
                 }
-                style={{height: 18, width: 18}}
+                style={{height: 17, width: 17}}
                 resizeMode="contain"
               />
             </TouchableOpacity>
@@ -140,14 +168,14 @@ const RecentList = () => {
               <Text style={styles.rate}>{Math.ceil(itemDistance)} km</Text>
             </View>
           </View>
-        </TouchableOpacity>
+        </View>
       </>
     );
   };
   return (
     <>
       <FlatList
-        data={productListing}
+        data={data}
         key={`${numColumns}`} // Change key when numColumns changes
         numColumns={numColumns}
         showsVerticalScrollIndicator={false}
@@ -155,6 +183,19 @@ const RecentList = () => {
         renderItem={renderItem}
         ItemSeparatorComponent={() => {
           return <View style={styles.seperator} />;
+        }}
+        ListEmptyComponent={() => {
+          return (
+            <View
+              style={{
+                justifyContent: 'center',
+                height: height * 0.2,
+                backgroundColor: COLORS.white,
+                alignItems: 'center',
+              }}>
+              <Text>No Photos</Text>
+            </View>
+          );
         }}
       />
     </>

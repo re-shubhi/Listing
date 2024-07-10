@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Dimensions,
   FlatList,
@@ -11,19 +11,25 @@ import {
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import CardData from '../heart/CardData';
-import { useNavigation } from '@react-navigation/native';
-import { AuthContext } from '../restapi/AuthContext';
-import { addRemoveWishlist } from '../restapi/ApiConfig';
+import {useNavigation} from '@react-navigation/native';
+import {AuthContext} from '../restapi/AuthContext';
+import {addRemoveWishlist} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { showMessage } from 'react-native-flash-message';
+import {showMessage} from 'react-native-flash-message';
 import axios from 'axios';
+import useDebounce from '../restapi/useDebounce';
 
-const { height, width, fontScale } = Dimensions.get('screen');
+const {height, width, fontScale} = Dimensions.get('screen');
 
-const PopularList = () => {
+const PopularList = ({search}) => {
   const navigation = useNavigation();
-  const [distance, setDistance] = useState({}); 
-  const { productListing, ListWishlist, location } = useContext(AuthContext);
+  const [distance, setDistance] = useState({});
+  const {productListing, ListWishlist, location, wishlist} =
+    useContext(AuthContext);
+  const [likedItems, setLikedItems] = useState({});
+
+  console.log('s<PopularList search={search} />', search);
+  const debouncedSearchTerm = useDebounce(search, 500);
 
   useEffect(() => {
     // Calculate distances for all items when location or productListing changes
@@ -36,7 +42,14 @@ const PopularList = () => {
       distances[item.id] = calculateDistance(lat1, lon1, lat2, lon2);
     });
     setDistance(distances);
-  }, [location, productListing]);
+
+    // Initialize liked state based on wishlist
+    const initialLikedItems = {};
+    wishlist.forEach(item => {
+      initialLikedItems[item.product_id] = true;
+    });
+    setLikedItems(initialLikedItems);
+  }, [location, productListing, wishlist]);
 
   // Function to calculate distance
   function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -82,6 +95,11 @@ const PopularList = () => {
           message: response?.data?.message,
           type: 'success',
         });
+        // Toggle liked status for the item
+        setLikedItems(prevState => ({
+          ...prevState,
+          [id]: !prevState[id],
+        }));
         await ListWishlist();
       }
     } catch (error) {
@@ -90,68 +108,80 @@ const PopularList = () => {
   };
 
   // Popular Listing
-  const popularItems = productListing.filter(item => item.product_type === 'popular');
+  const popularItems = debouncedSearchTerm
+    ? productListing.filter(item =>
+        item.title.toLowerCase().includes(search.toLowerCase()),
+      )
+    : productListing.filter(item => item.product_type === 'popular');
+
+  console.log('popularItemspopularItems', popularItems);
+
+  // console.log('wishlistwishlist', wishlist);
 
   // Render item function for FlatList
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
-    
+    const isLiked = likedItems[item?.id];
     return (
-      <TouchableOpacity
-        style={[styles.box, styles.boxWithShadow]}
-        onPress={() =>
-          navigation.navigate('DetailScreen', { data: item?.category_id })
-        }
-      >
-        <Image
-          source={{ uri: item?.image }}
-          style={{ height: 90, width: 90, borderRadius: 10 }}
-          resizeMode="cover"
-        />
-        <View style={{ rowGap: 4 }}>
+      <View style={[styles.box, styles.boxWithShadow]}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('DetailScreen', {data: item?.category_id})
+          }>
+          <Image
+            source={{uri: item?.image}}
+            style={{height: 90, width: 90, borderRadius: 10}}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+        <View style={{rowGap: 4}}>
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
               paddingRight: 15,
-            }}
-          >
-            <Text style={styles.CardTitle}>{item.title}</Text>
+            }}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('DetailScreen', {data: item?.category_id})
+              }>
+              <Text style={styles.CardTitle}>{item.title}</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => AddRemove(item?.category_id)}>
               <Image
                 source={
-                  item.liked
-                    ? require('../assets/images/icons/redheart.png')
-                    : require('../assets/images/icons/heart.png')
+                  isLiked
+                    ? require('../assets/images/icons/heart2.png')
+                    : require('../assets/images/icons/heartBlank.png')
                 }
-                style={{ height: 15, width: 15 }}
+                style={{height: 17, width: 17}}
                 resizeMode="contain"
               />
             </TouchableOpacity>
           </View>
-          <View style={{ width: width * 0.5 }}>
+          <View style={{width: width * 0.5}}>
             <Text style={styles.address}>{item?.address.substring(0, 30)}</Text>
           </View>
           <View style={styles.lastcontainer}>
-            <View style={{ flexDirection: 'row', columnGap: 5 }}>
+            <View style={{flexDirection: 'row', columnGap: 5}}>
               <Image
                 source={require('../assets/images/icons/star2.png')}
-                style={{ height: 18, width: 18 }}
+                style={{height: 18, width: 18}}
                 resizeMode="contain"
               />
               <Text style={styles.rate}>{Math.ceil(item.rating)}</Text>
             </View>
-            <View style={{ flexDirection: 'row', columnGap: 5 }}>
+            <View style={{flexDirection: 'row', columnGap: 5}}>
               <Image
                 source={require('../assets/images/icons/location.png')}
-                style={{ height: 18, width: 18 }}
+                style={{height: 18, width: 18}}
                 resizeMode="contain"
               />
               <Text style={styles.rate}>{Math.ceil(itemDistance)} km</Text>
             </View>
           </View>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -163,6 +193,20 @@ const PopularList = () => {
       showsHorizontalScrollIndicator={false}
       renderItem={renderItem}
       ItemSeparatorComponent={() => <View style={styles.seperator} />}
+      ListEmptyComponent={() => {
+        return (
+          <View
+            style={{
+              justifyContent: 'center',
+              height: height * 0.1,
+              backgroundColor: COLORS.white,
+              alignItems: 'center',
+              marginLeft: width * 0.3,
+            }}>
+            <Text>No data found</Text>
+          </View>
+        );
+      }}
     />
   );
 };
@@ -209,5 +253,5 @@ const styles = StyleSheet.create({
     shadowRadius: 1.41,
     elevation: 2,
   },
-  seperator: { width: 15, backgroundColor: 'transparent' },
+  seperator: {width: 15, backgroundColor: 'transparent'},
 });

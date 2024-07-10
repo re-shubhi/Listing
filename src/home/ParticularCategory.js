@@ -29,9 +29,11 @@ const ParticularCategory = props => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2);
   const [distance, setDistance] = useState({});
+  const [likeItems, setLikedItems] = useState({});
   const {data} = props?.route?.params;
   console.log('CATEGORY name---', data?.title);
-  const {productListing, ListWishlist, location} = useContext(AuthContext);
+  const {productListing, ListWishlist, location, wishlist} =
+    useContext(AuthContext);
   console.log('PARTICULAR--productListing', productListing);
 
   const Listing = productListing?.filter(item => item.category == data?.title);
@@ -47,8 +49,13 @@ const ParticularCategory = props => {
       const lon2 = item.longitude;
       distances[item.id] = calculateDistance(lat1, lon1, lat2, lon2);
     });
-    setDistance(distances);
-  }, [location, productListing]);
+
+    const initialLikedItems = {};
+    wishlist.forEach(item => {
+      initialLikedItems[item.product_id] = true;
+    });
+    setLikedItems(initialLikedItems);
+  }, [location, productListing, wishlist]);
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the Earth in kilometers
@@ -93,6 +100,10 @@ const ParticularCategory = props => {
           message: response?.data?.message,
           type: 'success',
         });
+        setLikedItems(prevState => ({
+          ...prevState,
+          [id]: !prevState[id],
+        }));
         await ListWishlist();
       }
     } catch (error) {
@@ -102,29 +113,33 @@ const ParticularCategory = props => {
 
   const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
+    const isLiked = likeItems[item?.id];
     return (
       <>
-        <TouchableOpacity
-          TouchableOpacity
-          style={[styles.card, styles.boxWithShadow]}
-          onPress={() => navigation.navigate('DetailScreen', {data: item})}>
-          <Image
-            source={{uri: item?.image}}
-            style={styles.banner}
-            resizeMode="cover"
-          />
+        <View style={[styles.card, styles.boxWithShadow]}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+            <Image
+              source={{uri: item?.image}}
+              style={styles.banner}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
           <View style={styles.content}>
-            <Text numberOfLines={1} style={styles.CardTitle}>
-              {item.title}
-            </Text>
-            <TouchableOpacity onPress={() => AddRemove(item?.category_id)}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+              <Text numberOfLines={1} style={styles.CardTitle}>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => AddRemove(item?.id)}>
               <Image
                 source={
-                  item.liked
-                    ? require('../assets/images/icons/redheart.png')
-                    : require('../assets/images/icons/heart.png')
+                  isLiked
+                    ? require('../assets/images/icons/heart2.png')
+                    : require('../assets/images/icons/heartBlank.png')
                 }
-                style={{height: 15, width: 15}}
+                style={{height: 17, width: 17}}
                 resizeMode="contain"
               />
             </TouchableOpacity>
@@ -150,11 +165,11 @@ const ParticularCategory = props => {
               <Text style={styles.rate}>{Math.ceil(itemDistance)} km</Text>
             </View>
           </View>
-        </TouchableOpacity>
+        </View>
       </>
     );
   };
-  
+
   return (
     <ScreenWithBackground>
       <SafeAreaView style={styles.container}>

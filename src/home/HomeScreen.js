@@ -33,6 +33,7 @@ import {homescreen} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import { AuthContext } from '../restapi/AuthContext';
 
+
 const {fontScale, width, height} = Dimensions.get('screen');
 
 const HomeScreen = () => {
@@ -200,7 +201,7 @@ const HomeScreen = () => {
 
             <View>
               <Text style={styles.headingText}>Popular</Text>
-              <PopularList />
+              <PopularList search={search} />
               <Text
                 style={[
                   styles.headingText,
@@ -210,7 +211,7 @@ const HomeScreen = () => {
               </Text>
             </View>
             <View style={{alignItems: 'center'}}>
-              <RecentList />
+              <RecentList search={search} />
             </View>
           </View>
           {loader && <ScreenLoader isProcessing={loader} />}

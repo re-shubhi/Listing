@@ -71,6 +71,7 @@ const Notification = () => {
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: 60}}
+            inverted
             renderItem={({item}) => {
               return (
                 <>

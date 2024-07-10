@@ -2,50 +2,50 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import {getPopnProfile, getWishList, product} from './ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useIsFocused } from '@react-navigation/native';
-import { PermissionsAndroid, Platform } from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
+import {PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
 const AuthContext = React.createContext();
 
 const AuthContextProvider = ({children}) => {
-
   const [userData, setUserData] = useState({});
   const [productListing, setProductListing] = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const [location, setLocation] = useState("");
-  const [addressLocation, setAddressLocation] = useState("");
+  const [location, setLocation] = useState('');
+  const [search, setSearch] = useState('');
+  const [addressLocation, setAddressLocation] = useState('');
 
-
-  const  defaultLocation = {
-    "mocked": false,
-    "timestamp": 1701664967867,
-    "extras": {
-        "networkLocationType": "cell"
+  const defaultLocation = {
+    mocked: false,
+    timestamp: 1701664967867,
+    extras: {
+      networkLocationType: 'cell',
     },
-    "coords": {
-        "speed": 0,
-        "heading": 0,
-        "altitude": 0,
-        "accuracy": 600,
-        "longitude": -122.083922,
-        "latitude": 37.4220936
-    }
-}
+    coords: {
+      speed: 0,
+      heading: 0,
+      altitude: 0,
+      accuracy: 600,
+      longitude: -122.083922,
+      latitude: 37.4220936,
+    },
+  };
 
- //*************************requestPermissionLocation********************
+  //*************************requestPermissionLocation********************
   async function requestPermissionLocation() {
     try {
       if (Platform.OS === 'android') {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
-            title: "Listing App Location Permission",
-            message: "Listing App needs access to your device's location to provide accurate information.",
-            buttonNeutral: "Ask Me Later",
-            buttonNegative: "Cancel",
-            buttonPositive: "OK",
-          }
+            title: 'Listing App Location Permission',
+            message:
+              "Listing App needs access to your device's location to provide accurate information.",
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           return true;
@@ -54,11 +54,10 @@ const AuthContextProvider = ({children}) => {
         }
       } else if (Platform.OS === 'ios') {
         const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-        console.log("result----location",result)
+        console.log('result----location', result);
         if (result === 'granted') {
           return true;
-        } else if(result === 'blocked') {
-          
+        } else if (result === 'blocked') {
           return false;
         } else {
           // ExitApp.exitApp();
@@ -71,25 +70,25 @@ const AuthContextProvider = ({children}) => {
     }
   }
 
- //*************************FETCH ADDRESSS********************
+  //*************************FETCH ADDRESSS********************
   const fetchLocationAddress = async (latitude, longitude) => {
     try {
-       const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyATQGHudmo58qTZY5QfT0G48vCBR1pd0-k`;
+      const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyATQGHudmo58qTZY5QfT0G48vCBR1pd0-k`;
       axios
         .get(apiUrl)
-        .then((response) => {
-          console.log("response:", response?.data);
+        .then(response => {
+          console.log('response:', response?.data);
           const data = response.data;
           if (data.results && data.results.length > 0) {
             const address = data.results[0].formatted_address;
             setAddressLocation(address);
-            console.log("Address:", address);
+            console.log('Address:', address);
           } else {
-            console.log("No results found");
+            console.log('No results found');
           }
         })
-        .catch((error) => {
-          console.error("Error:", error);
+        .catch(error => {
+          console.error('Error:', error);
         });
     } catch (error) {}
   };
@@ -98,33 +97,31 @@ const AuthContextProvider = ({children}) => {
   const getLocation = async () => {
     const result = requestPermissionLocation();
 
-    result.then((res) => {
-      console.log("res is:-------1698", res);
+    result.then(res => {
+      console.log('res is:-------1698', res);
       if (res) {
         Geolocation.getCurrentPosition(
-          (position) => {
-            console.log("position-------",position)
+          position => {
+            console.log('position-------', position);
             setLocation(position);
             fetchLocationAddress(
               position?.coords?.latitude,
-              position?.coords?.longitude
+              position?.coords?.longitude,
             );
           },
-          (error) => {
+          error => {
             // ExitApp.exitApp();
-            console.log("sdgdsfhdsh----198",error)
-
+            console.log('sdgdsfhdsh----198', error);
           },
-          { enableHighAccuracy: false, timeout: 15000 }
+          {enableHighAccuracy: false, timeout: 15000},
         );
       } else {
         // ExitApp.exitApp();
-   
-        console.log("location permission decline");
-     
+
+        console.log('location permission decline');
       }
     });
-    console.log("location",location);
+    console.log('location', location);
   };
 
   //*************************USER PROFILE DATA********************
@@ -147,40 +144,42 @@ const AuthContextProvider = ({children}) => {
     }
   };
   //*************************PRODUCTS LISTING********************
-const ProductListing = async () => {
-  try {
-    const response = await axios({
-      method:'POST',
-      url:product,  
-    })
-    console.log("Response Product ---",response?.data)
-    if(response?.data?.status === true)
-      {
-        setProductListing(response?.data?.data)
+  const ProductListing = async () => {
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: product,
+        data:{
+          title:search
+        }
+      });
+      console.log('Response Product ---', response?.data);
+      if (response?.data?.status === true) {
+        setProductListing(response?.data?.data);
       }
-  } catch (error) {
-    console.log("product error",error?.response)
-  }
-}
-//*************************WISH LIST********************
-const ListWishlist = async () => {
-  const token = await AsyncStorage.getItem('token');
-  try {
-    const response = await axios({
-      method: 'POST',
-      url: getWishList,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log('resss---', response?.data);
-    if (response?.data?.status === true) {
-      setWishlist(response?.data?.list);
+    } catch (error) {
+      console.log('product error', error?.response);
     }
-  } catch (error) {
-    console.log('error wishlist', error?.response);
-  }
-};
+  };
+  //*************************WISH LIST********************
+  const ListWishlist = async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: getWishList,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('resss---', response?.data);
+      if (response?.data?.status === true) {
+        setWishlist(response?.data?.list);
+      }
+    } catch (error) {
+      console.log('error wishlist', error?.response);
+    }
+  };
 
   useEffect(() => {
     getProfileData();
@@ -202,7 +201,9 @@ const ListWishlist = async () => {
         defaultLocation,
         location,
         addressLocation,
-        getLocation
+        getLocation,
+        search,
+        setSearch,
       }}>
       {children}
     </AuthContext.Provider>

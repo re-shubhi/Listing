@@ -27,6 +27,7 @@ const {height, width, fontScale} = Dimensions.get('screen');
 const Wishlist = () => {
   const navigation = useNavigation();
   const [distance, setDistance] = useState({});
+  const [likedItems, setLikedItems] = useState({});
   const [numColumns, setNumColumns] = useState(2); // State for the number of columns
   const {ListWishlist, wishlist, location} = useContext(AuthContext);
 
@@ -41,7 +42,7 @@ const Wishlist = () => {
       distances[item.id] = calculateDistance(lat1, lon1, lat2, lon2);
     });
     setDistance(distances);
-  }, [location, wishlist]);
+  }, [location]);
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the Earth in kilometers
@@ -96,56 +97,56 @@ const Wishlist = () => {
   const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     return (
-      <>
+      <View style={[styles.card, styles.boxWithShadow]}>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('DetailScreen', {data: item?.category_id})
-          }
-          style={[styles.card, styles.boxWithShadow]}>
+          }>
           <Image
             source={{uri: item?.image}}
             style={styles.banner}
             resizeMode="cover"
           />
-          <View style={styles.content}>
+        </TouchableOpacity>
+        <View style={styles.content}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('DetailScreen', {data: item?.category_id})
+            }>
             <Text numberOfLines={1} style={styles.CardTitle}>
               {item.title}
             </Text>
-            <TouchableOpacity onPress={() => AddRemove(item?.category_id)}>
-              <Image
-                source={
-                  item.liked
-                    ? require('../assets/images/icons/redheart.png')
-                    : require('../assets/images/icons/heart.png')
-                }
-                style={{height: 15, width: 15}}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => AddRemove(item?.product_id)}>
+            <Image
+              source={require('../assets/images/icons/heart2.png')}
+              style={{height: 17, width: 17}}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        </View>
+        <Text numberOfLines={1} style={styles.address}>
+          {item.address}
+        </Text>
+        <View style={styles.lastcontainer}>
+          <View style={{flexDirection: 'row', columnGap: 5}}>
+            <Image
+              source={require('../assets/images/icons/star2.png')}
+              style={{height: 18, width: 18}}
+              resizeMode="contain"
+            />
+            <Text style={styles.rate}>{Math.ceil(item.rating)}</Text>
           </View>
-          <Text numberOfLines={1} style={styles.address}>
-            {item.address}
-          </Text>
-          <View style={styles.lastcontainer}>
-            <View style={{flexDirection: 'row', columnGap: 5}}>
-              <Image
-                source={require('../assets/images/icons/star2.png')}
-                style={{height: 18, width: 18}}
-                resizeMode="contain"
-              />
-              <Text style={styles.rate}>{Math.ceil(item.rating)}</Text>
-            </View>
-            <View style={{flexDirection: 'row', columnGap: 5}}>
-              <Image
-                source={require('../assets/images/icons/location.png')}
-                style={{height: 18, width: 18}}
-                resizeMode="contain"
-              />
-              <Text style={styles.rate}>{Math.ceil(itemDistance)} km </Text>
-            </View>
+          <View style={{flexDirection: 'row', columnGap: 5}}>
+            <Image
+              source={require('../assets/images/icons/location.png')}
+              style={{height: 18, width: 18}}
+              resizeMode="contain"
+            />
+            <Text style={styles.rate}>{Math.ceil(itemDistance)} km </Text>
           </View>
-        </TouchableOpacity>
-      </>
+        </View>
+      </View>
     );
   };
 
