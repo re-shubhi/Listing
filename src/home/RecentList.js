@@ -193,7 +193,7 @@ const RecentList = ({search}) => {
                 backgroundColor: COLORS.white,
                 alignItems: 'center',
               }}>
-              <Text>No Photos</Text>
+              <Text>No data found</Text>
             </View>
           );
         }}

@@ -13,8 +13,9 @@ import {
   StatusBar,
   BackHandler,
   Alert,
+  RefreshControl,
 } from 'react-native';
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
@@ -31,8 +32,7 @@ import RecentList from './RecentList';
 import axios from 'axios';
 import {homescreen} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
-import { AuthContext } from '../restapi/AuthContext';
-
+import {AuthContext} from '../restapi/AuthContext';
 
 const {fontScale, width, height} = Dimensions.get('screen');
 
@@ -43,8 +43,9 @@ const HomeScreen = () => {
   const [search, setSearch] = useState('');
   const [categoryList, setCategoryList] = useState([]);
   const [slider, setSLider] = useState([]);
+  const [refresh, setRefresh] = useState(false);
   const [loader, setLoader] = useState(false);
-  const{getLocation} = useContext(AuthContext);
+  const {getLocation} = useContext(AuthContext);
 
   const backButtonHandler = () => {
     Alert.alert(
@@ -97,43 +98,65 @@ const HomeScreen = () => {
       setLoader(false);
     }
   };
+  const onRefreshing = useCallback(() => {
+    setSearch('');
+    setRefresh(true);
+    Banner();
+    setTimeout(() => {
+      setRefresh(false);
+    }, 500);
+  }, []);
 
   useEffect(() => {
     Banner();
-    getLocation()
+    getLocation();
   }, [isfocus]);
 
   return (
     <ScreenBackgroundHome>
       <SafeAreaView style={{flex: 1}}>
         <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
+        <Header backgroundColor={COLORS.base} headerText={'Home'} />
+        <View
+          style={{
+            paddingHorizontal: width * 0.03,
+            paddingBottom: height * 0.02,
+          }}>
+          <View style={styles.search}>
+            <Image
+              source={require('../assets/images/icons/search.png')}
+              style={{height: 20, width: 20}}
+              resizeMode="contain"
+            />
+            <TextInput
+              style={styles.textInput}
+              placeholder="Search here"
+              placeholderTextColor={COLORS.white}
+              value={search}
+              onChangeText={search => setSearch(search)}
+            />
+            <Image
+              source={require('../assets/images/icons/filter.png')}
+              style={{height: 20, width: 20}}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
         <ScrollView
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refresh}
+              onRefresh={onRefreshing}
+              colors={[COLORS.primary]}
+              tintColor={'#00BED4'}
+            />
+          }
           contentContainerStyle={{flexGrow: 1, paddingBottom: 30}}>
-          <Header backgroundColor={COLORS.base} headerText={'Home'} />
           <View
             style={{
               paddingHorizontal: width * 0.03,
             }}>
-            <View style={styles.search}>
-              <Image
-                source={require('../assets/images/icons/search.png')}
-                style={{height: 20, width: 20}}
-                resizeMode="contain"
-              />
-              <TextInput
-                style={styles.textInput}
-                placeholder="Search here"
-                placeholderTextColor={COLORS.white}
-                value={search}
-                onChangeText={search => setSearch(search)}
-              />
-              <Image
-                source={require('../assets/images/icons/filter.png')}
-                style={{height: 20, width: 20}}
-                resizeMode="contain"
-              />
-            </View>
             <SwiperFlatList
               autoplay
               autoplayDelay={2}
