@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import React, {useContext, useState} from 'react';
 import Reviews from './Reviews';
@@ -27,7 +28,6 @@ import {AuthContext} from '../restapi/AuthContext';
 const Tab = createMaterialTopTabNavigator();
 const {height, width, fontScale} = Dimensions.get('screen');
 
-
 export default function MidTabs(props) {
   const {ProductListing} = useContext(AuthContext);
   const [expand, setExpand] = useState(false);
@@ -36,7 +36,7 @@ export default function MidTabs(props) {
   };
   const About = () => {
     return (
-      <View style={{padding: 20, flex: 1, paddingBottom: 50}}>
+      <ScrollView style={{padding: 20, flex: 1, paddingBottom: 50}}>
         <View>
           <View>
             {expand ? (
@@ -59,7 +59,7 @@ export default function MidTabs(props) {
             <Button buttonTxt={'Call for more information'} />
           </View>
         </View>
-      </View>
+      </ScrollView>
     );
   };
   const {detail} = props?.route?.params;
@@ -120,12 +120,16 @@ export default function MidTabs(props) {
       }
     };
     return (
-      <>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        // onTouchEnd={() => Keyboard.dismiss()}
+      >
         <View
           style={{
             backgroundColor: COLORS.white,
             flex: 1,
             padding: 20,
+            paddingBottom: 50,
           }}>
           <Text style={styles.textheading}>How was your Service ?</Text>
           <AirbnbRating
@@ -164,7 +168,7 @@ export default function MidTabs(props) {
           </View>
         </View>
         {loader && <ScreenLoader isProcessing={loader} />}
-      </>
+      </ScrollView>
     );
   };
 

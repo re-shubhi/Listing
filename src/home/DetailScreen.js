@@ -244,7 +244,7 @@ export default DetailScreen;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.white,
     position: 'relative',
   },
   header: {
@@ -313,14 +313,14 @@ const styles = StyleSheet.create({
     paddingVertical: height * 0.02,
   },
   Btn: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     position: 'absolute',
     width: 50,
     height: 30,
     alignItems: 'center',
     borderRadius: 8,
     right: 15,
-    bottom: 10,
+    bottom:Platform.OS === 'ios'? 45: 10,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },

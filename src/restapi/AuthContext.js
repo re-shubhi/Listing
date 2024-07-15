@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
 import {PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import { request, PERMISSIONS, openSettings } from 'react-native-permissions';
 
 const AuthContext = React.createContext();
 

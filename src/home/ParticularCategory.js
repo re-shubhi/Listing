@@ -49,6 +49,7 @@ const ParticularCategory = props => {
       const lon2 = item.longitude;
       distances[item.id] = calculateDistance(lat1, lon1, lat2, lon2);
     });
+    setDistance(distances);
 
     const initialLikedItems = {};
     wishlist.forEach(item => {

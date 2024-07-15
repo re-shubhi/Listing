@@ -48,9 +48,10 @@ const GridImageView = (props) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
       <Header
         backicon={true}
-        tintColor={COLORS.white}
+        tintColor={COLORS.black}
+        textcolor={COLORS.black}
         headerText={'Photos'}
-        backgroundColor={COLORS.base}
+        backgroundColor={COLORS.white}
       />
       <FlatList
         data={data}

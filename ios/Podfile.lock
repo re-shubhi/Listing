@@ -1251,6 +1251,8 @@ PODS:
     - React-Core
     - React-RCTImage
     - TOCropViewController
+  - RNPermissions (4.1.5):
+    - React-Core
   - RNScreens (3.31.1):
     - DoubleConversion
     - glog
@@ -1341,6 +1343,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1475,6 +1478,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNImageCropPicker:
     :path: "../node_modules/react-native-image-crop-picker"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   Yoga:
@@ -1544,11 +1549,12 @@ SPEC CHECKSUMS:
   ReactCommon: ecad995f26e0d1e24061f60f4e5d74782f003f12
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNImageCropPicker: 472130a6b8f141c435277701b8f9101e140ce039
+  RNPermissions: 64242b5eabc3ca5ed33f6feb38a183cb1d66d277
   RNScreens: b32a9ff15bea7fcdbe5dff6477bc503f792b1208
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
   Yoga: ae3c32c514802d30f687a04a6a35b348506d411f
 
-PODFILE CHECKSUM: 897abc5a599b6eda460370fa015eeda6b253f412
+PODFILE CHECKSUM: bfa48a408b23ede039513ee3980a94fae1e488bd
 
 COCOAPODS: 1.14.3

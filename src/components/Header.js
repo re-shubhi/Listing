@@ -13,7 +13,7 @@ import FONTS from '../theme/Fonts';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const Header = ({headerText, tintColor, backicon,backgroundColor}) => {
+const Header = ({headerText, tintColor, backicon,backgroundColor,textcolor}) => {
   const navigation = useNavigation();
   return (
     <View
@@ -42,7 +42,7 @@ const Header = ({headerText, tintColor, backicon,backgroundColor}) => {
           />
         )}
       </TouchableOpacity>
-      <Text style={styles.text}>{headerText}</Text>
+      <Text style={[styles.text,{color:textcolor?textcolor:COLORS.white}]}>{headerText}</Text>
       <View style={{height: 24, width: 24, marginLeft: 10}}></View>
     </View>
   );

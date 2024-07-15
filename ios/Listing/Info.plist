@@ -31,12 +31,14 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string></string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string></string>
+    <string>Location Permission</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Location Permission</string>
+    <key>NSLocationUsageDescription</key>
+    <string>GPS data is required to...</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location Permission</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Need access to update pictures</string>
 	<key>UIAppFonts</key>
