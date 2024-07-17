@@ -44,11 +44,11 @@ const Register = () => {
       .max(15, 'Phone number must be at most 15 characters.')
       .matches(/^\d+$/, 'Invalid phone number. Only digits are allowed.'),
     password: Yup.string()
-      .required('Password is required')
-      .matches(
-        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-        'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
-      ),
+      .required('Password is required'),
+      // .matches(
+      //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+      //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
+      // ),
     confirmPassword: Yup.string()
       .required('Confirmation of your password is required.')
       .oneOf(

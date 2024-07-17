@@ -16,6 +16,7 @@ const AuthContextProvider = ({children}) => {
   const [location, setLocation] = useState('');
   const [search, setSearch] = useState('');
   const [addressLocation, setAddressLocation] = useState('');
+  const [locationPermission, setlocationPermission] = useState(false);
 
   const defaultLocation = {
     mocked: false,
@@ -57,17 +58,17 @@ const AuthContextProvider = ({children}) => {
         const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
         console.log('result----location', result);
         if (result === 'granted') {
-          return true;
+          setlocationPermission(true)
         } else if (result === 'blocked') {
-          return false;
+          setlocationPermission(false)
         } else {
           // ExitApp.exitApp();
-          return false;
+          setlocationPermission(false)
         }
       }
     } catch (err) {
       console.log(err);
-      return false;
+      setlocationPermission(false)
     }
   }
 
@@ -136,7 +137,7 @@ const AuthContextProvider = ({children}) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      // console.log('data--', response);
+      console.log('data--', response);
       if (response?.data?.status === true) {
         setUserData(response?.data);
       }
@@ -165,6 +166,7 @@ const AuthContextProvider = ({children}) => {
   //*************************WISH LIST********************
   const ListWishlist = async () => {
     const token = await AsyncStorage.getItem('token');
+    // console.log("tokentoken",token)
     try {
       const response = await axios({
         method: 'POST',
@@ -205,6 +207,8 @@ const AuthContextProvider = ({children}) => {
         getLocation,
         search,
         setSearch,
+        setlocationPermission,
+        locationPermission
       }}>
       {children}
     </AuthContext.Provider>

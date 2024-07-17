@@ -20,12 +20,15 @@ import {addRemoveWishlist} from '../restapi/ApiConfig';
 import axios from 'axios';
 import {showMessage} from 'react-native-flash-message';
 import useDebounce from '../restapi/useDebounce';
+import GuestModal from '../components/GuestModal';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const RecentList = ({search}) => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2);
+  const [showModal, setShowModal] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const [distance, setDistance] = useState({});
   const [likedItems, setLikedItems] = useState({});
   const {productListing, ListWishlist, location, wishlist} =
@@ -82,6 +85,35 @@ const RecentList = ({search}) => {
     return deg * (Math.PI / 180);
   }
 
+  const showGuestModal = () => {
+    setShowModal(true);
+  };
+  // Function to hide the guest registration modal
+  const hideGuestModal = () => {
+    setShowModal(false);
+  };
+
+  useEffect(() => {
+    // Check user status from AsyncStorage
+    const checkUserStatus = async () => {
+      try {
+        const userStatus = await AsyncStorage.getItem('userStatus');
+        const token = await AsyncStorage.getItem('token');
+        
+        if (userStatus === 'registered' && token) {
+          setIsGuest(false);
+        } else {
+          setIsGuest(true);
+        }
+      } catch (error) {
+        console.error('Error fetching user status:', error);
+        setIsGuest(true);
+      }
+    };
+
+    checkUserStatus();
+  }, []);
+
   //Api to add remove wishList
   const AddRemove = async id => {
     console.log('ListWishlist====idddd', id);
@@ -135,7 +167,9 @@ const RecentList = ({search}) => {
                 {item.title}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => AddRemove(item?.id)}>
+            <TouchableOpacity onPress={() => 
+              isGuest ? showGuestModal() : 
+              AddRemove(item?.id)}>
               <Image
                 source={
                   isLiked
@@ -198,6 +232,11 @@ const RecentList = ({search}) => {
           );
         }}
       />
+      <GuestModal
+          visible={showModal}
+          onClose={hideGuestModal}
+          navigation={navigation}
+        />
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -18,6 +18,7 @@ import {
 import {
   CommonActions,
   useFocusEffect,
+  useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
 import {Formik} from 'formik';
@@ -32,13 +33,17 @@ import axios from 'axios';
 import {login} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DeviceInfo from 'react-native-device-info';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Login = props => {
   const navigation = useNavigation();
+  const isfocus = useIsFocused();
   const [secure, setSecure] = useState(true);
   const [loader, setLoader] = useState(false);
+  const [deviceToken, setDeviceToken] = useState('');
+  console.log('🚀 ~ Login ~ deviceToken:', deviceToken);
   const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email('Invalid email')
@@ -48,11 +53,11 @@ const Login = props => {
         'Invalid email',
       ),
     password: Yup.string()
-      .required('Password is required')
-      .matches(
-        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-        'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
-      ),
+      .required('Password is required'),
+      // .matches(
+      //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+      //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
+      // ),
   });
   const backButtonHandler = () => {
     Alert.alert(
@@ -85,6 +90,11 @@ const Login = props => {
     }, []),
   );
 
+  const getDeviceToken = () => {
+    var uniqueId = DeviceInfo?.getUniqueIdSync();
+    setDeviceToken(uniqueId);
+  };
+
   //Login Api
   const LoginApi = async values => {
     try {
@@ -95,35 +105,40 @@ const Login = props => {
         data: {
           email: values.email,
           password: values.password,
-          deviceToken: 'mskm.msd',
+          deviceToken: deviceToken,
         },
       });
       // console.log('Login Res----', response);
       if (response?.data?.status === true) {
         setLoader(false);
-        await AsyncStorage.setItem('token',response?.data?.token)
+        await AsyncStorage.setItem('token', response?.data?.token);
+        await AsyncStorage.setItem('userStatus', 'registered');
         showMessage({
           message: response?.data?.message,
           type: 'success',
         });
         navigation?.dispatch(
           CommonActions.reset({
-            index:0,
-            routes:[{name:'BottomTabNavigation'}]
-          })
-        )
+            index: 0,
+            routes: [{name: 'BottomTabNavigation'}],
+          }),
+        );
       }
     } catch (error) {
       // console.log('Login error---', error);
       setLoader(false);
       if (error?.response?.data?.status === false) {
         showMessage({
-          message:error?.response?.data?.message,
-          type:'danger',
-        })
+          message: error?.response?.data?.message,
+          type: 'danger',
+        });
       }
     }
   };
+
+  useEffect(() => {
+    getDeviceToken();
+  }, [isfocus]);
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -140,12 +155,10 @@ const Login = props => {
           <Formik
             initialValues={{email: '', password: ''}}
             validationSchema={validationSchema}
-            onSubmit={
-              values => {
-                // console.log('Valuesss--', values);
-                LoginApi(values);
-              }
-            }>
+            onSubmit={values => {
+              // console.log('Valuesss--', values);
+              LoginApi(values);
+            }}>
             {({
               values,
               errors,

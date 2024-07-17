@@ -8,6 +8,7 @@ import {
   Text,
   View,
   Image,
+  Modal,
   TouchableOpacity,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
@@ -26,6 +27,9 @@ import axios from 'axios';
 import {productDetails} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import {AuthContext} from '../restapi/AuthContext';
+import Button from '../components/Button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import GuestModal from '../components/GuestModal';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -36,6 +40,8 @@ const DetailScreen = props => {
   const HEADER_MAX_HEIGHT = 290;
   const HEADER_MIN_HEIGHT = Platform.OS == 'ios' ? 100 : height * 0.07;
   const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
+  const [showModal, setShowModal] = useState(false);
+
   //header Hieght
   const headerHeight = scrollY.interpolate({
     inputRange: [0, HEADER_SCROLL_DISTANCE],
@@ -58,6 +64,14 @@ const DetailScreen = props => {
   const [loader, setLoader] = useState(false);
   const [distance, setDistance] = useState(null);
   const {location, addressLocation} = useContext(AuthContext);
+  const [isGuest, setIsGuest] = useState(false);
+  const showGuestModal = () => {
+    setShowModal(true);
+  };
+  // Function to hide the guest registration modal
+  const hideGuestModal = () => {
+    setShowModal(false);
+  };
 
   //Detail Product Api
   const ProductDetail = async () => {
@@ -87,10 +101,6 @@ const DetailScreen = props => {
   const lon1 = location?.coords?.longitude;
   const lat2 = parseFloat(detail?.[0]?.latitude);
   const lon2 = parseFloat(detail?.[0]?.longitude);
-  // console.log('lat1:', lat1); // Check latitude of location
-  // console.log('lon1:', lon1); // Check longitude of location
-  // console.log('lat2:', lat2); // Check latitude of destination
-  // console.log('lon2:', lon2); // Check longitude of destination
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the Earth in kilometers
@@ -128,6 +138,27 @@ const DetailScreen = props => {
     }
   }, [location, detail]);
 
+  useEffect(() => {
+    // Check user status from AsyncStorage
+    const checkUserStatus = async () => {
+      try {
+        const userStatus = await AsyncStorage.getItem('userStatus');
+        const token = await AsyncStorage.getItem('token');
+
+        if (userStatus === 'registered' && token) {
+          setIsGuest(false);
+        } else {
+          setIsGuest(true);
+        }
+      } catch (error) {
+        console.error('Error fetching user status:', error);
+        setIsGuest(true);
+      }
+    };
+
+    checkUserStatus();
+  }, []);
+
   return (
     <View style={styles.screen}>
       <Animated.View style={[styles.header, {height: headerHeight}]}>
@@ -149,9 +180,11 @@ const DetailScreen = props => {
           <TouchableOpacity
             style={styles.Btn}
             onPress={() =>
-              props.navigation.navigate('GridImageView', {
-                data: detail?.[0]?.galleryData,
-              })
+              isGuest
+                ? showGuestModal()
+                : props.navigation.navigate('GridImageView', {
+                    data: detail?.[0]?.galleryData,
+                  })
             }>
             <Image
               resizeMode="contain"
@@ -185,6 +218,17 @@ const DetailScreen = props => {
                 <Text style={styles.rate}>
                   {Math.ceil(detail?.[0]?.rating)}
                 </Text>
+                <TouchableOpacity
+                  style={{marginLeft: 8}}
+                  onPress={() =>
+                    isGuest
+                      ? showGuestModal()
+                      : navigation.navigate('ReviewListing',{data: detail?.[0]})
+                  }>
+                  <Text style={styles.rate}>
+                    ( {detail?.[0]?.review} reviews )
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
             <View style={[styles.distanceCont, {width: width * 0.28}]}>
@@ -194,7 +238,7 @@ const DetailScreen = props => {
                   styles.heading,
                   {color: COLORS.white, fontSize: fontScale * 15},
                 ]}>
-                {Math.ceil(distance)} km 
+                {Math.ceil(distance)} km
               </Text>
             </View>
           </View>
@@ -216,7 +260,9 @@ const DetailScreen = props => {
               </Text>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('MapScreen', {data: detail?.[0]});
+                  isGuest
+                    ? showGuestModal()
+                    : navigation.navigate('MapScreen', {data: detail?.[0]});
                 }}>
                 <Text
                   style={[
@@ -235,6 +281,11 @@ const DetailScreen = props => {
         </View>
         {loader && <ScreenLoader isProcessing={loader} />}
       </ScrollView>
+      <GuestModal
+        visible={showModal}
+        onClose={hideGuestModal}
+        navigation={navigation}
+      />
     </View>
   );
 };
@@ -320,7 +371,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
     right: 15,
-    bottom:Platform.OS === 'ios'? 45: 10,
+    bottom: Platform.OS === 'ios' ? 45 : 10,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },

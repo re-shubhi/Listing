@@ -8,7 +8,8 @@ import {
   Image,
   TouchableOpacity,
   Modal,
-  Text
+  Text,
+  Platform
 } from 'react-native';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
   },
   modalClose: {
     position: 'absolute',
-    top: 20,
+    top: Platform.OS === 'ios'? 60: 20,
     right: 20,
     backgroundColor: COLORS.white,
     padding: 10,

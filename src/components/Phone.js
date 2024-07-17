@@ -34,9 +34,20 @@ const Phone = ({
   userData,
   setCountryCode,
   countryCode,
+  phone_code, // New prop to receive phone_code from parent
+
 }) => {
   const [country, setCountry] = useState(null);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
+
+  useEffect(() => {
+    // Assuming phone_code is in the format '+966'
+    const callingCode = phone_code ? phone_code : '966';
+    setCountryCode({
+      callingCode: callingCode,
+      cca2: '',
+    });
+  }, [phone_code]);
 
   //to hnadle change in country code
   const handleCountryChange = selectedCountry => {
@@ -145,7 +156,7 @@ const Phone = ({
           />
           <TouchableOpacity onPress={togglePicker}>
             <Text style={styles.countryCodeText}>
-              {countryCode?.cca2} {`${countryCode?.callingCode}`}
+                {`${countryCode?.callingCode}`}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={togglePicker}>
@@ -194,6 +205,7 @@ const styles = StyleSheet.create({
   countryCodeText: {
     fontSize: fontScale*16,
     color: COLORS.black,
+    paddingLeft:5
   },
   verticalLine: {
     height: 26,

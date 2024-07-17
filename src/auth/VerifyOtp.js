@@ -27,6 +27,7 @@ import {showMessage} from 'react-native-flash-message';
 import axios from 'axios';
 import {otpVerify, resendOtp} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -75,6 +76,7 @@ const VerifyOtp = ({route}) => {
       });
       // console.log('res---', response);
       if (response?.data?.status === true) {
+        await AsyncStorage.setItem('userStatus', 'registered');
         setLoader(false);
         showMessage({
           message: response?.data?.message,

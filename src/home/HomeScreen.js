@@ -14,6 +14,7 @@ import {
   BackHandler,
   Alert,
   RefreshControl,
+  Linking,
 } from 'react-native';
 import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import Header from '../components/Header';
@@ -45,7 +46,8 @@ const HomeScreen = () => {
   const [slider, setSLider] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [loader, setLoader] = useState(false);
-  const {getLocation} = useContext(AuthContext);
+  const {getLocation,requestPermissionLocation,locationPermission} = useContext(AuthContext);
+  console.log("🚀 ~ HomeScreen ~ locationPermission:====", locationPermission)
 
   const backButtonHandler = () => {
     Alert.alert(
@@ -79,6 +81,30 @@ const HomeScreen = () => {
     }, []),
   );
 
+  const locationPermissionHandler = () => {
+    Alert.alert(
+      'Location Permission',
+      'Location Permission is required in the app.',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'Settings',
+          onPress: () => {
+            Linking.openSettings();
+          },
+        },
+      ],
+      {
+        cancelable: false,
+      },
+    );
+    return true;
+  };
+
   //Banner Slider Api
   const Banner = async () => {
     try {
@@ -107,10 +133,16 @@ const HomeScreen = () => {
     }, 500);
   }, []);
 
+
+
   useEffect(() => {
     Banner();
     getLocation();
+    if (Platform.OS === 'ios' && locationPermission === false) {
+      locationPermissionHandler();
+    }
   }, [isfocus]);
+  
 
   return (
     <ScreenBackgroundHome>
@@ -182,7 +214,7 @@ const HomeScreen = () => {
             />
           </View>
           <View style={styles.secondHalf}>
-            {categoryList.length > 8 && (
+            {categoryList.length > 6 && (
               <TouchableOpacity
                 style={{alignSelf: 'flex-end'}}
                 onPress={() =>

@@ -1,39 +1,67 @@
-import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect} from 'react';
-import COLORS from '../theme/Colors';
-import FONTS from '../theme/Fonts';
+import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import COLORS from '../theme/Colors';
+import FONTS from '../theme/Fonts';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
 
-  //To check user Token
-  const checkHandler = async () => {
-    const token = await AsyncStorage.getItem('token');
-    token
-      ? navigation?.dispatch(
-          CommonActions?.reset({
+  // Function to check user status and navigate accordingly
+  const checkUserStatus = async () => {
+    try {
+      const userStatus = await AsyncStorage.getItem('userStatus');
+      const token = await AsyncStorage.getItem('token');
+
+      if (userStatus === 'registered' && token) {
+        // User is logged in
+        navigation.dispatch(
+          CommonActions.reset({
             index: 0,
             routes: [{name: 'BottomTabNavigation'}],
           }),
-        )
-      : navigation?.dispatch(
-          CommonActions?.reset({
+          console.log("yesssss")
+        );
+      } else if (userStatus != 'registered' && (!token)) {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{name: 'HomeScreen'}],
+          }),
+        );
+        console.log("yesssss")
+      } else if (userStatus === 'registered' && (!token)) {
+        navigation.dispatch(
+          CommonActions.reset({
             index: 0,
             routes: [{name: 'Login'}],
           }),
         );
+      }
+    } catch (error) {
+      console.error('Error fetching user status:', error);
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'Login'}],
+        }),
+      );
+    }
   };
 
-  //timeout to navigate LoginScreen
+  // Effect to handle navigation based on user status
   useEffect(() => {
-    const timer = setTimeout(() => {
-      checkHandler();
-    }, 2000);
+    const initializeApp = async () => {
+      try {
+        await checkUserStatus();
+      } catch (error) {
+        console.error('Error initializing app:', error);
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, [navigation]);
+    initializeApp();
+  }, []);
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -68,7 +96,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 38,
-    color: '#00000',
+    color: '#000000',
     fontFamily: FONTS.Inter600,
   },
 });

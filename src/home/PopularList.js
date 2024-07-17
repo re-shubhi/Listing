@@ -18,12 +18,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {showMessage} from 'react-native-flash-message';
 import axios from 'axios';
 import useDebounce from '../restapi/useDebounce';
+import GuestModal from '../components/GuestModal';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const PopularList = ({search}) => {
   const navigation = useNavigation();
   const [distance, setDistance] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const {productListing, ListWishlist, location, wishlist} =
     useContext(AuthContext);
   const [likedItems, setLikedItems] = useState({});
@@ -116,7 +119,13 @@ const PopularList = ({search}) => {
 
   console.log('popularItemspopularItems', popularItems);
 
-  // console.log('wishlistwishlist', wishlist);
+  const showGuestModal = () => {
+    setShowModal(true);
+  };
+  // Function to hide the guest registration modal
+  const hideGuestModal = () => {
+    setShowModal(false);
+  };
 
   // Render item function for FlatList
   const renderItem = ({item}) => {
@@ -147,7 +156,10 @@ const PopularList = ({search}) => {
               }>
               <Text style={styles.CardTitle}>{item.title}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => AddRemove(item?.category_id)}>
+            <TouchableOpacity
+              onPress={() =>
+                isGuest ? showGuestModal() : AddRemove(item?.category_id)
+              }>
               <Image
                 source={
                   isLiked
@@ -185,29 +197,58 @@ const PopularList = ({search}) => {
     );
   };
 
+  //For Guest Check
+  useEffect(() => {
+    // Check user status from AsyncStorage
+    const checkUserStatus = async () => {
+      try {
+        const userStatus = await AsyncStorage.getItem('userStatus');
+        const token = await AsyncStorage.getItem('token');
+        
+        if (userStatus === 'registered' && token) {
+          setIsGuest(false);
+        } else {
+          setIsGuest(true);
+        }
+      } catch (error) {
+        console.error('Error fetching user status:', error);
+        setIsGuest(true);
+      }
+    };
+
+    checkUserStatus();
+  }, []);
+
   return (
-    <FlatList
-      data={popularItems}
-      keyExtractor={item => item.id.toString()}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      renderItem={renderItem}
-      ItemSeparatorComponent={() => <View style={styles.seperator} />}
-      ListEmptyComponent={() => {
-        return (
-          <View
-            style={{
-              justifyContent: 'center',
-              height: height * 0.1,
-              backgroundColor: COLORS.white,
-              alignItems: 'center',
-              marginLeft: width * 0.3,
-            }}>
-            <Text>No data found</Text>
-          </View>
-        );
-      }}
-    />
+    <>
+      <FlatList
+        data={popularItems}
+        keyExtractor={item => item.id.toString()}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        renderItem={renderItem}
+        ItemSeparatorComponent={() => <View style={styles.seperator} />}
+        ListEmptyComponent={() => {
+          return (
+            <View
+              style={{
+                justifyContent: 'center',
+                height: height * 0.1,
+                backgroundColor: COLORS.white,
+                alignItems: 'center',
+                marginLeft: width * 0.3,
+              }}>
+              <Text>No data found</Text>
+            </View>
+          );
+        }}
+      />
+      <GuestModal
+        visible={showModal}
+        onClose={hideGuestModal}
+        navigation={navigation}
+      />
+    </>
   );
 };
 

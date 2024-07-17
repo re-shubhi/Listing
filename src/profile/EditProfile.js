@@ -44,7 +44,7 @@ const validationSchema = Yup.object().shape({
     .required('Email address is required.')
     .matches(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Invalid email.'),
   gender: Yup.string().required('Gender is required'),
-  // profilePic: Yup.string().required('Profile picture is required'),
+  profilePic: Yup.string().required('Profile picture is required'),
   dob: Yup.string().required('Date of Birth is required'),
   phoneNumber: Yup.string()
     .required('Phone number is required.')
@@ -55,6 +55,7 @@ const validationSchema = Yup.object().shape({
 const EditProfile = () => {
   const navigation = useNavigation();
   const {userData, getProfileData} = useContext(AuthContext);
+  console.log("🚀 ~ EditProfile ~ userData:", userData)
   const [value, setValue] = useState(userData?.gender || '');
   const [date, setDate] = useState(
     userData ? new Date(userData?.dob) : new Date(),
@@ -144,6 +145,7 @@ const EditProfile = () => {
       formData.append('mobile', values.phoneNumber);
       formData.append('gender', values.gender);
       formData.append('dob', values.dob);
+      formData.append('phone_code',countryCode.callingCode)
   
       // Make API request
       const response = await axios({
@@ -184,10 +186,11 @@ const EditProfile = () => {
             gender: userData?.gender ?? '',
             dob: userData?.dob ?? '',
             phoneNumber: userData?.mobile ?? '',
+            
           }}
           validationSchema={validationSchema}
           onSubmit={values => {
-            // console.log('Form values:', values);
+            console.log('Form values:', values);
             ProfileUpdate(values);
           }}>
           {({
@@ -282,6 +285,7 @@ const EditProfile = () => {
                       values={values.phoneNumber}
                       setCountryCode={setCountryCode}
                       countryCode={countryCode}
+                      phone_code={userData?.phone_code}
                     />
                   </View>
                   <Dropdown

@@ -7,12 +7,12 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import NotificationData from './NotificationData';
 import ScreenWithBackground from '../components/ScreenWithBackground';
 import axios from 'axios';
 import {getNotification} from '../restapi/ApiConfig';
@@ -24,50 +24,29 @@ import ScreenLoader from '../components/ScreenLoader';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const Notification = () => {
+const ReviewListing = props => {
   const navigation = useNavigation();
-  const [notification, setNotification] = useState([]);
-  const {userData} = useContext(AuthContext);
   const [loader, setLoader] = useState(false);
-
-  const NotidyData = async () => {
-    const token = await AsyncStorage.getItem('token');
-    try {
-      setLoader(true)
-      const response = await axios({
-        method: 'POST',
-        url: getNotification,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // console.log('response Notification---', response?.data);
-      if (response?.data?.status === true) {
-        setNotification(response?.data?.data);
-        setLoader(false)
-      }
-    } catch (error) {
-      console.log('error--', error?.response?.data);
-      setLoader(false)
-    }
-  };
+  const [reviewData, setReviewData] = useState([]);
+  const {data} = props?.route?.params;
+  console.log('data-->>>', data?.productReview);
 
   useEffect(() => {
-    NotidyData();
-  }, [navigation]);
+    setReviewData(data?.productReview);
+  }, []);
 
   return (
     <ScreenWithBackground>
       <SafeAreaView style={styles.screen}>
         <Header
           backicon={true}
-          headerText={'Notification'}
+          headerText={'Reviews'}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
         />
         <View style={styles.RemainingScreen}>
           <FlatList
-            data={notification}
+            data={reviewData}
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: 60}}
@@ -78,52 +57,64 @@ const Notification = () => {
                   <View style={styles.container}>
                     <Image
                       source={
-                        userData?.profileImage
-                          ? {uri: userData?.profileImage}
+                        data?.image
+                          ? {uri: data?.image}
                           : require('../assets/images/pictures/profile3.png')
                       }
-                      style={{height: 50, width: 50, borderRadius: 10,marginTop:10}}
+                      style={{
+                        height: 50,
+                        width: 50,
+                        borderRadius: 10,
+                        marginTop: Platform.OS === 'ios'?5: 10,
+                      }}
                       resizeMode="cover"
                     />
                     <View style={{flex: 1}}>
-                      <Text style={styles.nameText}>{item.Name}</Text>
+                      <Text style={styles.nameText}>{item.customerName}</Text>
                       <Text
                         style={{
                           ...styles.nameText,
                           fontFamily: FONTS.Inter400,
+                          paddingTop:2,
+                          fontSize:fontScale*14
                         }}>
-                        {item.message}
+                        {item.review}
                       </Text>
-                      <Text
+                      <View
                         style={{
-                          ...styles.nameText,
-                          fontSize: fontScale * 12,
-                          fontFamily: FONTS.Inter400,
-                          lineHeight: 17,
+                          flexDirection: 'row',
+                          columnGap: 5,
+                          paddingTop: 5,
                         }}>
-                        {item?.created_at}
-                      </Text>
+                        <Image
+                          source={require('../assets/images/icons/star2.png')}
+                          style={{height: 16, width: 16}}
+                          resizeMode="contain"
+                        />
+                        <Text
+                          style={{
+                            ...styles.nameText,
+                            fontSize: fontScale * 12,
+                            fontFamily: FONTS.Inter400,
+                            lineHeight: 17,
+                          }}>
+                          {item?.rating}
+                        </Text>
+                      </View>
                     </View>
-                    <TouchableOpacity>
-                      <Image
-                        source={require('../assets/images/icons/threedot.png')}
-                        style={{height: 20, width: 20}}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
                   </View>
                 </>
               );
             }}
           />
         </View>
-        {loader&&<ScreenLoader isProcessing={loader}/>}
+        {loader && <ScreenLoader isProcessing={loader} />}
       </SafeAreaView>
     </ScreenWithBackground>
   );
 };
 
-export default Notification;
+export default ReviewListing;
 
 const styles = StyleSheet.create({
   screen: {
@@ -140,8 +131,8 @@ const styles = StyleSheet.create({
     marginHorizontal: width * 0.02,
   },
   nameText: {
-    fontSize: fontScale * 14,
-    fontFamily: FONTS.Inter600,
+    fontSize: fontScale * 15,
+    fontFamily: FONTS.Inter500,
     color: COLORS.black,
     lineHeight: 18,
   },
@@ -156,7 +147,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     columnGap: 10,
     paddingVertical: height * 0.01,
-    alignItems: 'center',
-
+    borderBottomWidth:0.5,
+    borderColor:COLORS.base
+    // alignItems: 'center',
   },
 });

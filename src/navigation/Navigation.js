@@ -1,5 +1,5 @@
 import {View, Text} from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import SplashScreen from '../auth/SplashScreen';
@@ -16,17 +16,29 @@ import EditProfile from '../profile/EditProfile';
 import MapScreen from '../home/MapScreen';
 import GridImageView from '../home/GridImageView';
 import VerifyOtp from '../auth/VerifyOtp';
-
+import IntroductionScreen from '../home/Introduction';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import HomeScreen from '../home/HomeScreen';
+import ReviewListing from '../home/ReviewListing';
 
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
+
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="SplashScreen"
+        initialRouteName={"SplashScreen"}
         screenOptions={{headerShown: false}}>
-        <Stack.Screen name="BottomTabNavigation" component={BottomTabNavigation} />
+        <Stack.Screen
+          name="BottomTabNavigation"
+          component={BottomTabNavigation}
+        />
+        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        <Stack.Screen
+          name="IntroductionScreen"
+          component={IntroductionScreen}
+        />
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
@@ -35,11 +47,15 @@ const Navigation = () => {
         <Stack.Screen name="OtpScreen" component={OtpScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPassword} />
         <Stack.Screen name="Categories" component={Categories} />
-        <Stack.Screen name="ParticularCategory" component={ParticularCategory} />
+        <Stack.Screen
+          name="ParticularCategory"
+          component={ParticularCategory}
+        />
         <Stack.Screen name="DetailScreen" component={DetailScreen} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="MapScreen" component={MapScreen} />
         <Stack.Screen name="GridImageView" component={GridImageView} />
+        <Stack.Screen name="ReviewListing" component={ReviewListing} />
       </Stack.Navigator>
     </NavigationContainer>
   );
