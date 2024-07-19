@@ -24,7 +24,7 @@ const Reviews = ({route}) => {
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
   const {detail} = route.params || {};
-  console.log('detailReEVIEWW', detail);
+  // console.log('detailReEVIEWW', detail);
 
   const handleRatingChange = rating => {
     setRating(rating);
@@ -56,7 +56,7 @@ const Reviews = ({route}) => {
           product_id: '2',
         },
       });
-      console.log('review Res---', response?.data);
+      // console.log('review Res---', response?.data);
       if (response?.data?.status === true) {
         showMessage({
           message: response?.data?.message,
@@ -65,7 +65,7 @@ const Reviews = ({route}) => {
         navigation?.navigate('BottomTabNavigation');
       }
     } catch (error) {
-      console.log('Error Rating', error?.response?.data);
+      // console.log('Error Rating', error?.response?.data);
     }
   };
   return (

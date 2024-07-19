@@ -68,7 +68,7 @@ const Wishlist = () => {
 
   //Api to add remove wishList
   const AddRemove = async id => {
-    console.log('ListWishlist----idd', id);
+    // console.log('ListWishlist----idd', id);
     const token = await AsyncStorage.getItem('token');
     try {
       const response = await axios({
@@ -81,7 +81,7 @@ const Wishlist = () => {
           product_id: id,
         },
       });
-      console.log('resss addd/remove---', response?.data);
+      // console.log('resss addd/remove---', response?.data);
       if (response?.data?.status === true) {
         showMessage({
           message: response?.data?.message,
@@ -90,7 +90,7 @@ const Wishlist = () => {
         await ListWishlist();
       }
     } catch (error) {
-      console.log('error add', error?.response?.data);
+      // console.log('error add', error?.response?.data);
     }
   };
 

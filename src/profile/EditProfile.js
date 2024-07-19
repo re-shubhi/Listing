@@ -55,7 +55,7 @@ const validationSchema = Yup.object().shape({
 const EditProfile = () => {
   const navigation = useNavigation();
   const {userData, getProfileData} = useContext(AuthContext);
-  console.log("🚀 ~ EditProfile ~ userData:", userData)
+  console.log('🚀 ~ EditProfile ~ userData:', userData);
   const [value, setValue] = useState(userData?.gender || '');
   const [date, setDate] = useState(
     userData ? new Date(userData?.dob) : new Date(),
@@ -91,7 +91,7 @@ const EditProfile = () => {
     }
   };
 
-  const onCamera = (setFieldValue) => {
+  const onCamera = setFieldValue => {
     setTimeout(() => {
       ImagePicker.openCamera({
         width: 300,
@@ -109,7 +109,7 @@ const EditProfile = () => {
     }, 1000);
   };
 
-  const onGallary = (setFieldValue) => {
+  const onGallary = setFieldValue => {
     setTimeout(() => {
       ImagePicker.openPicker({
         width: 300,
@@ -127,26 +127,25 @@ const EditProfile = () => {
     }, 1000);
   };
 
-
   const ProfileUpdate = async values => {
     const token = await AsyncStorage.getItem('token');
     try {
       setLoader(true);
-      
+
       // Create form data
       const formData = new FormData();
       formData.append('profileImage', {
-        uri: values.profilePic,  // Assuming profilePic is a valid local file path
-        type: 'image/jpeg',      // Adjust mime type according to the image type you receive
-        name: 'profile.jpg',     // Adjust the filename as needed
+        uri: values.profilePic, // Assuming profilePic is a valid local file path
+        type: 'image/jpeg', // Adjust mime type according to the image type you receive
+        name: 'profile.jpg', // Adjust the filename as needed
       });
       formData.append('name', values.name);
       formData.append('email', values.email);
       formData.append('mobile', values.phoneNumber);
       formData.append('gender', values.gender);
       formData.append('dob', values.dob);
-      formData.append('phone_code',countryCode.callingCode)
-  
+      formData.append('phone_code', countryCode.callingCode);
+
       // Make API request
       const response = await axios({
         method: 'POST',
@@ -157,7 +156,7 @@ const EditProfile = () => {
         },
         data: formData,
       });
-  
+
       if (response?.data?.status === true) {
         setLoader(false);
         await getProfileData();
@@ -172,7 +171,6 @@ const EditProfile = () => {
       setLoader(false);
     }
   };
-  
 
   return (
     <>
@@ -182,15 +180,14 @@ const EditProfile = () => {
           initialValues={{
             name: userData?.name ?? '',
             email: userData?.email ?? '',
-            profilePic:userData?.profileImage ?? '',
+            profilePic: userData?.profileImage ?? '',
             gender: userData?.gender ?? '',
             dob: userData?.dob ?? '',
             phoneNumber: userData?.mobile ?? '',
-            
           }}
           validationSchema={validationSchema}
           onSubmit={values => {
-            console.log('Form values:', values);
+            // console.log('Form values:', values);
             ProfileUpdate(values);
           }}>
           {({
@@ -398,6 +395,9 @@ const styles = StyleSheet.create({
   profileContainer: {
     position: 'relative',
     alignItems: 'center',
+    borderColor: COLORS.white,
+    borderWidth: 1,
+    borderRadius: 100,
   },
   formContainer: {
     paddingHorizontal: height * 0.025,

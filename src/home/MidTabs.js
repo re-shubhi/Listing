@@ -23,10 +23,10 @@ import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {addReview} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Loader from '../components/Loader';
 import ScreenLoader from '../components/ScreenLoader';
 import {AuthContext} from '../restapi/AuthContext';
 import GuestModal from '../components/GuestModal';
+import CallModal from '../components/CallModal';
 
 const Tab = createMaterialTopTabNavigator();
 const {height, width, fontScale} = Dimensions.get('screen');
@@ -37,16 +37,23 @@ export default function MidTabs(props) {
   const [expand, setExpand] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showCall, setShowCall] = useState(false);
   const toggleExpand = () => {
     setExpand(!expand);
   };
   const showGuestModal = () => {
     setShowModal(true);
   };
-  // Function to hide the guest registration modal
   const hideGuestModal = () => {
     setShowModal(false);
   };
+
+  const showCallModal = () =>{
+    setShowCall(true);
+  }
+  const hideCallModal = () =>{
+    setShowCall(false);
+  }
   const checkGuest = async () => {
     const token = await AsyncStorage.getItem('token');
     token ? setIsGuest(false) : setIsGuest(true);
@@ -89,20 +96,22 @@ export default function MidTabs(props) {
                 onPress={() => {
                   isGuest
                     ? showGuestModal()
-                    : showMessage({
-                        message: 'calling',
-                        type: 'info',
-                      });
+                    : showCallModal()
                 }}
               />
             </View>
           </View>
         </ScrollView>
-        <GuestModal
-          visible={showModal}
-          onClose={hideGuestModal}
-          navigation={navigation}
-        />
+     
+        {showCall && (
+            <CallModal
+              props={props}
+              modalTitle={"Your reservation is confirmed"}
+              isOpens={showCall}
+              setIsOpens={setShowCall}
+              callData={detail?.[0]}
+            />
+          )}
       </>
     );
   };
@@ -224,11 +233,11 @@ export default function MidTabs(props) {
           </View>
           {loader && <ScreenLoader isProcessing={loader} />}
         </ScrollView>
-        <GuestModal
+        {/* <GuestModal
           visible={showModal}
           onClose={hideGuestModal}
           navigation={navigation}
-        />
+        /> */}
       </>
     );
   };
@@ -283,6 +292,11 @@ export default function MidTabs(props) {
           initialParams={{detail: detail?.[0]}}
         />
       </Tab.Navigator>
+      <GuestModal
+        visible={showModal}
+        onClose={hideGuestModal}
+        navigation={navigation}
+      />
     </>
   );
 }

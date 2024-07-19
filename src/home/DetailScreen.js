@@ -59,7 +59,7 @@ const DetailScreen = props => {
     extrapolate: 'clamp',
   });
   const {data} = props?.route?.params;
-  console.log('category_id', data);
+  // console.log('category_id', data);
   const [detail, setDetail] = useState([]);
   const [loader, setLoader] = useState(false);
   const [distance, setDistance] = useState(null);
@@ -84,19 +84,19 @@ const DetailScreen = props => {
           id: data,
         },
       });
-      console.log('Details---', response);
+      // console.log('Details---', response);
       if (response?.data?.status === true) {
         setLoader(false);
         setDetail(response?.data?.data);
       }
     } catch (error) {
-      console.log('error Detail', error?.response);
+      // console.log('error Detail', error?.response);
       setLoader(false);
     }
   };
-  console.log('00000', detail);
-  console.log('locationlocation', location);
-  console.log('locationloaddressLocationcation', addressLocation);
+  // console.log('00000', detail);
+  // console.log('locationlocation', location);
+  // console.log('locationloaddressLocationcation', addressLocation);
   const lat1 = location?.coords?.latitude;
   const lon1 = location?.coords?.longitude;
   const lat2 = parseFloat(detail?.[0]?.latitude);
@@ -116,7 +116,7 @@ const DetailScreen = props => {
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // Distance in kilometers
-    console.log('distance ====', distance);
+    // console.log('distance ====', distance);
     setDistance(distance);
     return;
     distance;
@@ -279,7 +279,7 @@ const DetailScreen = props => {
           </View>
           <MidTabs route={{params: {detail}}} />
         </View>
-        {loader && <ScreenLoader isProcessing={loader} />}
+        {/* {loader && <ScreenLoader isProcessing={loader} />} */}
       </ScrollView>
       <GuestModal
         visible={showModal}

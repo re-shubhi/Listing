@@ -47,7 +47,7 @@ const HomeScreen = () => {
   const [refresh, setRefresh] = useState(false);
   const [loader, setLoader] = useState(false);
   const {getLocation,requestPermissionLocation,locationPermission} = useContext(AuthContext);
-  console.log("🚀 ~ HomeScreen ~ locationPermission:====", locationPermission)
+  // console.log("🚀 ~ HomeScreen ~ locationPermission:====", locationPermission)
 
   const backButtonHandler = () => {
     Alert.alert(
@@ -113,14 +113,14 @@ const HomeScreen = () => {
         method: 'POST',
         url: homescreen,
       });
-      console.log('Home response', response?.data);
+      // console.log('Home response', response?.data);
       if (response?.data?.status === true) {
         setLoader(false);
         setSLider(response?.data?.slider);
         setCategoryList(response?.data?.category);
       }
     } catch (error) {
-      console.log('error', error?.response?.data?.message);
+      // console.log('error', error?.response?.data?.message);
       setLoader(false);
     }
   };
@@ -138,9 +138,9 @@ const HomeScreen = () => {
   useEffect(() => {
     Banner();
     getLocation();
-    if (Platform.OS === 'ios' && locationPermission === false) {
-      locationPermissionHandler();
-    }
+    // if (Platform.OS === 'ios' && locationPermission === false) {
+    //   locationPermissionHandler();
+    // }
   }, [isfocus]);
   
 

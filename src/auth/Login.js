@@ -43,7 +43,7 @@ const Login = props => {
   const [secure, setSecure] = useState(true);
   const [loader, setLoader] = useState(false);
   const [deviceToken, setDeviceToken] = useState('');
-  console.log('🚀 ~ Login ~ deviceToken:', deviceToken);
+  // console.log('🚀 ~ Login ~ deviceToken:', deviceToken);
   const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email('Invalid email')
@@ -53,7 +53,8 @@ const Login = props => {
         'Invalid email',
       ),
     password: Yup.string()
-      .required('Password is required'),
+      .required('Password is required')
+      .min(8,"Password must be atleast 8 characters."),
       // .matches(
       //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
       //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
@@ -201,6 +202,7 @@ const Login = props => {
                     placeholderTextColor={COLORS.placeholder}
                     secureTextEntry={secure}
                     value={values.password}
+                    maxLength={15}
                     onChangeText={handleChange('password')}
                     onBlur={handleBlur('password')}
                   />

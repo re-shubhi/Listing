@@ -31,7 +31,7 @@ const PopularList = ({search}) => {
     useContext(AuthContext);
   const [likedItems, setLikedItems] = useState({});
 
-  console.log('s<PopularList search={search} />', search);
+  // console.log('s<PopularList search={search} />', search);
   const debouncedSearchTerm = useDebounce(search, 500);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ const PopularList = ({search}) => {
 
   // Api to add remove wishList
   const AddRemove = async id => {
-    console.log('ListWishlist====idddd', id);
+    // console.log('ListWishlist====idddd', id);
     const token = await AsyncStorage.getItem('token');
     try {
       const response = await axios({
@@ -92,7 +92,7 @@ const PopularList = ({search}) => {
           product_id: id,
         },
       });
-      console.log('resss addd/remove---', response?.data);
+      // console.log('resss addd/remove---', response?.data);
       if (response?.data?.status === true) {
         showMessage({
           message: response?.data?.message,
@@ -106,7 +106,7 @@ const PopularList = ({search}) => {
         await ListWishlist();
       }
     } catch (error) {
-      console.log('error add', error?.response);
+      // console.log('error add', error?.response);
     }
   };
 
@@ -117,7 +117,7 @@ const PopularList = ({search}) => {
       )
     : productListing.filter(item => item.product_type === 'popular');
 
-  console.log('popularItemspopularItems', popularItems);
+  // console.log('popularItemspopularItems', popularItems);
 
   const showGuestModal = () => {
     setShowModal(true);

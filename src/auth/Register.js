@@ -40,11 +40,12 @@ const Register = () => {
       ),
     phoneNumber: Yup.string()
       .required('Phone number is required.')
-      .min(8, 'Phone number must be at least 8 characters.')
-      .max(15, 'Phone number must be at most 15 characters.')
+      .min(8, 'Phone number must be atleast 8 characters.')
+      .max(15, 'Phone number must be atmost 15 characters.')
       .matches(/^\d+$/, 'Invalid phone number. Only digits are allowed.'),
     password: Yup.string()
-      .required('Password is required'),
+      .required('Password is required')
+      .min(8,"Password must be atleast 8 characters."),
       // .matches(
       //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
       //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
@@ -68,7 +69,7 @@ const Register = () => {
   //api for register
   const RegisterApi = async values => {
     // console.log('values-----', values);
-    console.log("callingCode",countryCode)
+    // console.log("callingCode",countryCode)
     try {
       setLoader(true);
       const response = await axios({
@@ -114,7 +115,7 @@ const Register = () => {
   return (
     <SafeAreaView style={styles.screen}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 100 : 'height'}
         style={{flex: 1}}>
         <Header backicon />
         <ScrollView
@@ -200,6 +201,7 @@ const Register = () => {
                     placeholderTextColor={COLORS.placeholder}
                     secureTextEntry={secure.password}
                     value={values.password}
+                    maxLength={15}
                     onChangeText={handleChange('password')}
                     onBlur={handleBlur('password')}
                   />
@@ -235,6 +237,7 @@ const Register = () => {
                     placeholderTextColor={COLORS.placeholder}
                     secureTextEntry={secure.confirmPassword}
                     value={values.confirmPassword}
+                    maxLength={15}
                     onChangeText={handleChange('confirmPassword')}
                     onBlur={handleBlur('confirmPassword')}
                   />
@@ -297,7 +300,7 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === 'ios' ? height * 0.05 : height * 0.038,
   },
   scrollView: {
-    flex: 1,
+    flexGrow: 1,
   },
   scrollContainer: {
     flexGrow: 1,

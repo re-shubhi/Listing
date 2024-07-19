@@ -33,8 +33,8 @@ const RecentList = ({search}) => {
   const [likedItems, setLikedItems] = useState({});
   const {productListing, ListWishlist, location, wishlist} =
     useContext(AuthContext);
-  console.log('productListingproductListing', productListing);
-  console.log('searchsearch', search);
+  // console.log('productListingproductListing', productListing);
+  // console.log('searchsearch', search);
   const debouncedSearchTerm = (search, 500);
 
   const data = debouncedSearchTerm
@@ -58,7 +58,7 @@ const RecentList = ({search}) => {
     const initialLikedItems = {};
     wishlist?.forEach(item => {
       initialLikedItems[item?.product_id] = true;
-      console.log('initialLikedItems', initialLikedItems);
+      // console.log('initialLikedItems', initialLikedItems);
     });
     setLikedItems(initialLikedItems);
   }, [location, productListing, wishlist]);
@@ -116,7 +116,7 @@ const RecentList = ({search}) => {
 
   //Api to add remove wishList
   const AddRemove = async id => {
-    console.log('ListWishlist====idddd', id);
+    // console.log('ListWishlist====idddd', id);
     const token = await AsyncStorage.getItem('token');
     try {
       const response = await axios({
@@ -129,7 +129,7 @@ const RecentList = ({search}) => {
           product_id: id,
         },
       });
-      console.log('resss addd/remove---', response?.data);
+      // console.log('resss addd/remove---', response?.data);
       if (response?.data?.status === true) {
         showMessage({
           message: response?.data?.message,
@@ -142,7 +142,7 @@ const RecentList = ({search}) => {
         await ListWishlist();
       }
     } catch (error) {
-      console.log('error add', error?.response);
+      // console.log('error add', error?.response);
     }
   };
 

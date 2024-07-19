@@ -19,7 +19,7 @@ const { height, width } = Dimensions.get('screen');
 const GridImageView = (props) => {
   const navigation = useNavigation();
   const {data} = props?.route?.params;
-  console.log("Image----",data)
+  // console.log("Image----",data)
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);

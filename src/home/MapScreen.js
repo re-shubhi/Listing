@@ -8,7 +8,7 @@ const {height, width} = Dimensions.get('screen');
 
 const MapScreen = props => {
   const {data} = props?.route?.params;
-  console.log('data--', data);
+  // console.log('data--', data);
   return (
     <SafeAreaView style={styles.safeArea}>
       <Header backicon={true} tintColor={'#000'} backgroundColor={'transparent'}/>

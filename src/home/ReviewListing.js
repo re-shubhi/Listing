@@ -29,7 +29,7 @@ const ReviewListing = props => {
   const [loader, setLoader] = useState(false);
   const [reviewData, setReviewData] = useState([]);
   const {data} = props?.route?.params;
-  console.log('data-->>>', data?.productReview);
+  // console.log('data-->>>', data?.productReview);
 
   useEffect(() => {
     setReviewData(data?.productReview);
@@ -65,7 +65,7 @@ const ReviewListing = props => {
                         height: 50,
                         width: 50,
                         borderRadius: 10,
-                        marginTop: Platform.OS === 'ios'?5: 10,
+                        marginTop: Platform.OS === 'ios' ? 5 : 10,
                       }}
                       resizeMode="cover"
                     />
@@ -75,8 +75,8 @@ const ReviewListing = props => {
                         style={{
                           ...styles.nameText,
                           fontFamily: FONTS.Inter400,
-                          paddingTop:2,
-                          fontSize:fontScale*14
+                          paddingTop: 2,
+                          fontSize: fontScale * 14,
                         }}>
                         {item.review}
                       </Text>
@@ -104,6 +104,21 @@ const ReviewListing = props => {
                     </View>
                   </View>
                 </>
+              );
+            }}
+            ListEmptyComponent={() => {
+              return (
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    height: height * 0.7,
+                    backgroundColor: COLORS.white,
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{fontSize: fontScale * 16, color: COLORS.black}}>
+                    No reviews
+                  </Text>
+                </View>
               );
             }}
           />
@@ -147,8 +162,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     columnGap: 10,
     paddingVertical: height * 0.01,
-    borderBottomWidth:0.5,
-    borderColor:COLORS.base
+    borderBottomWidth: 0.5,
+    borderColor: COLORS.base,
     // alignItems: 'center',
   },
 });

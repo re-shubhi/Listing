@@ -56,19 +56,23 @@ const AuthContextProvider = ({children}) => {
         }
       } else if (Platform.OS === 'ios') {
         const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-        console.log('result----location', result);
+        // console.log('result----location', result);
         if (result === 'granted') {
-          setlocationPermission(true)
+          // setlocationPermission(true)
+          return true;
         } else if (result === 'blocked') {
-          setlocationPermission(false)
+          // setlocationPermission(false)
+          return false;
         } else {
           // ExitApp.exitApp();
-          setlocationPermission(false)
+          // setlocationPermission(false)
+          return false;
         }
       }
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       setlocationPermission(false)
+      return false;
     }
   }
 
@@ -79,12 +83,12 @@ const AuthContextProvider = ({children}) => {
       axios
         .get(apiUrl)
         .then(response => {
-          console.log('response:', response?.data);
+          // console.log('response:', response?.data);
           const data = response.data;
           if (data.results && data.results.length > 0) {
             const address = data.results[0].formatted_address;
             setAddressLocation(address);
-            console.log('Address:', address);
+            // console.log('Address:', address);
           } else {
             console.log('No results found');
           }
@@ -100,11 +104,11 @@ const AuthContextProvider = ({children}) => {
     const result = requestPermissionLocation();
 
     result.then(res => {
-      console.log('res is:-------1698', res);
+      // console.log('res is:-------1698', res);
       if (res) {
         Geolocation.getCurrentPosition(
           position => {
-            console.log('position-------', position);
+            // console.log('position-------', position);
             setLocation(position);
             fetchLocationAddress(
               position?.coords?.latitude,
@@ -113,7 +117,7 @@ const AuthContextProvider = ({children}) => {
           },
           error => {
             // ExitApp.exitApp();
-            console.log('sdgdsfhdsh----198', error);
+            // console.log('sdgdsfhdsh----198', error);
           },
           {enableHighAccuracy: false, timeout: 15000},
         );
@@ -137,7 +141,7 @@ const AuthContextProvider = ({children}) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('data--', response);
+      // console.log('data--', response);
       if (response?.data?.status === true) {
         setUserData(response?.data);
       }
@@ -155,7 +159,7 @@ const AuthContextProvider = ({children}) => {
           title:search
         }
       });
-      console.log('Response Product ---', response?.data);
+      // console.log('Response Product ---', response?.data);
       if (response?.data?.status === true) {
         setProductListing(response?.data?.data);
       }
@@ -175,7 +179,7 @@ const AuthContextProvider = ({children}) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('resss---', response?.data);
+      // console.log('resss---', response?.data);
       if (response?.data?.status === true) {
         setWishlist(response?.data?.list);
       }

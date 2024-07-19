@@ -17,4 +17,5 @@ export const addReview = ServerUrl + "/api/addReview";
 export const getWishList = ServerUrl + "/api/getWishList";
 export const addRemoveWishlist = ServerUrl + "/api/addRemoveWishlist";
 export const getNotification = ServerUrl + "/api/getNotification";
+export const notificationDelete = ServerUrl + "/api/notificationDelete";
 

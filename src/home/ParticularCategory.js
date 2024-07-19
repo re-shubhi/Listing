@@ -31,13 +31,13 @@ const ParticularCategory = props => {
   const [distance, setDistance] = useState({});
   const [likeItems, setLikedItems] = useState({});
   const {data} = props?.route?.params;
-  console.log('CATEGORY name---', data?.title);
+  // console.log('CATEGORY name---', data?.title);
   const {productListing, ListWishlist, location, wishlist} =
     useContext(AuthContext);
-  console.log('PARTICULAR--productListing', productListing);
+  // console.log('PARTICULAR--productListing', productListing);
 
   const Listing = productListing?.filter(item => item.category == data?.title);
-  console.log('LISTINGG', Listing);
+  // console.log('LISTINGG', Listing);
 
   useEffect(() => {
     // Calculate distances for all items when location or productListing changes
@@ -82,7 +82,7 @@ const ParticularCategory = props => {
 
   //Api to add remove wishList
   const AddRemove = async id => {
-    console.log('ListWishlist====idddd', id);
+    // console.log('ListWishlist====idddd', id);
     const token = await AsyncStorage.getItem('token');
     try {
       const response = await axios({
@@ -95,7 +95,7 @@ const ParticularCategory = props => {
           product_id: id,
         },
       });
-      console.log('resss addd/remove---', response?.data);
+      // console.log('resss addd/remove---', response?.data);
       if (response?.data?.status === true) {
         showMessage({
           message: response?.data?.message,
@@ -108,7 +108,7 @@ const ParticularCategory = props => {
         await ListWishlist();
       }
     } catch (error) {
-      console.log('error add', error?.response);
+      // console.log('error add', error?.response);
     }
   };
 

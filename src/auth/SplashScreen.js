@@ -21,7 +21,6 @@ const SplashScreen = () => {
             index: 0,
             routes: [{name: 'BottomTabNavigation'}],
           }),
-          console.log("yesssss")
         );
       } else if (userStatus != 'registered' && (!token)) {
         navigation.dispatch(
@@ -30,7 +29,6 @@ const SplashScreen = () => {
             routes: [{name: 'HomeScreen'}],
           }),
         );
-        console.log("yesssss")
       } else if (userStatus === 'registered' && (!token)) {
         navigation.dispatch(
           CommonActions.reset({

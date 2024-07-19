@@ -17,7 +17,6 @@ import MapScreen from '../home/MapScreen';
 import GridImageView from '../home/GridImageView';
 import VerifyOtp from '../auth/VerifyOtp';
 import IntroductionScreen from '../home/Introduction';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from '../home/HomeScreen';
 import ReviewListing from '../home/ReviewListing';
 

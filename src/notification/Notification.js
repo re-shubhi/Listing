@@ -7,6 +7,7 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Header from '../components/Header';
@@ -15,25 +16,65 @@ import FONTS from '../theme/Fonts';
 import NotificationData from './NotificationData';
 import ScreenWithBackground from '../components/ScreenWithBackground';
 import axios from 'axios';
-import {getNotification} from '../restapi/ApiConfig';
+import {getNotification, notificationDelete} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../restapi/AuthContext';
 import moment from 'moment';
 import ScreenLoader from '../components/ScreenLoader';
+import Button from '../components/Button';
+import { showMessage } from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Notification = () => {
   const navigation = useNavigation();
+  const isfocus = useIsFocused();
   const [notification, setNotification] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
   const {userData} = useContext(AuthContext);
   const [loader, setLoader] = useState(false);
+  const [delId, seDelId] = useState(false);
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const DeleteNotification = async idToDelete => {
+    // console.log('🚀 ~ DeleteNotification ~ idToDelete:', idToDelete);
+    const token = await AsyncStorage.getItem('token');
+    // console.log("🚀 ~ DeleteNotification ~ token:", token)
+    try {
+      const res = await axios({
+        url: notificationDelete,
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          id: idToDelete,
+        },
+      });
+      // console.log('ress---del', res?.data);
+      if(res?.data?.status === true)
+      {
+        setModalVisible(false);
+        showMessage({
+          message:res?.data?.message,
+          type:'success'
+        })
+        await NotidyData();
+      }
+    } catch (error) {
+      // console.log('error', error?.response?.data);
+    }
+  };
+
 
   const NotidyData = async () => {
     const token = await AsyncStorage.getItem('token');
     try {
-      setLoader(true)
+      setLoader(true);
       const response = await axios({
         method: 'POST',
         url: getNotification,
@@ -44,17 +85,17 @@ const Notification = () => {
       // console.log('response Notification---', response?.data);
       if (response?.data?.status === true) {
         setNotification(response?.data?.data);
-        setLoader(false)
+        setLoader(false);
       }
     } catch (error) {
       console.log('error--', error?.response?.data);
-      setLoader(false)
+      setLoader(false);
     }
   };
 
   useEffect(() => {
     NotidyData();
-  }, [navigation]);
+  }, [isfocus]);
 
   return (
     <ScreenWithBackground>
@@ -82,7 +123,12 @@ const Notification = () => {
                           ? {uri: userData?.profileImage}
                           : require('../assets/images/pictures/profile3.png')
                       }
-                      style={{height: 50, width: 50, borderRadius: 10,marginTop:10}}
+                      style={{
+                        height: 50,
+                        width: 50,
+                        borderRadius: 10,
+                        marginTop: 10,
+                      }}
                       resizeMode="cover"
                     />
                     <View style={{flex: 1}}>
@@ -104,7 +150,11 @@ const Notification = () => {
                         {item?.created_at}
                       </Text>
                     </View>
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setModalVisible(true);
+                        seDelId(item?.id);
+                      }}>
                       <Image
                         source={require('../assets/images/icons/threedot.png')}
                         style={{height: 20, width: 20}}
@@ -115,9 +165,57 @@ const Notification = () => {
                 </>
               );
             }}
+            ListEmptyComponent={() => {
+              return (
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    height: height * 0.7,
+                    backgroundColor: COLORS.white,
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{fontSize: fontScale * 16, color: COLORS.black}}>
+                    No data found
+                  </Text>
+                </View>
+              );
+            }}
           />
+          <Modal visible={modalVisible} onRequestClose={closeModal} transparent>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Image
+                  source={require('../assets/images/icons/bin.png')}
+                  style={{height: 25, width: 25, tintColor: COLORS.base}}
+                  resizeMode="contain"
+                />
+                <Text
+                  style={{
+                    marginTop: 14,
+                    fontSize: fontScale * 16,
+                    width: width * 0.5,
+                    textAlign: 'center',
+                    lineHeight: 24,
+                  }}>
+                  Do you want to delete this notification?
+                </Text>
+                <View style={styles.logoutBox}>
+                  <Button
+                    buttonTxt={'Cancel'}
+                    onPress={closeModal}
+                    width={width * 0.28}
+                  />
+                  <Button
+                    buttonTxt={'Yes'}
+                    onPress={() => DeleteNotification(delId)}
+                    width={width * 0.28}
+                  />
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
-        {loader&&<ScreenLoader isProcessing={loader}/>}
+        {loader && <ScreenLoader isProcessing={loader} />}
       </SafeAreaView>
     </ScreenWithBackground>
   );
@@ -157,6 +255,25 @@ const styles = StyleSheet.create({
     columnGap: 10,
     paddingVertical: height * 0.01,
     alignItems: 'center',
-
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    height: height * 0.22,
+    width: '80%',
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    columnGap: 20,
   },
 });
