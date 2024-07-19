@@ -167,11 +167,11 @@ const HomeScreen = () => {
               value={search}
               onChangeText={search => setSearch(search)}
             />
-            <Image
+            {/* <Image
               source={require('../assets/images/icons/filter.png')}
               style={{height: 20, width: 20}}
               resizeMode="contain"
-            />
+            /> */}
           </View>
         </View>
         <ScrollView
