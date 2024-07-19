@@ -116,7 +116,7 @@ export default function MidTabs(props) {
     );
   };
   const {detail} = props?.route?.params;
-  console.log('DETAILS', detail);
+  // console.log('DETAILS', detail);
 
   const Review = () => {
     const navigation = useNavigation();
@@ -147,7 +147,7 @@ export default function MidTabs(props) {
     //Api for Rating
     const RatingApi = async () => {
       const token = await AsyncStorage.getItem('token');
-      console.log('tokentoken', token);
+      // console.log('tokentoken', token);
       try {
         setLoader(true);
         const response = await axios({
@@ -162,7 +162,7 @@ export default function MidTabs(props) {
             product_id: detail?.[0]?.id,
           },
         });
-        console.log('review Res---', response?.data);
+        // console.log('review Res---', response?.data);
         if (response?.data?.status === true) {
           setLoader(false);
           showMessage({
@@ -173,7 +173,7 @@ export default function MidTabs(props) {
           navigation?.navigate('BottomTabNavigation');
         }
       } catch (error) {
-        console.log('Error Rating', error?.response?.data);
+        // console.log('Error Rating', error?.response?.data);
         setLoader(false);
         if (error?.response?.data?.message === 'Unauthenticated.') {
           showGuestModal();
