@@ -31,7 +31,7 @@ const PopularList = ({search}) => {
     useContext(AuthContext);
   const [likedItems, setLikedItems] = useState({});
 
-  // console.log('s<PopularList search={search} />', search);
+  console.log('s<PopularList search={search} />', search);
   const debouncedSearchTerm = useDebounce(search, 500);
 
   useEffect(() => {

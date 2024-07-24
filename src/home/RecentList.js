@@ -33,13 +33,13 @@ const RecentList = ({search}) => {
   const [likedItems, setLikedItems] = useState({});
   const {productListing, ListWishlist, location, wishlist} =
     useContext(AuthContext);
-  // console.log('productListingproductListing', productListing);
-  // console.log('searchsearch', search);
-  const debouncedSearchTerm = (search, 500);
+  console.log('productListingproductListing', productListing);
+  console.log('searchsearch', search);
+  const debouncedSearchTerm = useDebounce(search, 500);
 
   const data = debouncedSearchTerm
-    ? productListing?.filter(item =>
-        item?.title?.toLowerCase().includes(search.toLowerCase()),
+    ? productListing.filter(item =>
+        item.title.toLowerCase().includes(search.toLowerCase()),
       )
     : productListing;
 
@@ -99,7 +99,7 @@ const RecentList = ({search}) => {
       try {
         const userStatus = await AsyncStorage.getItem('userStatus');
         const token = await AsyncStorage.getItem('token');
-        
+
         if (userStatus === 'registered' && token) {
           setIsGuest(false);
         } else {
@@ -167,9 +167,10 @@ const RecentList = ({search}) => {
                 {item.title}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => 
-              isGuest ? showGuestModal() : 
-              AddRemove(item?.id)}>
+            <TouchableOpacity
+              onPress={() =>
+                isGuest ? showGuestModal() : AddRemove(item?.id)
+              }>
               <Image
                 source={
                   isLiked
@@ -233,10 +234,10 @@ const RecentList = ({search}) => {
         }}
       />
       <GuestModal
-          visible={showModal}
-          onClose={hideGuestModal}
-          navigation={navigation}
-        />
+        visible={showModal}
+        onClose={hideGuestModal}
+        navigation={navigation}
+      />
     </>
   );
 };

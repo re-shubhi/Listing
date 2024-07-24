@@ -156,7 +156,7 @@ const AuthContextProvider = ({children}) => {
         method: 'POST',
         url: product,
         data:{
-          title:search
+          title:search || " ",
         }
       });
       // console.log('Response Product ---', response?.data);

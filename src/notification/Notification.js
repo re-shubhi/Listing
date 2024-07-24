@@ -120,8 +120,8 @@ const Notification = () => {
                       <Image
                         source={require('../assets/images/icons/notify.png')}
                         style={{
-                          height: 30,
-                          width: 30,
+                          height: 25,
+                          width: 25,
                           borderRadius: 10,
                           tintColor: COLORS.white,
                         }}

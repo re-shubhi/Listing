@@ -16,7 +16,13 @@ import {
   RefreshControl,
   Linking,
 } from 'react-native';
-import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
@@ -34,6 +40,7 @@ import axios from 'axios';
 import {homescreen} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import {AuthContext} from '../restapi/AuthContext';
+import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
 
 const {fontScale, width, height} = Dimensions.get('screen');
 
@@ -41,12 +48,20 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const isfocus = useIsFocused();
   const [numColumns, setNumColumns] = useState(4);
-  const [search, setSearch] = useState('');
+  // const [search, setSearch] = useState('');
   const [categoryList, setCategoryList] = useState([]);
   const [slider, setSLider] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [search, setSelectedItem] = useState(null);
+  console.log('🚀 ~ HomeScreen ~ selectedItem:', search);
   const [loader, setLoader] = useState(false);
-  const {getLocation,requestPermissionLocation,locationPermission} = useContext(AuthContext);
+  const {
+    getLocation,
+    requestPermissionLocation,
+    locationPermission,
+    productListing,
+  } = useContext(AuthContext);
   // console.log("🚀 ~ HomeScreen ~ locationPermission:====", locationPermission)
 
   const backButtonHandler = () => {
@@ -80,6 +95,21 @@ const HomeScreen = () => {
       };
     }, []),
   );
+//clear search
+  const onClearPress = useCallback(() => {
+    setRefreshKey(prevKey => prevKey + 1);
+    setSelectedItem('')
+  }, [])
+  //search
+  const searchIcon = (
+    <View style={{backgroundColor:"red",padding:10}}>
+      <Image 
+       source={require('../assets/images/icons/search.png')}
+       style={{height: 20, width: 20}}
+       resizeMode="contain"
+      />
+    </View>
+  )
 
   const locationPermissionHandler = () => {
     Alert.alert(
@@ -124,55 +154,83 @@ const HomeScreen = () => {
       setLoader(false);
     }
   };
+  //refresh
   const onRefreshing = useCallback(() => {
-    setSearch('');
+    setSelectedItem('');
     setRefresh(true);
     Banner();
     setTimeout(() => {
       setRefresh(false);
+      setRefreshKey(prevKey => prevKey + 1); // Increment key to force reset after refresh
     }, 500);
   }, []);
-
-
-
+  
+//useeffect
   useEffect(() => {
     Banner();
     getLocation();
     // if (Platform.OS === 'ios' && locationPermission === false) {
     //   locationPermissionHandler();
     // }
-  }, [isfocus]);
-  
+  }, [isfocus,navigation]);
+
+  useEffect(()=>{
+    const listner = navigation.addListener("focus",()=>{
+      setRefreshKey(prevKey => prevKey+1);
+      setSelectedItem("")
+    });
+    return listner;
+  },[navigation])
 
   return (
     <ScreenBackgroundHome>
       <SafeAreaView style={{flex: 1}}>
         <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
         <Header backgroundColor={COLORS.base} headerText={'Home'} />
+
         <View
           style={{
             paddingHorizontal: width * 0.03,
             paddingBottom: height * 0.02,
           }}>
-          <View style={styles.search}>
-            <Image
-              source={require('../assets/images/icons/search.png')}
-              style={{height: 20, width: 20}}
-              resizeMode="contain"
-            />
-            <TextInput
-              style={styles.textInput}
-              placeholder="Search here"
-              placeholderTextColor={COLORS.white}
-              value={search}
-              onChangeText={search => setSearch(search)}
-            />
-            {/* <Image
-              source={require('../assets/images/icons/filter.png')}
-              style={{height: 20, width: 20}}
-              resizeMode="contain"
-            /> */}
-          </View>
+          <AutocompleteDropdown
+            clearOnFocus={false}
+            closeOnBlur={true}
+            key={refreshKey} 
+            closeOnSubmit={false}
+            onSelectItem={item => setSelectedItem(item?.title || "")}
+            onChangeText={text => setSelectedItem(text)}
+            dataSet={productListing}
+            onClear={onClearPress}
+            inputHeight={50}
+            showChevron={false}
+            debounce={500}
+            suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
+            inputContainerStyle={{
+              paddingHorizontal: 15,
+              paddingVertical: Platform.OS === 'ios' ? 5 : 0,
+              borderRadius: 10,
+              marginTop: height * 0.01,
+              backgroundColor: COLORS.darkgray,
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              leftIcon: searchIcon, 
+            }}
+            textInputProps={{
+              placeholder: 'Search here',
+              placeholderTextColor: COLORS.white,
+              autoCorrect: false,
+              autoCapitalize: 'none',
+              style: {
+                backgroundColor: COLORS.darkgray,
+                fontSize: fontScale * 16,
+                fontFamily: FONTS.Inter400,
+                color: COLORS.white,
+                flex:1
+              },
+            }}
+            
+          />
         </View>
         <ScrollView
           showsVerticalScrollIndicator={false}
