@@ -23,7 +23,7 @@ import {AuthContext} from '../restapi/AuthContext';
 import moment from 'moment';
 import ScreenLoader from '../components/ScreenLoader';
 import Button from '../components/Button';
-import { showMessage } from 'react-native-flash-message';
+import {showMessage} from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -56,20 +56,18 @@ const Notification = () => {
         },
       });
       // console.log('ress---del', res?.data);
-      if(res?.data?.status === true)
-      {
+      if (res?.data?.status === true) {
         setModalVisible(false);
         showMessage({
-          message:res?.data?.message,
-          type:'success'
-        })
+          message: res?.data?.message,
+          type: 'success',
+        });
         await NotidyData();
       }
     } catch (error) {
       // console.log('error', error?.response?.data);
     }
   };
-
 
   const NotidyData = async () => {
     const token = await AsyncStorage.getItem('token');
@@ -117,20 +115,19 @@ const Notification = () => {
               return (
                 <>
                   <View style={styles.container}>
-                    <Image
-                      source={
-                        userData?.profileImage
-                          ? {uri: userData?.profileImage}
-                          : require('../assets/images/pictures/profile3.png')
-                      }
-                      style={{
-                        height: 50,
-                        width: 50,
-                        borderRadius: 10,
-                        marginTop: 10,
-                      }}
-                      resizeMode="cover"
-                    />
+                    <View
+                      style={styles.bell}>
+                      <Image
+                        source={require('../assets/images/icons/notify.png')}
+                        style={{
+                          height: 30,
+                          width: 30,
+                          borderRadius: 10,
+                          tintColor: COLORS.white,
+                        }}
+                        resizeMode="cover"
+                      />
+                    </View>
                     <View style={{flex: 1}}>
                       <Text style={styles.nameText}>{item.Name}</Text>
                       <Text
@@ -276,4 +273,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     columnGap: 20,
   },
+  bell:{
+    backgroundColor: COLORS.base,
+    borderRadius: 100,
+    alignItems: 'center',
+    alignSelf: 'center',
+    height: 45,
+    width: 45,
+    marginTop: 10,
+    justifyContent: 'center',
+  }
 });
