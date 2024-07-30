@@ -313,7 +313,7 @@ const HomeScreen = () => {
             </View>
 
             <View>
-              <Text style={styles.headingText}>Popular</Text>
+              
               <PopularList search={search} />
               <Text
                 style={[

@@ -110,14 +110,15 @@ const PopularList = ({search}) => {
     }
   };
 
+  const popularlist = productListing.filter(
+    item => item.product_type === 'popular',
+  );
   // Popular Listing
   const popularItems = debouncedSearchTerm
-    ? productListing.filter(item =>
+    ? popularlist.filter(item =>
         item.title.toLowerCase().includes(search.toLowerCase()),
       )
-    : productListing.filter(item => item.product_type === 'popular');
-
-  // console.log('popularItemspopularItems', popularItems);
+    : popularlist;
 
   const showGuestModal = () => {
     setShowModal(true);
@@ -204,7 +205,7 @@ const PopularList = ({search}) => {
       try {
         const userStatus = await AsyncStorage.getItem('userStatus');
         const token = await AsyncStorage.getItem('token');
-        
+
         if (userStatus === 'registered' && token) {
           setIsGuest(false);
         } else {
@@ -220,35 +221,26 @@ const PopularList = ({search}) => {
   }, []);
 
   return (
-    <>
-      <FlatList
-        data={popularItems}
-        keyExtractor={item => item.id.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={styles.seperator} />}
-        ListEmptyComponent={() => {
-          return (
-            <View
-              style={{
-                justifyContent: 'center',
-                height: height * 0.1,
-                backgroundColor: COLORS.white,
-                alignItems: 'center',
-                marginLeft: width * 0.3,
-              }}>
-              <Text>No data found</Text>
-            </View>
-          );
-        }}
-      />
+    <View>
+      {popularItems.length > 0 && (
+        <>
+          <Text style={styles.headingText}>Popular</Text>
+          <FlatList
+            data={popularItems}
+            keyExtractor={item => item.id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={renderItem}
+            ItemSeparatorComponent={() => <View style={styles.seperator} />}
+          />
+        </>
+      )}
       <GuestModal
         visible={showModal}
         onClose={hideGuestModal}
         navigation={navigation}
       />
-    </>
+    </View>
   );
 };
 
@@ -295,4 +287,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   seperator: {width: 15, backgroundColor: 'transparent'},
+  headingText: {
+    fontSize: fontScale * 16,
+    color: COLORS.base,
+    fontFamily: FONTS.Inter600,
+    lineHeight: 21,
+    paddingLeft: 5,
+    marginTop: Platform.OS == 'ios' ? 20 : 8,
+  },
 });
