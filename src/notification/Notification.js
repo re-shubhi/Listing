@@ -80,9 +80,10 @@ const Notification = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      // console.log('response Notification---', response?.data);
+      
       if (response?.data?.status === true) {
-        setNotification(response?.data?.data);
+        setNotification(response?.data?.data?.reverse());
+        // console.log('response Notification---', response?.data?.data.reverse());
         setLoader(false);
       }
     } catch (error) {

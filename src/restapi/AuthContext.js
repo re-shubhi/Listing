@@ -3,9 +3,9 @@ import axios from 'axios';
 import {getPopnProfile, getWishList, product} from './ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
-import {PermissionsAndroid, Platform} from 'react-native';
+import {Alert, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import { request, PERMISSIONS, openSettings } from 'react-native-permissions';
+import {request, PERMISSIONS, openSettings} from 'react-native-permissions';
 
 const AuthContext = React.createContext();
 
@@ -49,29 +49,34 @@ const AuthContextProvider = ({children}) => {
             buttonPositive: 'OK',
           },
         );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          return true;
-        } else {
-          return false;
-        }
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
       } else if (Platform.OS === 'ios') {
         const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-        // console.log('result----location', result);
         if (result === 'granted') {
-          // setlocationPermission(true)
           return true;
         } else if (result === 'blocked') {
-          // setlocationPermission(false)
+          // Alert the user and provide an option to open settings
+          Alert.alert(
+            'Location Permission Required',
+            'Please enable location services in your settings to use this feature.',
+            [
+              {
+                text: 'Settings',
+                onPress: () => openSettings(),
+              },
+              {
+                text: 'Cancel',
+                style: 'cancel',
+              },
+            ],
+          );
           return false;
         } else {
-          // ExitApp.exitApp();
-          // setlocationPermission(false)
           return false;
         }
       }
     } catch (err) {
-      // console.log(err);
-      setlocationPermission(false)
+      console.error('Permission error:', err);
       return false;
     }
   }
@@ -155,9 +160,9 @@ const AuthContextProvider = ({children}) => {
       const response = await axios({
         method: 'POST',
         url: product,
-        data:{
-          title:search || " ",
-        }
+        data: {
+          title: search || ' ',
+        },
       });
       // console.log('Response Product ---', response?.data);
       if (response?.data?.status === true) {
@@ -212,7 +217,7 @@ const AuthContextProvider = ({children}) => {
         search,
         setSearch,
         setlocationPermission,
-        locationPermission
+        locationPermission,
       }}>
       {children}
     </AuthContext.Provider>

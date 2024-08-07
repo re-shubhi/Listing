@@ -55,7 +55,7 @@ const validationSchema = Yup.object().shape({
 const EditProfile = () => {
   const navigation = useNavigation();
   const {userData, getProfileData} = useContext(AuthContext);
-  console.log('🚀 ~ EditProfile ~ userData:', userData);
+  // console.log('🚀 ~ EditProfile ~ userData:', userData);
   const [value, setValue] = useState(userData?.gender || '');
   const [date, setDate] = useState(
     userData ? new Date(userData?.dob) : new Date(),

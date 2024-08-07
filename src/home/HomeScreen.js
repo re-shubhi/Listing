@@ -41,6 +41,7 @@ import {homescreen} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import {AuthContext} from '../restapi/AuthContext';
 import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {fontScale, width, height} = Dimensions.get('screen');
 
@@ -54,13 +55,15 @@ const HomeScreen = () => {
   const [refresh, setRefresh] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [search, setSelectedItem] = useState(null);
-  console.log('🚀 ~ HomeScreen ~ selectedItem:', search);
+  // console.log('🚀 ~ HomeScreen ~ selectedItem:', search);
   const [loader, setLoader] = useState(false);
+  const [permissionAlertShown, setPermissionAlertShown] = useState(false);
   const {
     getLocation,
     requestPermissionLocation,
     locationPermission,
     productListing,
+    location,
   } = useContext(AuthContext);
   // console.log("🚀 ~ HomeScreen ~ locationPermission:====", locationPermission)
 
@@ -95,21 +98,21 @@ const HomeScreen = () => {
       };
     }, []),
   );
-//clear search
+  //clear search
   const onClearPress = useCallback(() => {
     setRefreshKey(prevKey => prevKey + 1);
-    setSelectedItem('')
-  }, [])
+    setSelectedItem('');
+  }, []);
   //search
   const searchIcon = (
-    <View style={{backgroundColor:"red",padding:10}}>
-      <Image 
-       source={require('../assets/images/icons/search.png')}
-       style={{height: 20, width: 20}}
-       resizeMode="contain"
+    <View style={{backgroundColor: 'red', padding: 10}}>
+      <Image
+        source={require('../assets/images/icons/search.png')}
+        style={{height: 20, width: 20}}
+        resizeMode="contain"
       />
     </View>
-  )
+  );
 
   const locationPermissionHandler = () => {
     Alert.alert(
@@ -132,7 +135,8 @@ const HomeScreen = () => {
         cancelable: false,
       },
     );
-    return true;
+    setPermissionAlertShown(true);
+    AsyncStorage.setItem('locationPermissionAlertShown', 'true');
   };
 
   //Banner Slider Api
@@ -164,23 +168,33 @@ const HomeScreen = () => {
       setRefreshKey(prevKey => prevKey + 1); // Increment key to force reset after refresh
     }, 500);
   }, []);
-  
-//useeffect
+
+  //useeffect
   useEffect(() => {
     Banner();
     getLocation();
-    // if (Platform.OS === 'ios' && locationPermission === false) {
-    //   locationPermissionHandler();
-    // }
-  }, [isfocus,navigation]);
+  }, [isfocus, navigation]);
 
-  useEffect(()=>{
-    const listner = navigation.addListener("focus",()=>{
-      setRefreshKey(prevKey => prevKey+1);
-      setSelectedItem("")
+  // useEffect(() => {
+  //   // Check if alert has been shown before
+  //   const checkAlertState = async () => {
+  //     const alertShown = await AsyncStorage.getItem(
+  //       'locationPermissionAlertShown',
+  //     );
+  //     if (Platform.OS === 'ios' && location === '' && alertShown !== 'true') {
+  //       locationPermissionHandler();
+  //     }
+  //   };
+  //   checkAlertState();
+  // }, [location]);
+
+  useEffect(() => {
+    const listner = navigation.addListener('focus', () => {
+      setRefreshKey(prevKey => prevKey + 1);
+      setSelectedItem('');
     });
     return listner;
-  },[navigation])
+  }, [navigation]);
 
   return (
     <ScreenBackgroundHome>
@@ -196,9 +210,9 @@ const HomeScreen = () => {
           <AutocompleteDropdown
             clearOnFocus={false}
             closeOnBlur={true}
-            key={refreshKey} 
+            key={refreshKey}
             closeOnSubmit={false}
-            onSelectItem={item => setSelectedItem(item?.title || "")}
+            onSelectItem={item => setSelectedItem(item?.title || '')}
             onChangeText={text => setSelectedItem(text)}
             dataSet={productListing}
             onClear={onClearPress}
@@ -212,9 +226,9 @@ const HomeScreen = () => {
               borderRadius: 10,
               marginTop: height * 0.01,
               backgroundColor: COLORS.darkgray,
-              flexDirection: 'row', 
-              alignItems: 'center', 
-              leftIcon: searchIcon, 
+              flexDirection: 'row',
+              alignItems: 'center',
+              leftIcon: searchIcon,
             }}
             textInputProps={{
               placeholder: 'Search here',
@@ -226,10 +240,9 @@ const HomeScreen = () => {
                 fontSize: fontScale * 16,
                 fontFamily: FONTS.Inter400,
                 color: COLORS.white,
-                flex:1
+                flex: 1,
               },
             }}
-            
           />
         </View>
         <ScrollView
@@ -313,7 +326,6 @@ const HomeScreen = () => {
             </View>
 
             <View>
-              
               <PopularList search={search} />
               <Text
                 style={[

@@ -31,7 +31,7 @@ const PopularList = ({search}) => {
     useContext(AuthContext);
   const [likedItems, setLikedItems] = useState({});
 
-  console.log('s<PopularList search={search} />', search);
+  // console.log('s<PopularList search={search} />', search);
   const debouncedSearchTerm = useDebounce(search, 500);
 
   useEffect(() => {
@@ -190,7 +190,10 @@ const PopularList = ({search}) => {
                 style={{height: 18, width: 18}}
                 resizeMode="contain"
               />
-              <Text style={styles.rate}>{Math.ceil(itemDistance)} km</Text>
+              <Text style={styles.rate}>
+                {' '}
+                {itemDistance > 0 ? Math.ceil(itemDistance) : 0} km
+              </Text>
             </View>
           </View>
         </View>

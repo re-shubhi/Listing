@@ -32,15 +32,19 @@
 		<true/>
 	</dict>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Location Permission</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Location Permission</string>
-    <key>NSLocationUsageDescription</key>
-    <string>GPS data is required to...</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Location Permission</string>
+	<string>We need access to your location at all times to provide real-time updates and location-based features.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to provide accurate information.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>We need your location to provide accurate information even when the app is running in the background.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide personalized content and improve your experience while using the app.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Need access to update pictures</string>
+	<string>We need access to your photo library to allow you to select and upload photos within the app.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to let you take photos within the app.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires access to the microphone to enable voice recording features.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Inter-Black.ttf</string>

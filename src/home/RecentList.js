@@ -33,8 +33,8 @@ const RecentList = ({search}) => {
   const [likedItems, setLikedItems] = useState({});
   const {productListing, ListWishlist, location, wishlist} =
     useContext(AuthContext);
-  console.log('productListingproductListing', productListing);
-  console.log('searchsearch', search);
+  // console.log('productListingproductListing', productListing);
+  // console.log('searchsearch', search);
   const debouncedSearchTerm = useDebounce(search, 500);
 
   const data = debouncedSearchTerm
@@ -93,26 +93,26 @@ const RecentList = ({search}) => {
     setShowModal(false);
   };
 
-  useEffect(() => {
-    // Check user status from AsyncStorage
-    const checkUserStatus = async () => {
-      try {
-        const userStatus = await AsyncStorage.getItem('userStatus');
-        const token = await AsyncStorage.getItem('token');
+  // useEffect(() => {
+   
+  //   const checkUserStatus = async () => {
+  //     try {
+  //       const userStatus = await AsyncStorage.getItem('userStatus');
+  //       const token = await AsyncStorage.getItem('token');
 
-        if (userStatus === 'registered' && token) {
-          setIsGuest(false);
-        } else {
-          setIsGuest(true);
-        }
-      } catch (error) {
-        console.error('Error fetching user status:', error);
-        setIsGuest(true);
-      }
-    };
+  //       if (userStatus === 'registered' && token) {
+  //         setIsGuest(false);
+  //       } else {
+  //         setIsGuest(true);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching user status:', error);
+  //       setIsGuest(true);
+  //     }
+  //   };
 
-    checkUserStatus();
-  }, []);
+  //   checkUserStatus();
+  // }, []);
 
   //Api to add remove wishList
   const AddRemove = async id => {
@@ -200,7 +200,10 @@ const RecentList = ({search}) => {
                 style={{height: 18, width: 18}}
                 resizeMode="contain"
               />
-              <Text style={styles.rate}>{Math.ceil(itemDistance)} km</Text>
+              <Text style={styles.rate}>
+                
+                {itemDistance > 0 ? Math.ceil(itemDistance) : 0} km
+              </Text>
             </View>
           </View>
         </View>

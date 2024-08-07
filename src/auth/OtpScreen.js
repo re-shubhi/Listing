@@ -112,7 +112,7 @@ const OtpScreen = ({route}) => {
         url: forgotpassword_send_request,
         data: {email: email},
       });
-      // console.log('resend Res--', response);
+      console.log('resend Res--', response);
       if(response?.data?.status === true)
         {
           setLoader(false)
