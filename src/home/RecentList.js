@@ -93,26 +93,26 @@ const RecentList = ({search}) => {
     setShowModal(false);
   };
 
-  // useEffect(() => {
+  useEffect(() => {
    
-  //   const checkUserStatus = async () => {
-  //     try {
-  //       const userStatus = await AsyncStorage.getItem('userStatus');
-  //       const token = await AsyncStorage.getItem('token');
+    const checkUserStatus = async () => {
+      try {
+        const userStatus = await AsyncStorage.getItem('userStatus');
+        const token = await AsyncStorage.getItem('token');
 
-  //       if (userStatus === 'registered' && token) {
-  //         setIsGuest(false);
-  //       } else {
-  //         setIsGuest(true);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error fetching user status:', error);
-  //       setIsGuest(true);
-  //     }
-  //   };
+        if (userStatus === 'registered' && token) {
+          setIsGuest(false);
+        } else {
+          setIsGuest(true);
+        }
+      } catch (error) {
+        console.error('Error fetching user status:', error);
+        setIsGuest(true);
+      }
+    };
 
-  //   checkUserStatus();
-  // }, []);
+    checkUserStatus();
+  }, []);
 
   //Api to add remove wishList
   const AddRemove = async id => {

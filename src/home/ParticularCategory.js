@@ -22,12 +22,15 @@ import {addRemoveWishlist} from '../restapi/ApiConfig';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {showMessage} from 'react-native-flash-message';
+import GuestModal from '../components/GuestModal';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ParticularCategory = props => {
   const navigation = useNavigation();
   const [numColumns, setNumColumns] = useState(2);
+  const [isGuest, setIsGuest] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [distance, setDistance] = useState({});
   const [likeItems, setLikedItems] = useState({});
   const {data} = props?.route?.params;
@@ -133,7 +136,10 @@ const ParticularCategory = props => {
                 {item.title}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => AddRemove(item?.id)}>
+            <TouchableOpacity
+              onPress={() =>
+                isGuest ? showGuestModal() : AddRemove(item?.id)
+              }>
               <Image
                 source={
                   isLiked
@@ -171,6 +177,34 @@ const ParticularCategory = props => {
     );
   };
 
+  const showGuestModal = () => {
+    setShowModal(true);
+  };
+  // Function to hide the guest registration modal
+  const hideGuestModal = () => {
+    setShowModal(false);
+  };
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      try {
+        const userStatus = await AsyncStorage.getItem('userStatus');
+        const token = await AsyncStorage.getItem('token');
+
+        if (userStatus === 'registered' && token) {
+          setIsGuest(false);
+        } else {
+          setIsGuest(true);
+        }
+      } catch (error) {
+        console.error('Error fetching user status:', error);
+        setIsGuest(true);
+      }
+    };
+
+    checkUserStatus();
+  }, []);
+
   return (
     <ScreenWithBackground>
       <SafeAreaView style={styles.container}>
@@ -205,6 +239,11 @@ const ParticularCategory = props => {
                 </View>
               );
             }}
+          />
+          <GuestModal
+            visible={showModal}
+            onClose={hideGuestModal}
+            navigation={navigation}
           />
         </View>
       </SafeAreaView>
