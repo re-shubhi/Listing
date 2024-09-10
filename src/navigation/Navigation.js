@@ -19,6 +19,7 @@ import VerifyOtp from '../auth/VerifyOtp';
 import IntroductionScreen from '../home/Introduction';
 import HomeScreen from '../home/HomeScreen';
 import ReviewListing from '../home/ReviewListing';
+import LanguageSelectionScreen from '../auth/LanguageSelectionScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -39,6 +40,7 @@ const Navigation = () => {
           component={IntroductionScreen}
         />
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
+        <Stack.Screen name="LanguageSelectionScreen" component={LanguageSelectionScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="VerifyOtp" component={VerifyOtp} />

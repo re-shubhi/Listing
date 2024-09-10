@@ -30,11 +30,13 @@ import {AuthContext} from '../restapi/AuthContext';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GuestModal from '../components/GuestModal';
+import { useTranslation } from 'react-i18next';
 
 const Tab = createMaterialTopTabNavigator();
 
 const DetailScreen = props => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
   const isfocus = useIsFocused();
   const [scrollY] = useState(new Animated.Value(0));
   const HEADER_MAX_HEIGHT = 290;
@@ -226,7 +228,7 @@ const DetailScreen = props => {
                       : navigation.navigate('ReviewListing',{data: detail?.[0]})
                   }>
                   <Text style={styles.rate}>
-                    ( {detail?.[0]?.review} reviews )
+                    ( {detail?.[0]?.review} {t("reviews")} )
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -238,7 +240,7 @@ const DetailScreen = props => {
                   styles.heading,
                   {color: COLORS.white, fontSize: fontScale * 15},
                 ]}>
-                {Math.ceil(distance)} km
+                {Math.ceil(distance)} {t("km")}
               </Text>
             </View>
           </View>
@@ -272,7 +274,7 @@ const DetailScreen = props => {
                       paddingTop: 5,
                     },
                   ]}>
-                  Open on maps
+                  {t("Open on maps")}
                 </Text>
               </TouchableOpacity>
             </View>

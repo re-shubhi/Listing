@@ -23,11 +23,13 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {showMessage} from 'react-native-flash-message';
 import GuestModal from '../components/GuestModal';
+import { useTranslation } from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ParticularCategory = props => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
   const [numColumns, setNumColumns] = useState(2);
   const [isGuest, setIsGuest] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -169,7 +171,7 @@ const ParticularCategory = props => {
                 style={{height: 18, width: 18}}
                 resizeMode="contain"
               />
-              <Text style={styles.rate}>{Math.ceil(itemDistance)} km</Text>
+              <Text style={styles.rate}>{Math.ceil(itemDistance)}  {t("km")}</Text>
             </View>
           </View>
         </View>

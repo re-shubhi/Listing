@@ -2,10 +2,12 @@ import { Dimensions, Image, Modal, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import Button from './Button';
 import COLORS from '../theme/Colors';
+import { useTranslation } from 'react-i18next';
 
 const{height,width,fontScale} = Dimensions.get('screen');
 
 export default GuestModal = ({ visible, onClose, navigation }) => {
+  const {t} = useTranslation();
     const hideGuestModal = () => {
       onClose();
     };
@@ -49,10 +51,10 @@ export default GuestModal = ({ visible, onClose, navigation }) => {
                   textAlign: 'center',
                 }}
               >
-                Please register to access this feature
+                {t("Please register to access this feature")}
               </Text>
               <Button
-                buttonTxt={'Register'}
+                buttonTxt={t('Register')}
                 width={width * 0.6}
                 onPress={() => {
                   navigation.navigate('Register');

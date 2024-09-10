@@ -34,6 +34,7 @@ import axios from 'axios';
 import {updateProfile} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScreenLoader from '../components/ScreenLoader';
+import { useTranslation } from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -54,6 +55,7 @@ const validationSchema = Yup.object().shape({
 });
 const EditProfile = () => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
   const {userData, getProfileData} = useContext(AuthContext);
   // console.log('🚀 ~ EditProfile ~ userData:', userData);
   const [value, setValue] = useState(userData?.gender || '');
@@ -63,9 +65,9 @@ const EditProfile = () => {
   const [open, setOpen] = useState(false);
   const [loader, setLoader] = useState(false);
   const data = [
-    {label: 'Male', value: '1'},
-    {label: 'Female', value: '2'},
-    {label: 'Others', value: '3'},
+    {label: t('Male'), value: '1',send:"Male"},
+    {label: t('Female'), value: '2',send:"Female"},
+    {label: t('Others'), value: '3',send:"Others"},
   ];
   const [countryCode, setCountryCode] = useState({
     callingCode: '966',
@@ -211,7 +213,7 @@ const EditProfile = () => {
                 showsVerticalScrollIndicator={false}>
                 <Header
                   backicon={true}
-                  headerText={'Update Profile'}
+                  headerText={t('Update Profile')}
                   backgroundColor={COLORS.base}
                   tintColor={COLORS.white}
                 />
@@ -300,13 +302,13 @@ const EditProfile = () => {
                       userData?.gender
                         ? userData.gender.charAt(0).toUpperCase() +
                           userData.gender.slice(1)
-                        : 'Gender'
+                        : t('Gender')
                     }
                     value={value}
                     onChange={item => {
                       // console.log("slected",item)
-                      setFieldValue('gender', item.label);
-                      setValue(item.label);
+                      setFieldValue('gender', item.send);
+                      setValue(item.send);
                     }}
                   />
                   {errors.gender && touched.gender && (
@@ -360,7 +362,7 @@ const EditProfile = () => {
                   )}
                 </View>
                 <View style={styles.bottomContainer}>
-                  <Button buttonTxt={'Update Profile'} onPress={handleSubmit} />
+                  <Button buttonTxt={t('Update Profile')} onPress={handleSubmit} />
                 </View>
                 {loader && <ScreenLoader isProcessing={loader} />}
               </ScrollView>

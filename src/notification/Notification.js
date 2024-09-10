@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   Modal,
+  I18nManager,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Header from '../components/Header';
@@ -24,11 +25,14 @@ import moment from 'moment';
 import ScreenLoader from '../components/ScreenLoader';
 import Button from '../components/Button';
 import {showMessage} from 'react-native-flash-message';
+import {useTranslation} from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Notification = () => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const isfocus = useIsFocused();
   const [notification, setNotification] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -80,7 +84,7 @@ const Notification = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (response?.data?.status === true) {
         setNotification(response?.data?.data?.reverse());
         // console.log('response Notification---', response?.data?.data.reverse());
@@ -101,7 +105,7 @@ const Notification = () => {
       <SafeAreaView style={styles.screen}>
         <Header
           backicon={true}
-          headerText={'Notification'}
+          headerText={t('notification')}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
         />
@@ -115,9 +119,15 @@ const Notification = () => {
             renderItem={({item}) => {
               return (
                 <>
-                  <View style={styles.container}>
+                  <View
+                    style={[
+                      styles.container
+                    ]}>
                     <View
-                      style={styles.bell}>
+                      style={[
+                        styles.bell,
+                        {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                      ]}>
                       <Image
                         source={require('../assets/images/icons/notify.png')}
                         style={{
@@ -130,11 +140,11 @@ const Notification = () => {
                       />
                     </View>
                     <View style={{flex: 1}}>
-                      <Text style={styles.nameText}>{item.Name}</Text>
                       <Text
                         style={{
                           ...styles.nameText,
                           fontFamily: FONTS.Inter400,
+                          textAlign: isRTL ? 'right' : 'left',
                         }}>
                         {item.message}
                       </Text>
@@ -144,6 +154,7 @@ const Notification = () => {
                           fontSize: fontScale * 12,
                           fontFamily: FONTS.Inter400,
                           lineHeight: 17,
+                          textAlign: isRTL ? 'right' : 'left',
                         }}>
                         {item?.created_at}
                       </Text>
@@ -173,7 +184,7 @@ const Notification = () => {
                     alignItems: 'center',
                   }}>
                   <Text style={{fontSize: fontScale * 16, color: COLORS.black}}>
-                    No data found
+                    {t('No data found')}
                   </Text>
                 </View>
               );
@@ -195,16 +206,16 @@ const Notification = () => {
                     textAlign: 'center',
                     lineHeight: 24,
                   }}>
-                  Do you want to delete this notification?
+                  {t('Do you want to delete this notification?')}
                 </Text>
                 <View style={styles.logoutBox}>
                   <Button
-                    buttonTxt={'Cancel'}
+                    buttonTxt={t('Cancel')}
                     onPress={closeModal}
                     width={width * 0.28}
                   />
                   <Button
-                    buttonTxt={'Yes'}
+                    buttonTxt={t('Yes')}
                     onPress={() => DeleteNotification(delId)}
                     width={width * 0.28}
                   />
@@ -274,7 +285,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     columnGap: 20,
   },
-  bell:{
+  bell: {
     backgroundColor: COLORS.base,
     borderRadius: 100,
     alignItems: 'center',
@@ -283,5 +294,5 @@ const styles = StyleSheet.create({
     width: 45,
     marginTop: 10,
     justifyContent: 'center',
-  }
+  },
 });

@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  I18nManager,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import Header from '../components/Header';
@@ -30,12 +31,15 @@ import {
   forgotpassword_send_request,
 } from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
+import { useTranslation } from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const OtpScreen = ({route}) => {
   const navigation = useNavigation();
   const {tempId, email} = route?.params;
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const CELL_COUNT = 4;
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
@@ -48,7 +52,7 @@ const OtpScreen = ({route}) => {
 
   const handleContinue = () => {
     if (value.length != CELL_COUNT) {
-      setError('OTP must be 4 digits');
+      setError(t('OTP must be 4 digits'));
     } else {
       setError('');
       OtpVerifyApi();
@@ -140,9 +144,9 @@ const OtpScreen = ({route}) => {
           showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
             <View style={styles.TextContainer}>
-              <Text style={styles.heading}>Enter 4 digit code</Text>
-              <Text style={styles.subheading}>
-                Enter the 4 digit code that you received on your email
+              <Text style={[styles.heading,{alignSelf: isRTL ? 'flex-start' : 'flex-end'},]}> {t('Enter 4 digit code')}</Text>
+              <Text style={[styles.subheading, {alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>
+              {t('Enter the 4 digit code that you received on your email')}
               </Text>
             </View>
             <View>
@@ -170,10 +174,10 @@ const OtpScreen = ({route}) => {
                 )}
               />
             </View>
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error ? <Text style={[styles.errorText,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{error}</Text> : null}
             <View style={{marginTop: 10}}>
               <Button
-                buttonTxt={'Continue'}
+                buttonTxt={t('Continue')}
                 disabled={value.length != CELL_COUNT}
                 onPress={handleContinue}
               />
@@ -183,7 +187,7 @@ const OtpScreen = ({route}) => {
                 onPress={() => {
                   ResendApi();
                 }}>
-                <Text style={styles.forgotText}>Resend OTP</Text>
+                <Text style={styles.forgotText}>{t('Resend OTP')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -194,13 +198,13 @@ const OtpScreen = ({route}) => {
                 styles.linkText,
                 {color: COLORS.black, fontFamily: FONTS.Inter400},
               ]}>
-              Already have an account ?
+              {t("Already have an account ?")}
             </Text>
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate('Login');
               }}>
-              <Text style={styles.linkText}> Login Now</Text>
+              <Text style={styles.linkText}> {t("Login Now")}</Text>
             </TouchableOpacity>
           </View>
           {loader && <ScreenLoader isProcessing={loader} />}

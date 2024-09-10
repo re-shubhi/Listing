@@ -1,13 +1,16 @@
 import React, {useEffect} from 'react';
 import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
-import {CommonActions, useNavigation} from '@react-navigation/native';
+import {CommonActions, useIsFocused, useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
+import { useTranslation } from 'react-i18next';
+
 
 const SplashScreen = () => {
   const navigation = useNavigation();
-
+  const {t} = useTranslation();
+;
   // Function to check user status and navigate accordingly
   const checkUserStatus = async () => {
     try {
@@ -22,14 +25,14 @@ const SplashScreen = () => {
             routes: [{name: 'BottomTabNavigation'}],
           }),
         );
-      } else if (userStatus != 'registered' && (!token)) {
+      } else if (userStatus != 'registered' && !token) {
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
             routes: [{name: 'HomeScreen'}],
           }),
         );
-      } else if (userStatus === 'registered' && (!token)) {
+      } else if (userStatus === 'registered' && !token) {
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
@@ -51,6 +54,7 @@ const SplashScreen = () => {
   // Effect to handle navigation based on user status
   useEffect(() => {
     const initializeApp = async () => {
+    
       try {
         await checkUserStatus();
       } catch (error) {
@@ -59,16 +63,18 @@ const SplashScreen = () => {
     };
 
     initializeApp();
-  }, []);
+  }, [t]);
 
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar backgroundColor={COLORS.initial} barStyle={'dark-content'} />
       <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome</Text>
+        <Text style={styles.welcome}>{t('Welcome')}</Text>
         <View style={{flexDirection: 'row'}}>
-          <Text style={{...styles.name, color: COLORS.primary}}>L</Text>
-          <Text style={styles.name}>isting App</Text>
+          <Text style={{...styles.name, color: COLORS.primary}}>{t('L')}</Text>
+          <Text style={styles.name}>
+            {t('isting')} {t('App')}
+          </Text>
         </View>
       </View>
     </SafeAreaView>

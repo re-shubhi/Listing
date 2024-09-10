@@ -21,11 +21,13 @@ import {addRemoveWishlist, getWishList} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../restapi/AuthContext';
 import {showMessage} from 'react-native-flash-message';
+import { useTranslation } from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Wishlist = () => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
   const [distance, setDistance] = useState({});
   const [likedItems, setLikedItems] = useState({});
   const [numColumns, setNumColumns] = useState(2); // State for the number of columns
@@ -161,7 +163,7 @@ const Wishlist = () => {
           backicon={true}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
-          headerText={'Wishlist'}
+          headerText={t("wishlist")}
         />
         <View style={styles.fullScreenRed}>
           <FlatList
@@ -183,7 +185,7 @@ const Wishlist = () => {
                     backgroundColor: COLORS.white,
                     alignItems: 'center',
                   }}>
-                  <Text>No Data Found</Text>
+                  <Text>{t("No data found")}</Text>
                 </View>
               );
             }}

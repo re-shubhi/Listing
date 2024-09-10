@@ -27,12 +27,17 @@ import ScreenLoader from '../components/ScreenLoader';
 import {AuthContext} from '../restapi/AuthContext';
 import GuestModal from '../components/GuestModal';
 import CallModal from '../components/CallModal';
+import {useTranslation} from 'react-i18next';
+import {I18nManager} from 'react-native';
+
+const isRTL = I18nManager.isRTL;
 
 const Tab = createMaterialTopTabNavigator();
 const {height, width, fontScale} = Dimensions.get('screen');
 
 export default function MidTabs(props) {
   const navigation = useNavigation();
+  const {t} = useTranslation();
   const {ProductListing} = useContext(AuthContext);
   const [expand, setExpand] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
@@ -48,12 +53,12 @@ export default function MidTabs(props) {
     setShowModal(false);
   };
 
-  const showCallModal = () =>{
+  const showCallModal = () => {
     setShowCall(true);
-  }
-  const hideCallModal = () =>{
+  };
+  const hideCallModal = () => {
     setShowCall(false);
-  }
+  };
   const checkGuest = async () => {
     const token = await AsyncStorage.getItem('token');
     token ? setIsGuest(false) : setIsGuest(true);
@@ -69,49 +74,51 @@ export default function MidTabs(props) {
           <View>
             <View>
               {expand ? (
-                <View>
+                <View style={{right:isRTL?-10:0}}>
                   <HTMLView
                     value={detail?.[0]?.about_product}
                     stylesheet={styles}
                   />
-                  <TouchableOpacity onPress={toggleExpand}>
-                    <Text style={styles.seeText}>See less</Text>
+                  <TouchableOpacity
+                    onPress={toggleExpand}
+                    style={{alignSelf: isRTL ? 'flex-start' : 'flex-end'}}>
+                    <Text style={styles.seeText}>{t('See less')}</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
-                <View>
+                <View style={{right:isRTL?-10:0}}>
                   <HTMLView
                     value={detail?.[0]?.about_product.slice(0, 300)}
                     stylesheet={styles}
                   />
-                  <TouchableOpacity onPress={toggleExpand}>
-                    <Text style={styles.seeText}>See More</Text>
+                  <TouchableOpacity
+                    onPress={toggleExpand}
+                    style={{alignSelf: isRTL ? 'flex-start' : 'flex-end'}}>
+                    <Text style={[styles.seeText]}>{t('See More')}</Text>
                   </TouchableOpacity>
                 </View>
               )}
             </View>
-            <View style={{marginTop: height * 0.02}}>
+            <View
+              style={{marginTop: height * 0.02, marginLeft: isRTL ? 25 : 0}}>
               <Button
-                buttonTxt={'Call for more information'}
+                buttonTxt={t('Call for more information')}
                 onPress={() => {
-                  isGuest
-                    ? showGuestModal()
-                    : showCallModal()
+                  isGuest ? showGuestModal() : showCallModal();
                 }}
               />
             </View>
           </View>
         </ScrollView>
-     
+
         {showCall && (
-            <CallModal
-              props={props}
-              modalTitle={"Your reservation is confirmed"}
-              isOpens={showCall}
-              setIsOpens={setShowCall}
-              callData={detail?.[0]}
-            />
-          )}
+          <CallModal
+            props={props}
+            isOpens={showCall}
+            setIsOpens={setShowCall}
+            callData={detail?.[0]}
+          />
+        )}
       </>
     );
   };
@@ -137,7 +144,7 @@ export default function MidTabs(props) {
     };
     const handleSubmit = () => {
       if (comment === '') {
-        setError('Please enter your comment');
+        setError(t('Please enter your comment'));
       } else {
         setError('');
         RatingApi();
@@ -195,7 +202,7 @@ export default function MidTabs(props) {
               padding: 20,
               paddingBottom: 50,
             }}>
-            <Text style={styles.textheading}>How was your Service ?</Text>
+            <Text style={styles.textheading}>{t('How was the Service?')}</Text>
             <AirbnbRating
               defaultRating={0}
               count={5}
@@ -211,10 +218,10 @@ export default function MidTabs(props) {
               }}
               onFinishRating={handleRatingChange}
             />
-            <Text style={styles.subText}>Your Feedback is anonymous</Text>
+            <Text style={styles.subText}>{t('Your Feedback')}</Text>
             <TextInput
-              style={styles.textinput}
-              placeholder="Comment here"
+              style={[styles.textinput,{textAlign: isRTL ? 'right' : 'left'},]}
+              placeholder={t('Comment here')}
               placeholderTextColor={COLORS.placeholder}
               textAlignVertical="top"
               multiline={true}
@@ -225,7 +232,7 @@ export default function MidTabs(props) {
             <Text style={styles.errorText}>{error}</Text>
             <View style={{paddingVertical: height * 0.01}}>
               <Button
-                buttonTxt={'Submit'}
+                buttonTxt={t('Submit')}
                 onPress={isGuest ? showGuestModal : handleSubmit}
                 // disabled={rating === 0}
               />
@@ -248,7 +255,7 @@ export default function MidTabs(props) {
       try {
         const userStatus = await AsyncStorage.getItem('userStatus');
         const token = await AsyncStorage.getItem('token');
-        
+
         if (userStatus === 'registered' && token) {
           setIsGuest(false);
         } else {
@@ -285,9 +292,9 @@ export default function MidTabs(props) {
             height: 3,
           },
         }}>
-        <Tab.Screen name="About" component={About} />
+        <Tab.Screen name={t('About')} component={About} />
         <Tab.Screen
-          name="Reviews"
+          name={t('Reviews')}
           component={Review}
           initialParams={{detail: detail?.[0]}}
         />

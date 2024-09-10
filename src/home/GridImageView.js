@@ -14,10 +14,12 @@ import {
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const { height, width } = Dimensions.get('screen');
 const GridImageView = (props) => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
   const {data} = props?.route?.params;
   // console.log("Image----",data)
 
@@ -51,7 +53,7 @@ const GridImageView = (props) => {
         backicon={true}
         tintColor={COLORS.black}
         textcolor={COLORS.black}
-        headerText={'Photos'}
+        headerText={t('Photos')}
         backgroundColor={COLORS.white}
       />
       <FlatList
@@ -64,7 +66,7 @@ const GridImageView = (props) => {
         ListEmptyComponent={()=>{
           return(
             <View style={{justifyContent:'center',height:height*0.7,backgroundColor:COLORS.white,alignItems:'center'}}>
-            <Text>No Photos</Text>
+            <Text> {t("No")} {t("Photos")}</Text>
             </View>
           )
          

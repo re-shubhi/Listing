@@ -11,6 +11,7 @@ import {
 import Modal from 'react-native-modal';
 import React, {useState} from 'react';
 import COLORS from '../theme/Colors';
+import { useTranslation } from 'react-i18next';
 const {width, height, fontScale} = Dimensions.get('window');
 
 export default function CallModal({
@@ -24,6 +25,7 @@ export default function CallModal({
 }) {
   const [isPointsDeducted, setIsPointsDeducted] = useState(false);
   // console.log("CALLLL ",callData)
+  const { t } = useTranslation();
   const MakeCall = () => {
     const phoneNumber = callData?.mobilenumber;
     const androidDial = `tel:${phoneNumber}`;
@@ -102,7 +104,7 @@ export default function CallModal({
                   textAlign: 'center',
                   fontWeight: '500',
                 }}>
-                Call Now
+                {t("Call Now")}
               </Text>
             </TouchableOpacity>
           </View>

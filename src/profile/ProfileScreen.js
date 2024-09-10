@@ -1,3 +1,4 @@
+import React, { useContext, useState, useEffect } from 'react';
 import {
   Dimensions,
   Image,
@@ -10,63 +11,100 @@ import {
   View,
   Modal,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
+import { I18nManager } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from '../../services/i18n';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import {CommonActions, useIsFocused, useNavigation} from '@react-navigation/native';
 import Button from '../components/Button';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {AuthContext} from '../restapi/AuthContext';
+import { AuthContext } from '../restapi/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../restapi/LanguageContext';
+import RNRestart from 'react-native-restart';
 
-const {height, width, fontScale} = Dimensions.get('screen');
+
+const { height, width, fontScale } = Dimensions.get('screen');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const isfocus = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
-  const {userData, setUserData, getProfileData} = useContext(AuthContext);
+  // const { language, isRTL, changeLanguage } = useLanguage();
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
+  const { userData, setUserData, getProfileData } = useContext(AuthContext);
+
   const closeModal = () => {
     setModalVisible(false);
   };
+
   const logout = async () => {
     setTimeout(() => {
       AsyncStorage.removeItem('token');
       setUserData(null);
-      setModalVisible(false),
-        navigation?.dispatch(
-          CommonActions?.reset({
-            index: 0,
-            routes: [{name: 'Login'}],
-          }),
-        );
+      setModalVisible(false);
+      navigation?.dispatch(
+        CommonActions?.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        }),
+      );
     }, 500);
   };
+
+
+  const changeLanguage = async (lang) => {
+    setLanguageModalVisible(false)
+    // Update the language in i18n
+    i18n.changeLanguage(lang);
+  
+    // Determine if the language is RTL
+    const isRTL = lang === 'ar';
+  
+    // Check if RTL setting needs to be updated
+    if (I18nManager.isRTL !== isRTL) {
+      I18nManager.forceRTL(isRTL);
+      RNRestart.restart();
+    }
+  
+    // Save the selected language to AsyncStorage
+    await AsyncStorage.setItem('languageSelected', lang);
+    // navigation.dispatch(
+    //   CommonActions.reset({
+    //     index: 0,
+    //     routes: [{ name: 'HomeScreen' }],
+    //   }),
+    // );
+  };
+  
 
   useEffect(() => {
     getProfileData();
   }, [isfocus]);
+
   return (
     <>
       <SafeAreaView style={styles.screen}>
         <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
         <Header
           backicon={true}
-          headerText={'Profile'}
+          headerText={t('Profile')}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
         />
         <View style={styles.container}>
-          <View style={{borderRadius: 100,borderWidth:1,borderColor:COLORS?.white}}>
-          <Image
-            source={
-              userData?.profileImage
-                ? {uri: userData?.profileImage}
-                : require('../assets/images/pictures/profile3.png')
-            }
-            style={{height: 100, width: 100, borderRadius: 100}}
-            resizeMode="cover"
-          />
+          <View style={{ borderRadius: 100, borderWidth: 1, borderColor: COLORS?.white }}>
+            <Image
+              source={
+                userData?.profileImage
+                  ? { uri: userData?.profileImage }
+                  : require('../assets/images/pictures/profile3.png')
+              }
+              style={{ height: 100, width: 100, borderRadius: 100 }}
+              resizeMode="cover"
+            />
           </View>
           <View>
             <Text style={styles.name}>{userData?.name}</Text>
@@ -90,7 +128,7 @@ const ProfileScreen = () => {
                 style={styles.icon}
                 resizeMode="contain"
               />
-              <Text style={styles.iconText}>Wishlist</Text>
+              <Text style={styles.iconText}>{t('wishlist')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.IconButton}
@@ -100,39 +138,49 @@ const ProfileScreen = () => {
                 style={styles.icon}
                 resizeMode="contain"
               />
-              <Text style={styles.iconText}>Edit</Text>
+              <Text style={styles.iconText}>{t('Edit')}</Text>
             </TouchableOpacity>
           </View>
           <View style={[styles.ContainerBox, styles.boxWithShadow]}>
             <View style={styles.box}>
-              <Text style={styles.Heading}>Basic Details</Text>
+              <Text style={styles.Heading}>{t('Basic Details')}</Text>
             </View>
             <View style={styles.box}>
-              <Text style={styles.Heading}>Name</Text>
+              <Text style={styles.Heading}>{t('Name')}</Text>
               <Text style={styles.subText}>{userData?.name}</Text>
             </View>
             <View style={styles.box}>
-              <Text style={styles.Heading}>Email</Text>
+              <Text style={styles.Heading}>{t('email')}</Text>
               <Text style={styles.subText}>{userData?.email}</Text>
             </View>
             <View style={styles.box}>
-              <Text style={styles.Heading}>Gender</Text>
+              <Text style={styles.Heading}>{t('Gender')}</Text>
               <Text style={styles.subText}>{userData?.gender}</Text>
             </View>
             <View style={styles.box}>
-              <Text style={styles.Heading}>DOB</Text>
+              <Text style={styles.Heading}>{t('DOB')}</Text>
               <Text style={styles.subText}>{userData?.dob}</Text>
             </View>
           </View>
           <TouchableOpacity
             style={styles.logout}
+            onPress={() => setLanguageModalVisible(true)}>
+            <Image
+              source={require('../assets/images/icons/feedback.png')}
+              style={{ height: 22, width: 22, tintColor: COLORS.base }}
+              resizeMode="contain"
+            />
+            <Text style={styles.iconText}>{t('Change Language')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.logout}
             onPress={() => setModalVisible(true)}>
             <Image
               source={require('../assets/images/icons/exit.png')}
-              style={{height: 20, width: 20, tintColor: COLORS.base}}
+              style={{ height: 20, width: 20, tintColor: COLORS.base }}
               resizeMode="contain"
             />
-            <Text style={styles.iconText}>Logout</Text>
+            <Text style={styles.iconText}>{t('Logout')}</Text>
           </TouchableOpacity>
         </View>
         <Modal visible={modalVisible} onRequestClose={closeModal} transparent>
@@ -140,23 +188,38 @@ const ProfileScreen = () => {
             <View style={styles.modalContent}>
               <Image
                 source={require('../assets/images/icons/exit.png')}
-                style={{height: 25, width: 25, tintColor: COLORS.base}}
+                style={{ height: 25, width: 25, tintColor: COLORS.base }}
                 resizeMode="contain"
               />
-              <Text style={[styles.iconText, {marginTop: 20}]}>
-                Are you sure you want to Logout?
+              <Text style={[styles.iconText, { marginTop: 20 }]}>
+                {t('Are you sure you want to Logout?')}
               </Text>
               <View style={styles.logoutBox}>
                 <Button
-                  buttonTxt={'Yes'}
+                  buttonTxt={t('Yes')}
                   onPress={logout}
                   width={width * 0.28}
                 />
                 <Button
-                  buttonTxt={'No'}
+                  buttonTxt={t('No')}
                   onPress={closeModal}
                   width={width * 0.28}
                 />
+              </View>
+            </View>
+          </View>
+        </Modal>
+        <Modal visible={languageModalVisible} onRequestClose={() => setLanguageModalVisible(false)} transparent>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.Heading}>{t('Select Language')}</Text>
+             <View style={{alignItems:"center",rowGap:5,marginTop:10}}>
+              <TouchableOpacity onPress={() => changeLanguage('en')}>
+                <Text style={[styles.iconText,{color:COLORS.black,fontFamily: FONTS.Inter800}]}>{t('English')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => changeLanguage('ar')}>
+                <Text style={[styles.iconText,{color:COLORS.black,fontFamily: FONTS.Inter800}]}> (Arabic) عربي </Text>
+              </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -165,8 +228,6 @@ const ProfileScreen = () => {
     </>
   );
 };
-
-export default ProfileScreen;
 
 const styles = StyleSheet.create({
   screen: {
@@ -209,7 +270,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
-
     elevation: 2,
   },
   icon: {
@@ -253,7 +313,7 @@ const styles = StyleSheet.create({
     color: COLORS.base,
   },
   logout: {
-    paddingTop: 30,
+    paddingTop: 15,
     flexDirection: 'row',
     alignItems: 'center',
     columnGap: 15,
@@ -280,3 +340,5 @@ const styles = StyleSheet.create({
     columnGap: 20,
   },
 });
+
+export default ProfileScreen

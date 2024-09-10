@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {
   Dimensions,
   FlatList,
+  I18nManager,
   Image,
   StyleSheet,
   Text,
@@ -10,7 +11,6 @@ import {
 } from 'react-native';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
-import CardData from '../heart/CardData';
 import {useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../restapi/AuthContext';
 import {addRemoveWishlist} from '../restapi/ApiConfig';
@@ -19,11 +19,14 @@ import {showMessage} from 'react-native-flash-message';
 import axios from 'axios';
 import useDebounce from '../restapi/useDebounce';
 import GuestModal from '../components/GuestModal';
+import { useTranslation } from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const PopularList = ({search}) => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const [distance, setDistance] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
@@ -192,7 +195,7 @@ const PopularList = ({search}) => {
               />
               <Text style={styles.rate}>
                 {' '}
-                {itemDistance > 0 ? Math.ceil(itemDistance) : 0} km
+                {itemDistance > 0 ? Math.ceil(itemDistance) : 0}  {t("km")}
               </Text>
             </View>
           </View>
@@ -227,7 +230,7 @@ const PopularList = ({search}) => {
     <View>
       {popularItems.length > 0 && (
         <>
-          <Text style={styles.headingText}>Popular</Text>
+          <Text style={[styles.headingText,{  alignSelf: isRTL ? 'right' : 'left',}]}>{t("popular")}</Text>
           <FlatList
             data={popularItems}
             keyExtractor={item => item.id.toString()}

@@ -10,6 +10,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   ScrollView,
+  I18nManager,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../components/Header';
@@ -23,19 +24,22 @@ import {showMessage} from 'react-native-flash-message';
 import axios from 'axios';
 import {forgotpassword_send_request} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
+import { useTranslation } from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ForgotPassword = () => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const [loader, setLoader] = useState(false);
   const validationSchema = Yup.object().shape({
     email: Yup.string()
-      .email('Invalid email')
-      .required('Email is required')
+      .email(t('Invalid email'))
+      .required(t('Email is required'))
       .matches(
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Invalid email',
+        t('Invalid email'),
       ),
   });
 
@@ -99,16 +103,15 @@ const ForgotPassword = () => {
             }) => (
               <View style={styles.container}>
                 <View style={styles.TextContainer}>
-                  <Text style={styles.heading}>Reset your password</Text>
-                  <Text style={styles.subheading}>
-                    Enter your email for the varification proccess will we send
-                    4 digit code your email
+                  <Text style={styles.heading}>{t("Reset your password")}</Text>
+                  <Text style={[styles.subheading,{alignSelf:isRTL?'flex-start':'flex-end'}]}>
+                    {t("Enter your email for the varification proccess will we send 4 digit code your email")}
                   </Text>
                 </View>
                 <View style={styles.textinputBox}>
                   <TextInput
-                    style={styles.textinput}
-                    placeholder="Email"
+                    style={[styles.textinput,{textAlign:isRTL?'right':'left'}]}
+                    placeholder={t("Email")}
                     placeholderTextColor={COLORS.placeholder}
                     value={values.email}
                     onChangeText={handleChange('email')}
@@ -116,11 +119,11 @@ const ForgotPassword = () => {
                     maxLength={60}
                   />
                   {errors.email && touched.email && (
-                    <Text style={styles.errorText}>{errors.email}</Text>
+                    <Text style={[styles.errorText,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{errors.email}</Text>
                   )}
                 </View>
                 <View style={{marginTop: 10}}>
-                  <Button buttonTxt={'Continue'} onPress={handleSubmit} />
+                  <Button buttonTxt={t('Continue')} onPress={handleSubmit} />
                 </View>
               </View>
             )}
@@ -131,13 +134,13 @@ const ForgotPassword = () => {
                 styles.linkText,
                 {color: COLORS.black, fontFamily: FONTS.Inter400},
               ]}>
-              Already have an account ?
+              {t("Already have an account ?")}
             </Text>
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate('Login');
               }}>
-              <Text style={styles.linkText}> Login Now</Text>
+              <Text style={styles.linkText}> {t("Login Now")}</Text>
             </TouchableOpacity>
           </View>
           {loader && <ScreenLoader isProcessing={loader} />}

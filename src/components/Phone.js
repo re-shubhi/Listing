@@ -14,6 +14,8 @@ import {CountryPicker} from 'react-native-country-codes-picker';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import * as Yup from 'yup';
+import {useTranslation} from 'react-i18next';
+import {I18nManager} from 'react-native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 const PhoneSchema = Yup.object().shape({
@@ -35,10 +37,11 @@ const Phone = ({
   setCountryCode,
   countryCode,
   phone_code, // New prop to receive phone_code from parent
-
 }) => {
   const [country, setCountry] = useState(null);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
+  const isRTL = I18nManager.isRTL;
+  const {t} = useTranslation();
 
   useEffect(() => {
     // Assuming phone_code is in the format '+966'
@@ -72,14 +75,15 @@ const Phone = ({
       <View style={styles.container}>
         <View
           style={[
-            styles.inputContainer,{
+            styles.inputContainer,
+            {
               width: {width},
-            }
+            },
           ]}>
           <CountryPicker
             placeholderTextColor={COLORS.black}
             show={isPickerVisible}
-            lang={'en'}
+            lang={isRTL ? 'ar' : 'en'}
             style={{
               modal: {
                 height: Platform.OS == 'android' ? 400 : 600,
@@ -156,7 +160,7 @@ const Phone = ({
           />
           <TouchableOpacity onPress={togglePicker}>
             <Text style={styles.countryCodeText}>
-                {`${countryCode?.callingCode}`}
+              {`${countryCode?.callingCode}`}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={togglePicker}>
@@ -168,8 +172,8 @@ const Phone = ({
           </TouchableOpacity>
           <View style={styles.verticalLine} />
           <TextInput
-            style={styles.textinput}
-            placeholder="Phone number"
+            style={[styles.textinput, {textAlign: isRTL ? 'right' : 'left'}]}
+            placeholder={t('Phone number')}
             value={values}
             onChangeText={handleChange('phoneNumber')}
             onBlur={handleBlur('phoneNumber')}
@@ -179,8 +183,14 @@ const Phone = ({
           />
         </View>
         {touched.phoneNumber && errors.phoneNumber && (
-            <Text style={styles.validation}>{errors.phoneNumber}</Text>
-          )}
+          <Text
+            style={[
+              styles.validation,
+              {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+            ]}>
+            {errors.phoneNumber}
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -203,16 +213,16 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderColor,
   },
   countryCodeText: {
-    fontSize: fontScale*16,
+    fontSize: fontScale * 16,
     color: COLORS.black,
-    paddingLeft:5
+    paddingLeft: 5,
   },
   verticalLine: {
     height: 26,
     borderRightWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.25)',
-    marginRight:0,
-    marginLeft:5
+    marginRight: 0,
+    marginLeft: 5,
   },
   textinput: {
     backgroundColor: COLORS.white,

@@ -14,6 +14,7 @@ import {
   ScrollView,
   BackHandler,
   Alert,
+  I18nManager,
 } from 'react-native';
 import {
   CommonActions,
@@ -34,11 +35,14 @@ import {login} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
+import {useTranslation} from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Login = props => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const isfocus = useIsFocused();
   const [secure, setSecure] = useState(true);
   const [loader, setLoader] = useState(false);
@@ -46,19 +50,19 @@ const Login = props => {
   // console.log('🚀 ~ Login ~ deviceToken:', deviceToken);
   const validationSchema = Yup.object().shape({
     email: Yup.string()
-      .email('Invalid email')
-      .required('Email is required')
+      .email(t('Invalid email'))
+      .required(t('Email is required'))
       .matches(
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Invalid email',
+        t('Invalid email'),
       ),
     password: Yup.string()
-      .required('Password is required')
-      .min(8,"Password must be atleast 8 characters."),
-      // .matches(
-      //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-      //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
-      // ),
+      .required(t('Password is required'))
+      .min(8, t('Password must be atleast 8 characters.')),
+    // .matches(
+    //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+    //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
+    // ),
   });
   const backButtonHandler = () => {
     Alert.alert(
@@ -171,13 +175,16 @@ const Login = props => {
               <View style={styles.container}>
                 <View style={styles.textinputBox}>
                   <Text style={styles.heading}>
-                    Welcome Back! Glad to see you, again
+                    {t('Welcome Back! Glad to see you, again')}
                   </Text>
                 </View>
                 <View style={styles.textinputBox}>
                   <TextInput
-                    style={styles.textinput}
-                    placeholder="Enter your email"
+                    style={[
+                      styles.textinput,
+                      {textAlign: isRTL ? 'right' : 'left'},
+                    ]}
+                    placeholder={t('Enter your email')}
                     placeholderTextColor={COLORS.placeholder}
                     value={values.email}
                     onChangeText={handleChange('email')}
@@ -185,7 +192,13 @@ const Login = props => {
                     maxLength={60}
                   />
                   {errors.email && touched.email && (
-                    <Text style={styles.errorText}>{errors.email}</Text>
+                    <Text
+                      style={[
+                        styles.errorText,
+                        {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                      ]}>
+                      {errors.email}
+                    </Text>
                   )}
                 </View>
                 <View style={styles.textinputPassword}>
@@ -196,9 +209,10 @@ const Login = props => {
                         flex: 1,
                         borderWidth: 0,
                         borderColor: 'transparent',
+                        textAlign: isRTL ? 'right' : 'left',
                       },
                     ]}
-                    placeholder="Enter your password"
+                    placeholder={t('Enter your password')}
                     placeholderTextColor={COLORS.placeholder}
                     secureTextEntry={secure}
                     value={values.password}
@@ -222,17 +236,25 @@ const Login = props => {
                   </TouchableOpacity>
                 </View>
                 {errors.password && touched.password && (
-                  <Text style={styles.errorText}>{errors.password}</Text>
+                  <Text
+                    style={[
+                      styles.errorText,
+                      {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                    ]}>
+                    {errors.password}
+                  </Text>
                 )}
                 <View style={styles.forgotView}>
                   <TouchableOpacity
                     onPress={() => {
                       navigation.navigate('ForgotPassword');
                     }}>
-                    <Text style={styles.forgotText}>Forgot Password ?</Text>
+                    <Text style={styles.forgotText}>
+                      {t('Forgot Password ?')}
+                    </Text>
                   </TouchableOpacity>
                 </View>
-                <Button buttonTxt={'Login'} onPress={handleSubmit} />
+                <Button buttonTxt={t('Login')} onPress={handleSubmit} />
               </View>
             )}
           </Formik>
@@ -242,13 +264,13 @@ const Login = props => {
                 styles.linkText,
                 {color: COLORS.black, fontFamily: FONTS.Inter400},
               ]}>
-              Don’t have an account?
+              {t('Don’t have an account ?')}
             </Text>
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate('Register');
               }}>
-              <Text style={styles.linkText}> Register Now</Text>
+              <Text style={styles.linkText}> {t('Register Now')}</Text>
             </TouchableOpacity>
           </View>
           {loader && <ScreenLoader isProcessing={loader} />}

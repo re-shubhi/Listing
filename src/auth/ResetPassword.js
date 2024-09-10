@@ -10,6 +10,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   ScrollView,
+  I18nManager,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../components/Header';
@@ -23,25 +24,28 @@ import {showMessage} from 'react-native-flash-message';
 import axios from 'axios';
 import {reset_password} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
+import {useTranslation} from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ResetPassword = ({route}) => {
   const navigation = useNavigation();
-
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const tempId = route?.params?.tempId;
   const validationSchema = Yup.object().shape({
     password: Yup.string()
-      .required('Password is required')
-      .matches(
-        /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-        'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
-      ),
+      .required(t('Password is required'))
+      .min(8, t('Password must be atleast 8 characters.')),
+      // .matches(
+      //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+      //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
+      // ),
     confirmPassword: Yup.string()
-      .required('Confirmation of your password is required.')
+      .required(t('Confirmation of your password is required.'))
       .oneOf(
         [Yup.ref('password'), null],
-        'Confirm Password should match with New Password.',
+        t('Confirm Password should match with New Password.'),
       ),
   });
 
@@ -109,15 +113,16 @@ const ResetPassword = ({route}) => {
               errors,
               touched,
               handleBlur,
-              handleChange,
+            handleChange,
               handleSubmit,
             }) => (
               <View style={styles.container}>
                 <View style={styles.TextContainer}>
-                  <Text style={styles.heading}>Reset password</Text>
-                  <Text style={styles.subheading}>
-                    Set the new password for your account so you can login and
-                    access all the features.
+                  <Text style={[styles.heading,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{t('Reset Password')}</Text>
+                  <Text style={[styles.subheading,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>
+                    {t(
+                      'Set the new password for your account so you can login and access all the features.',
+                    )}
                   </Text>
                 </View>
                 <View style={styles.textinputPassword}>
@@ -128,9 +133,10 @@ const ResetPassword = ({route}) => {
                         flex: 1,
                         borderWidth: 0,
                         borderColor: 'transparent',
+                        textAlign: isRTL ? 'right' : 'left'
                       },
                     ]}
-                    placeholder="Password"
+                    placeholder={t("Password")}
                     placeholderTextColor={COLORS.placeholder}
                     secureTextEntry={secure.password}
                     value={values.password}
@@ -153,7 +159,7 @@ const ResetPassword = ({route}) => {
                   </TouchableOpacity>
                 </View>
                 {errors.password && touched.password && (
-                  <Text style={styles.errorText}>{errors.password}</Text>
+                  <Text style={[styles.errorText,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{errors.password}</Text>
                 )}
                 <View style={[styles.textinputPassword, {marginTop: 10}]}>
                   <TextInput
@@ -163,9 +169,10 @@ const ResetPassword = ({route}) => {
                         flex: 1,
                         borderWidth: 0,
                         borderColor: 'transparent',
+                        textAlign: isRTL ? 'right' : 'left'
                       },
                     ]}
-                    placeholder="Confirm Password"
+                    placeholder={t("Confirm Password")}
                     placeholderTextColor={COLORS.placeholder}
                     secureTextEntry={secure.confirmPassword}
                     value={values.confirmPassword}
@@ -188,10 +195,10 @@ const ResetPassword = ({route}) => {
                   </TouchableOpacity>
                 </View>
                 {errors.confirmPassword && touched.confirmPassword && (
-                  <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+                  <Text style={[styles.errorText,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{errors.confirmPassword}</Text>
                 )}
                 <View style={{marginTop: 15}}>
-                  <Button buttonTxt={'Reset Password'} onPress={handleSubmit} />
+                  <Button buttonTxt={t('Reset Password')} onPress={handleSubmit} />
                 </View>
               </View>
             )}
@@ -203,13 +210,13 @@ const ResetPassword = ({route}) => {
                 styles.linkText,
                 {color: COLORS.black, fontFamily: FONTS.Inter400},
               ]}>
-              Already have an account ?
+              {t("Already have an account ?")}
             </Text>
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate('Login');
               }}>
-              <Text style={styles.linkText}> Login Now</Text>
+              <Text style={styles.linkText}> {t("Login Now")}</Text>
             </TouchableOpacity>
           </View>
           {loader && <ScreenLoader isProcessing={loader} />}

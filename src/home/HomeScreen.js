@@ -42,11 +42,15 @@ import ScreenLoader from '../components/ScreenLoader';
 import {AuthContext} from '../restapi/AuthContext';
 import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useTranslation} from 'react-i18next';
+import {I18nManager} from 'react-native';
 
 const {fontScale, width, height} = Dimensions.get('screen');
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const isfocus = useIsFocused();
   const [numColumns, setNumColumns] = useState(4);
   // const [search, setSearch] = useState('');
@@ -200,7 +204,7 @@ const HomeScreen = () => {
     <ScreenBackgroundHome>
       <SafeAreaView style={{flex: 1}}>
         <StatusBar backgroundColor={COLORS.base} barStyle={'dark-content'} />
-        <Header backgroundColor={COLORS.base} headerText={'Home'} />
+        <Header backgroundColor={COLORS.base} headerText={t('home')} />
 
         <View
           style={{
@@ -231,7 +235,7 @@ const HomeScreen = () => {
               leftIcon: searchIcon,
             }}
             textInputProps={{
-              placeholder: 'Search here',
+              placeholder: t('search_here'),
               placeholderTextColor: COLORS.white,
               autoCorrect: false,
               autoCapitalize: 'none',
@@ -241,6 +245,7 @@ const HomeScreen = () => {
                 fontFamily: FONTS.Inter400,
                 color: COLORS.white,
                 flex: 1,
+                textAlign: isRTL ? 'right' : 'left',
               },
             }}
           />
@@ -330,9 +335,12 @@ const HomeScreen = () => {
               <Text
                 style={[
                   styles.headingText,
-                  {marginTop: Platform.OS === 'ios' ? 10 : 0},
+                  {
+                    marginTop: Platform.OS === 'ios' ? 10 : 0,
+                    alignSelf: isRTL ? 'right' : 'left',
+                  },
                 ]}>
-                Recent
+                {t('recent')}
               </Text>
             </View>
             <View style={{alignItems: 'center'}}>

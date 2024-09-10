@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  I18nManager,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import Header from '../components/Header';
@@ -28,11 +29,14 @@ import axios from 'axios';
 import {otpVerify, resendOtp} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useTranslation} from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const VerifyOtp = ({route}) => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const userId = route?.params?.userId;
   const CELL_COUNT = 4;
   const [value, setValue] = useState('');
@@ -55,7 +59,7 @@ const VerifyOtp = ({route}) => {
   const handleChangeText = otp => {
     setValue(otp);
     if (otp.length !== CELL_COUNT) {
-      setError('OTP must be 4 digits');
+      setError(t('OTP must be 4 digits'));
     } else {
       setError('');
       // console.log('Otp--', otp);
@@ -139,9 +143,19 @@ const VerifyOtp = ({route}) => {
           showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
             <View style={styles.TextContainer}>
-              <Text style={styles.heading}>Enter 4 digit code</Text>
-              <Text style={styles.subheading}>
-                Enter the 4 digit code that you received on your email
+              <Text
+                style={[
+                  styles.heading,
+                  {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                ]}>
+                {t('Enter 4 digit code')}
+              </Text>
+              <Text
+                style={[
+                  styles.subheading,
+                  {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                ]}>
+                {t('Enter the 4 digit code that you received on your email')}
               </Text>
             </View>
             <View>
@@ -169,17 +183,25 @@ const VerifyOtp = ({route}) => {
                 )}
               />
             </View>
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error ? (
+              <Text
+                style={[
+                  styles.errorText,
+                  {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                ]}>
+                {error}
+              </Text>
+            ) : null}
             <View style={{marginTop: 10}}>
               <Button
-                buttonTxt={'Continue'}
+                buttonTxt={t('Continue')}
                 disabled={value.length != CELL_COUNT}
                 onPress={handleContinue}
               />
             </View>
             <View style={styles.forgotView}>
               <TouchableOpacity onPress={ResendOtp}>
-                <Text style={styles.forgotText}>Resend OTP</Text>
+                <Text style={styles.forgotText}>{t('Resend OTP')}</Text>
               </TouchableOpacity>
             </View>
           </View>

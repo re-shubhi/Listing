@@ -21,11 +21,13 @@ import axios from 'axios';
 import {showMessage} from 'react-native-flash-message';
 import useDebounce from '../restapi/useDebounce';
 import GuestModal from '../components/GuestModal';
+import { useTranslation } from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const RecentList = ({search}) => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
   const [numColumns, setNumColumns] = useState(2);
   const [showModal, setShowModal] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
@@ -202,7 +204,7 @@ const RecentList = ({search}) => {
               />
               <Text style={styles.rate}>
                 
-                {itemDistance > 0 ? Math.ceil(itemDistance) : 0} km
+                {itemDistance > 0 ? Math.ceil(itemDistance) : 0} {t("km")}
               </Text>
             </View>
           </View>
@@ -231,7 +233,7 @@ const RecentList = ({search}) => {
                 backgroundColor: COLORS.white,
                 alignItems: 'center',
               }}>
-              <Text>No data found</Text>
+              <Text>{t("No data found")}</Text>
             </View>
           );
         }}

@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   Platform,
+  I18nManager,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Header from '../components/Header';
@@ -21,11 +22,14 @@ import {useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../restapi/AuthContext';
 import moment from 'moment';
 import ScreenLoader from '../components/ScreenLoader';
+import {useTranslation} from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ReviewListing = props => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const [loader, setLoader] = useState(false);
   const [reviewData, setReviewData] = useState([]);
   const {data} = props?.route?.params;
@@ -40,7 +44,7 @@ const ReviewListing = props => {
       <SafeAreaView style={styles.screen}>
         <Header
           backicon={true}
-          headerText={'Reviews'}
+          headerText={t('Reviews')}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
         />
@@ -70,13 +74,16 @@ const ReviewListing = props => {
                       resizeMode="cover"
                     />
                     <View style={{flex: 1}}>
-                      <Text style={styles.nameText}>{item.customerName}</Text>
+                      <Text style={[styles.nameText, {alignSelf: isRTL?'flex-start':'flex-end'}]}>
+                        {item.customerName}
+                      </Text>
                       <Text
                         style={{
                           ...styles.nameText,
                           fontFamily: FONTS.Inter400,
                           paddingTop: 2,
                           fontSize: fontScale * 14,
+                          alignSelf: isRTL?'flex-start':'flex-end'
                         }}>
                         {item.review}
                       </Text>

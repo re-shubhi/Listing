@@ -24,37 +24,43 @@ import Phone from '../components/Phone';
 import axios from 'axios';
 import {ServerUrl, register} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
+import {useTranslation} from 'react-i18next';
+import {I18nManager} from 'react-native';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Register = () => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const validationSchema = Yup.object().shape({
-    username: Yup.string().min(3, 'Name is too short!').required('Name is required.'),
+    username: Yup.string()
+      .min(3, t('Name is too short!'))
+      .required(t('Name is required.')),
     email: Yup.string()
-      .email('Invalid email')
-      .required('Email is required')
+      .email(t('Invalid email'))
+      .required(t('Email is required'))
       .matches(
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Invalid email',
+        t('Invalid email'),
       ),
     phoneNumber: Yup.string()
-      .required('Phone number is required.')
-      .min(8, 'Phone number must be atleast 8 characters.')
-      .max(15, 'Phone number must be atmost 15 characters.')
-      .matches(/^\d+$/, 'Invalid phone number. Only digits are allowed.'),
+      .required(t('Phone number is required.'))
+      .min(8, t('Phone number must be atleast 8 characters.'))
+      .max(15, t('Phone number must be atmost 15 characters.'))
+      .matches(/^\d+$/, t('Invalid phone number. Only digits are allowed.')),
     password: Yup.string()
-      .required('Password is required')
-      .min(8,"Password must be atleast 8 characters."),
-      // .matches(
-      //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-      //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
-      // ),
+      .required(t('Password is required'))
+      .min(8, t('Password must be atleast 8 characters.')),
+    // .matches(
+    //   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+    //   'Password must contain minimum 8 characters including atleast 1 uppercase letter, 1 lowercase letter and 1 special character.',
+    // ),
     confirmPassword: Yup.string()
-      .required('Confirmation of your password is required.')
+      .required(t('Confirmation of your password is required.'))
       .oneOf(
         [Yup.ref('password'), null],
-        'Confirm Password should match with New Password.',
+        t('Confirm Password should match with New Password.'),
       ),
   });
   const [secure, setSecure] = useState({password: true, confirmPassword: true});
@@ -81,7 +87,7 @@ const Register = () => {
           phone_code: countryCode?.callingCode,
           mobile: values.phoneNumber,
           password: values.confirmPassword,
-          deviceType:Platform.OS == 'ios'? "2":"1",
+          deviceType: Platform.OS == 'ios' ? '2' : '1',
         },
       });
       // console.log('response---', response?.data);
@@ -147,13 +153,16 @@ const Register = () => {
               <View style={styles.container}>
                 <View style={styles.TextContainer}>
                   <Text style={styles.heading}>
-                    Hello! Register to get started
+                    {t('Hello! Register to get started')}
                   </Text>
                 </View>
                 <View style={{marginVertical: 10}}>
                   <TextInput
-                    style={styles.textinput}
-                    placeholder="Name"
+                    style={[
+                      styles.textinput,
+                      {textAlign: isRTL ? 'right' : 'left'},
+                    ]}
+                    placeholder={t('Name')}
                     placeholderTextColor={COLORS.placeholder}
                     value={values.username}
                     onChangeText={handleChange('username')}
@@ -161,13 +170,22 @@ const Register = () => {
                     maxLength={60}
                   />
                   {errors.username && touched.username && (
-                    <Text style={styles.errorText}>{errors.username}</Text>
+                    <Text
+                      style={[
+                        styles.errorText,
+                        {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                      ]}>
+                      {errors.username}
+                    </Text>
                   )}
                 </View>
                 <View style={{marginBottom: 10}}>
                   <TextInput
-                    style={styles.textinput}
-                    placeholder="Email"
+                    style={[
+                      styles.textinput,
+                      {textAlign: isRTL ? 'right' : 'left'},
+                    ]}
+                    placeholder={t('Email')}
                     placeholderTextColor={COLORS.placeholder}
                     value={values.email}
                     onChangeText={handleChange('email')}
@@ -175,7 +193,13 @@ const Register = () => {
                     maxLength={60}
                   />
                   {errors.email && touched.email && (
-                    <Text style={styles.errorText}>{errors.email}</Text>
+                    <Text
+                      style={[
+                        styles.errorText,
+                        {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                      ]}>
+                      {errors.email}
+                    </Text>
                   )}
                 </View>
                 <Phone
@@ -195,9 +219,10 @@ const Register = () => {
                         flex: 1,
                         borderWidth: 0,
                         borderColor: 'transparent',
+                        textAlign: isRTL ? 'right' : 'left',
                       },
                     ]}
-                    placeholder="Password"
+                    placeholder={t('Password')}
                     placeholderTextColor={COLORS.placeholder}
                     secureTextEntry={secure.password}
                     value={values.password}
@@ -221,7 +246,7 @@ const Register = () => {
                   </TouchableOpacity>
                 </View>
                 {errors.password && touched.password && (
-                  <Text style={styles.errorText}>{errors.password}</Text>
+                  <Text style={[styles.errorText,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{errors.password}</Text>
                 )}
                 <View style={[styles.textinputPassword, {marginTop: 10}]}>
                   <TextInput
@@ -231,9 +256,10 @@ const Register = () => {
                         flex: 1,
                         borderWidth: 0,
                         borderColor: 'transparent',
+                        textAlign: isRTL ? 'right' : 'left',
                       },
                     ]}
-                    placeholder="Confirm Password"
+                    placeholder={t('Confirm Password')}
                     placeholderTextColor={COLORS.placeholder}
                     secureTextEntry={secure.confirmPassword}
                     value={values.confirmPassword}
@@ -257,10 +283,10 @@ const Register = () => {
                   </TouchableOpacity>
                 </View>
                 {errors.confirmPassword && touched.confirmPassword && (
-                  <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+                  <Text style={[styles.errorText,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{errors.confirmPassword}</Text>
                 )}
                 <View style={{marginTop: 15}}>
-                  <Button buttonTxt={'Register'} onPress={handleSubmit} />
+                  <Button buttonTxt={t('Register')} onPress={handleSubmit} />
                 </View>
               </View>
             )}
@@ -271,13 +297,13 @@ const Register = () => {
                 styles.linkText,
                 {color: COLORS.black, fontFamily: FONTS.Inter400},
               ]}>
-              Already have an account ?
+              {t('Already have an account ?')}
             </Text>
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate('Login');
               }}>
-              <Text style={styles.linkText}> Login Now</Text>
+              <Text style={styles.linkText}> {t('Login Now')}</Text>
             </TouchableOpacity>
           </View>
           {loader && <ScreenLoader isProcessing={loader} />}
