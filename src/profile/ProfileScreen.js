@@ -21,9 +21,8 @@ import FONTS from '../theme/Fonts';
 import Button from '../components/Button';
 import { AuthContext } from '../restapi/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from '../restapi/LanguageContext';
 import RNRestart from 'react-native-restart';
-
+import { translateText } from '../../services/translationService'; 
 
 const { height, width, fontScale } = Dimensions.get('screen');
 
@@ -32,8 +31,8 @@ const ProfileScreen = () => {
   const { t } = useTranslation();
   const isfocus = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
-  // const { language, isRTL, changeLanguage } = useLanguage();
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
+// Initialize userData state
   const { userData, setUserData, getProfileData } = useContext(AuthContext);
 
   const closeModal = () => {
@@ -43,7 +42,6 @@ const ProfileScreen = () => {
   const logout = async () => {
     setTimeout(() => {
       AsyncStorage.removeItem('token');
-      setUserData(null);
       setModalVisible(false);
       navigation?.dispatch(
         CommonActions?.reset({
@@ -54,35 +52,47 @@ const ProfileScreen = () => {
     }, 500);
   };
 
-
   const changeLanguage = async (lang) => {
-    setLanguageModalVisible(false)
+    setLanguageModalVisible(false);
     // Update the language in i18n
     i18n.changeLanguage(lang);
-  
+
     // Determine if the language is RTL
     const isRTL = lang === 'ar';
-  
+
     // Check if RTL setting needs to be updated
     if (I18nManager.isRTL !== isRTL) {
       I18nManager.forceRTL(isRTL);
       RNRestart.restart();
     }
-  
+
     // Save the selected language to AsyncStorage
     await AsyncStorage.setItem('languageSelected', lang);
-    // navigation.dispatch(
-    //   CommonActions.reset({
-    //     index: 0,
-    //     routes: [{ name: 'HomeScreen' }],
-    //   }),
-    // );
+
+    // Fetch translated texts dynamically if needed
+    await fetchAndTranslateUserData();
   };
-  
+
+  const fetchAndTranslateUserData = async () => {
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
+    if (userData) {
+      setUserData({
+        ...userData,
+        name: await translateText(userData.name, lang),
+        email: await translateText(userData.email, lang),
+        gender: await translateText(userData.gender, lang),
+        dob: await translateText(userData.dob, lang),
+      });
+    }
+  };
 
   useEffect(() => {
     getProfileData();
   }, [isfocus]);
+
+  useEffect(() => {
+    fetchAndTranslateUserData();
+  }, [userData]);
 
   return (
     <>
@@ -213,13 +223,13 @@ const ProfileScreen = () => {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.Heading}>{t('Select Language')}</Text>
-             <View style={{alignItems:"center",rowGap:5,marginTop:10}}>
-              <TouchableOpacity onPress={() => changeLanguage('en')}>
-                <Text style={[styles.iconText,{color:COLORS.black,fontFamily: FONTS.Inter800}]}>{t('English')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => changeLanguage('ar')}>
-                <Text style={[styles.iconText,{color:COLORS.black,fontFamily: FONTS.Inter800}]}> (Arabic) عربي </Text>
-              </TouchableOpacity>
+              <View style={{ alignItems: "center", rowGap: 5, marginTop: 10 }}>
+                <TouchableOpacity onPress={() => changeLanguage('en')}>
+                  <Text style={[styles.iconText, { color: COLORS.black, fontFamily: FONTS.Inter800 }]}>{t('English')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => changeLanguage('ar')}>
+                  <Text style={[styles.iconText, { color: COLORS.black, fontFamily: FONTS.Inter800 }]}> (Arabic) عربي </Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -341,4 +351,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen
+
+export default ProfileScreen;

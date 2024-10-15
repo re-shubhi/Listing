@@ -30,6 +30,7 @@ import {otpVerify, resendOtp} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useTranslation} from 'react-i18next';
+import { translateText } from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -68,6 +69,7 @@ const VerifyOtp = ({route}) => {
   };
   // Otp verification Api
   const OtpVerifyApi = async () => {
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
     try {
       setLoader(true);
       const response = await axios({
@@ -80,11 +82,13 @@ const VerifyOtp = ({route}) => {
       });
       // console.log('res---', response);
       if (response?.data?.status === true) {
+        const message = await translateText(response?.data?.message,lang)
         await AsyncStorage.setItem('userStatus', 'registered');
         setLoader(false);
         showMessage({
-          message: response?.data?.message,
+          message: message,
           type: 'success',
+          style:{alignItems:'flex-start'}
         });
         navigation?.dispatch(
           CommonActions?.reset({
@@ -96,10 +100,12 @@ const VerifyOtp = ({route}) => {
     } catch (error) {
       // console.log('Error Otp', error);
       if (error?.response?.data?.status === false) {
+        const message = await translateText(error?.response?.data?.message,lang)
         setLoader(false);
         showMessage({
-          message: error?.response?.data?.message,
+          message: message,
           type: 'danger',
+          style:{alignItems:'flex-start'}
         });
       }
     }
@@ -107,6 +113,7 @@ const VerifyOtp = ({route}) => {
 
   // Otp Resend Api
   const ResendOtp = async () => {
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
     try {
       setLoader(true);
       const response = await axios({
@@ -118,10 +125,12 @@ const VerifyOtp = ({route}) => {
       });
       // console.log('Resend res--', response);
       if (response?.data?.status === true) {
+        const message = await translateText(response?.data?.message,lang)
         setLoader(false);
         showMessage({
-          message: response?.data?.message,
+          message: message,
           type: 'success',
+          style:{alignItems:'flex-start'}
         });
       }
     } catch (error) {

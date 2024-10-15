@@ -19,7 +19,7 @@ import Button from '../components/Button';
 import HTMLView from 'react-native-htmlview';
 import {Rating, AirbnbRating} from 'react-native-ratings';
 import {showMessage} from 'react-native-flash-message';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {addReview} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,6 +29,7 @@ import GuestModal from '../components/GuestModal';
 import CallModal from '../components/CallModal';
 import {useTranslation} from 'react-i18next';
 import {I18nManager} from 'react-native';
+import {translateText} from '../../services/translationService';
 
 const isRTL = I18nManager.isRTL;
 
@@ -37,12 +38,16 @@ const {height, width, fontScale} = Dimensions.get('screen');
 
 export default function MidTabs(props) {
   const navigation = useNavigation();
+  const isfocus = useIsFocused();
   const {t} = useTranslation();
   const {ProductListing} = useContext(AuthContext);
   const [expand, setExpand] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [translation, setAboutTranslation] = useState('');
   const [showCall, setShowCall] = useState(false);
+  const {detail} = props?.route?.params;
+
   const toggleExpand = () => {
     setExpand(!expand);
   };
@@ -64,6 +69,27 @@ export default function MidTabs(props) {
     token ? setIsGuest(false) : setIsGuest(true);
   };
 
+  useEffect(() => {
+    if (detail.length > 0) {
+      const fetchTranslations = async () => {
+        const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
+        try {
+          const aboutTranslation = await translateText(
+            detail?.[0]?.about_product,
+            lang,
+          );
+         
+          setAboutTranslation(aboutTranslation);
+        } catch (error) {
+          console.error('Translation error:', error);
+        }
+      };
+      fetchTranslations();
+    }
+  }, [detail,isfocus]);
+
+
+
   const About = () => {
     return (
       <>
@@ -74,9 +100,9 @@ export default function MidTabs(props) {
           <View>
             <View>
               {expand ? (
-                <View style={{right:isRTL?-10:0}}>
+                <View style={{right: isRTL ? -10 : 0}}>
                   <HTMLView
-                    value={detail?.[0]?.about_product}
+                    value={translation || detail?.[0]?.about_product}
                     stylesheet={styles}
                   />
                   <TouchableOpacity
@@ -86,9 +112,9 @@ export default function MidTabs(props) {
                   </TouchableOpacity>
                 </View>
               ) : (
-                <View style={{right:isRTL?-10:0}}>
+                <View style={{right: isRTL ? -10 : 0}}>
                   <HTMLView
-                    value={detail?.[0]?.about_product.slice(0, 300)}
+                    value={translation.slice(0,300) || detail?.[0]?.about_product.slice(0, 300)}
                     stylesheet={styles}
                   />
                   <TouchableOpacity
@@ -122,7 +148,7 @@ export default function MidTabs(props) {
       </>
     );
   };
-  const {detail} = props?.route?.params;
+ 
   // console.log('DETAILS', detail);
 
   const Review = () => {
@@ -154,6 +180,7 @@ export default function MidTabs(props) {
     //Api for Rating
     const RatingApi = async () => {
       const token = await AsyncStorage.getItem('token');
+      const lang = await AsyncStorage.getItem('languageSelected')|| 'en'
       // console.log('tokentoken', token);
       try {
         setLoader(true);
@@ -171,10 +198,12 @@ export default function MidTabs(props) {
         });
         // console.log('review Res---', response?.data);
         if (response?.data?.status === true) {
+          const message = await translateText(response?.data?.message,lang)
           setLoader(false);
           showMessage({
-            message: response?.data?.message,
+            message:message ,
             type: 'success',
+            style:{alignItems:'flex-start'}
           });
           await ProductListing();
           navigation?.navigate('BottomTabNavigation');
@@ -220,7 +249,7 @@ export default function MidTabs(props) {
             />
             <Text style={styles.subText}>{t('Your Feedback')}</Text>
             <TextInput
-              style={[styles.textinput,{textAlign: isRTL ? 'right' : 'left'},]}
+              style={[styles.textinput, {textAlign: isRTL ? 'right' : 'left'}]}
               placeholder={t('Comment here')}
               placeholderTextColor={COLORS.placeholder}
               textAlignVertical="top"

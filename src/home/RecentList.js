@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {
   Dimensions,
   FlatList,
+  I18nManager,
   Image,
   Platform,
   SafeAreaView,
@@ -12,8 +13,7 @@ import {
 } from 'react-native';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import CardData from '../heart/CardData';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../restapi/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {addRemoveWishlist} from '../restapi/ApiConfig';
@@ -21,30 +21,53 @@ import axios from 'axios';
 import {showMessage} from 'react-native-flash-message';
 import useDebounce from '../restapi/useDebounce';
 import GuestModal from '../components/GuestModal';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
+import {translateText} from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const RecentList = ({search}) => {
   const navigation = useNavigation();
+  const isFocus = useIsFocused();
   const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const [numColumns, setNumColumns] = useState(2);
   const [showModal, setShowModal] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
   const [distance, setDistance] = useState({});
   const [likedItems, setLikedItems] = useState({});
-  const {productListing, ListWishlist, location, wishlist} =
-    useContext(AuthContext);
-  // console.log('productListingproductListing', productListing);
-  // console.log('searchsearch', search);
+  const [translatedProductList, setTranslatedProductList] = useState([]);
+  const {productListing, ListWishlist, location, wishlist} = useContext(AuthContext);
+  
+  // Debounce the search term to avoid excessive re-renders
   const debouncedSearchTerm = useDebounce(search, 500);
 
-  const data = debouncedSearchTerm
-    ? productListing.filter(item =>
-        item.title.toLowerCase().includes(search.toLowerCase()),
-      )
-    : productListing;
+  // Filter and translate product listings based on the search term
+  const filterAndTranslateProductListings = async () => {
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
+    
+    // Filter products based on the debounced search term
+    const filteredProducts = productListing.filter(item =>
+      item.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+    );
 
+    // Translate the filtered products
+    const translatedProduct = await Promise.all(
+      filteredProducts.map(async item => {
+        const translatedTitle = await translateText(item.title, lang);
+        const translatedAddress = await translateText(item.address, lang);
+        return {
+          ...item,
+          title: translatedTitle,
+          address: translatedAddress,
+        };
+      })
+    );
+
+    setTranslatedProductList(translatedProduct);
+  };
+
+  // Calculate distances and liked items when dependencies change
   useEffect(() => {
     // Calculate distances for all items when location or productListing changes
     const distances = {};
@@ -57,14 +80,18 @@ const RecentList = ({search}) => {
     });
     setDistance(distances);
 
+    // Initialize liked state based on wishlist
     const initialLikedItems = {};
     wishlist?.forEach(item => {
       initialLikedItems[item?.product_id] = true;
-      // console.log('initialLikedItems', initialLikedItems);
     });
     setLikedItems(initialLikedItems);
-  }, [location, productListing, wishlist]);
 
+    // Fetch and translate products when dependencies change
+    filterAndTranslateProductListings();
+  }, [debouncedSearchTerm, isFocus, productListing, location, wishlist]);
+
+  // Function to calculate distance
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the Earth in kilometers
     const dLat = deg2rad(lat2 - lat1);
@@ -87,16 +114,18 @@ const RecentList = ({search}) => {
     return deg * (Math.PI / 180);
   }
 
+  // Function to show guest modal
   const showGuestModal = () => {
     setShowModal(true);
   };
-  // Function to hide the guest registration modal
+
+  // Function to hide guest modal
   const hideGuestModal = () => {
     setShowModal(false);
   };
 
+  // Check user status and set guest status
   useEffect(() => {
-   
     const checkUserStatus = async () => {
       try {
         const userStatus = await AsyncStorage.getItem('userStatus');
@@ -116,10 +145,10 @@ const RecentList = ({search}) => {
     checkUserStatus();
   }, []);
 
-  //Api to add remove wishList
+  // API call to add or remove item from wishlist
   const AddRemove = async id => {
-    // console.log('ListWishlist====idddd', id);
     const token = await AsyncStorage.getItem('token');
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     try {
       const response = await axios({
         method: 'POST',
@@ -131,11 +160,13 @@ const RecentList = ({search}) => {
           product_id: id,
         },
       });
-      // console.log('resss addd/remove---', response?.data);
+
       if (response?.data?.status === true) {
+        const translatedMessage = await translateText(response?.data?.message, lang);
         showMessage({
-          message: response?.data?.message,
+          message: translatedMessage,
           type: 'success',
+          style: {alignItems: 'flex-start'}
         });
         setLikedItems(prevState => ({
           ...prevState,
@@ -144,99 +175,99 @@ const RecentList = ({search}) => {
         await ListWishlist();
       }
     } catch (error) {
-      // console.log('error add', error?.response);
+      console.error('Error adding/removing from wishlist:', error);
     }
   };
 
+  // Render item function for FlatList
   const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     const isLiked = likedItems[item?.id];
     return (
-      <>
-        <View style={[styles.card, styles.boxWithShadow]}>
+      <View style={[styles.card, styles.boxWithShadow]}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+          <Image
+            source={{uri: item?.image}}
+            style={styles.banner}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+        <View style={styles.content}>
           <TouchableOpacity
             onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+            <Text numberOfLines={1} style={styles.CardTitle}>
+              {item.title}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              isGuest ? showGuestModal() : AddRemove(item?.id)
+            }>
             <Image
-              source={{uri: item?.image}}
-              style={styles.banner}
-              resizeMode="cover"
+              source={
+                isLiked
+                  ? require('../assets/images/icons/heart2.png')
+                  : require('../assets/images/icons/heartBlank.png')
+              }
+              style={{height: 17, width: 17}}
+              resizeMode="contain"
             />
           </TouchableOpacity>
-          <View style={styles.content}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('DetailScreen', {data: item})}>
-              <Text numberOfLines={1} style={styles.CardTitle}>
-                {item.title}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() =>
-                isGuest ? showGuestModal() : AddRemove(item?.id)
-              }>
-              <Image
-                source={
-                  isLiked
-                    ? require('../assets/images/icons/heart2.png')
-                    : require('../assets/images/icons/heartBlank.png')
-                }
-                style={{height: 17, width: 17}}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+        </View>
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.address,
+            {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+          ]}>
+          {item?.address.substring(0, 30)}
+        </Text>
+        <View style={styles.lastcontainer}>
+          <View style={{flexDirection: 'row', columnGap: 5}}>
+            <Image
+              source={require('../assets/images/icons/star2.png')}
+              style={{height: 18, width: 18}}
+              resizeMode="contain"
+            />
+            <Text style={styles.rate}>{Math.ceil(item.rating)}</Text>
           </View>
-          <Text numberOfLines={1} style={styles.address}>
-            {item?.address.substring(0, 30)}
-          </Text>
-          <View style={styles.lastcontainer}>
-            <View style={{flexDirection: 'row', columnGap: 5}}>
-              <Image
-                source={require('../assets/images/icons/star2.png')}
-                style={{height: 18, width: 18}}
-                resizeMode="contain"
-              />
-              <Text style={styles.rate}>{Math.ceil(item.rating)}</Text>
-            </View>
-            <View style={{flexDirection: 'row', columnGap: 5}}>
-              <Image
-                source={require('../assets/images/icons/location.png')}
-                style={{height: 18, width: 18}}
-                resizeMode="contain"
-              />
-              <Text style={styles.rate}>
-                
-                {itemDistance > 0 ? Math.ceil(itemDistance) : 0} {t("km")}
-              </Text>
-            </View>
+          <View style={{flexDirection: 'row', columnGap: 5}}>
+            <Image
+              source={require('../assets/images/icons/location.png')}
+              style={{height: 18, width: 18}}
+              resizeMode="contain"
+            />
+            <Text style={styles.rate}>
+              {itemDistance > 0 ? Math.ceil(itemDistance) : 0} {t('km')}
+            </Text>
           </View>
         </View>
-      </>
+      </View>
     );
   };
+
   return (
     <>
       <FlatList
-        data={data}
-        key={`${numColumns}`} // Change key when numColumns changes
+        data={translatedProductList}
+        key={`${numColumns}`}
         numColumns={numColumns}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 30}}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => {
-          return <View style={styles.seperator} />;
-        }}
-        ListEmptyComponent={() => {
-          return (
-            <View
-              style={{
-                justifyContent: 'center',
-                height: height * 0.2,
-                backgroundColor: COLORS.white,
-                alignItems: 'center',
-              }}>
-              <Text>{t("No data found")}</Text>
-            </View>
-          );
-        }}
+        ItemSeparatorComponent={() => <View style={styles.seperator} />}
+        ListEmptyComponent={() => (
+          <View
+            style={{
+              justifyContent: 'center',
+              height: height * 0.2,
+              backgroundColor: COLORS.white,
+              alignItems: 'center',
+            }}>
+            <Text>{t('No data found')}</Text>
+          </View>
+        )}
       />
       <GuestModal
         visible={showModal}
@@ -273,7 +304,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
-
     elevation: 2,
   },
   content: {

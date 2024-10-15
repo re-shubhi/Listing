@@ -5,7 +5,6 @@ import {
   View,
   ScrollView,
   Image,
-  TextInput,
   Dimensions,
   FlatList,
   TouchableOpacity,
@@ -16,19 +15,12 @@ import {
   RefreshControl,
   Linking,
 } from 'react-native';
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import ScreenBackgroundHome from '../components/ScreenBackgroundHome';
 import SwiperFlatList from 'react-native-swiper-flatlist';
-import CategoryListData from './CategoryListData';
 import {
   useFocusEffect,
   useIsFocused,
@@ -44,6 +36,7 @@ import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useTranslation} from 'react-i18next';
 import {I18nManager} from 'react-native';
+import {translateText} from '../../services/translationService';
 
 const {fontScale, width, height} = Dimensions.get('screen');
 
@@ -51,26 +44,18 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const {t} = useTranslation();
   const isRTL = I18nManager.isRTL;
-  const isfocus = useIsFocused();
+  const isFocus = useIsFocused();
   const [numColumns, setNumColumns] = useState(4);
-  // const [search, setSearch] = useState('');
   const [categoryList, setCategoryList] = useState([]);
-  const [slider, setSLider] = useState([]);
+  const [slider, setSlider] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [search, setSelectedItem] = useState(null);
-  // console.log('🚀 ~ HomeScreen ~ selectedItem:', search);
+  const [search, setSelectedItem] = useState('');
   const [loader, setLoader] = useState(false);
-  const [permissionAlertShown, setPermissionAlertShown] = useState(false);
-  const {
-    getLocation,
-    requestPermissionLocation,
-    locationPermission,
-    productListing,
-    location,
-  } = useContext(AuthContext);
-  // console.log("🚀 ~ HomeScreen ~ locationPermission:====", locationPermission)
+  const [translatedProductList, setTranslatedProductList] = useState([]);
+  const {getLocation, productListing} = useContext(AuthContext);
 
+  // Handle back button press
   const backButtonHandler = () => {
     Alert.alert(
       'Exit App',
@@ -94,7 +79,7 @@ const HomeScreen = () => {
   };
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       BackHandler.addEventListener('hardwareBackPress', backButtonHandler);
 
       return () => {
@@ -102,12 +87,30 @@ const HomeScreen = () => {
       };
     }, []),
   );
-  //clear search
+
+  const fetchTranslatedProductListings = async () => {
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
+    if (productListing && productListing.length > 0) {
+      const translatedListings = await Promise.all(
+        productListing.map(async item => {
+          const translatedTitle = await translateText(item.title, lang);
+          return {
+            ...item,
+            title: translatedTitle,
+          };
+        }),
+      );
+      setTranslatedProductList(translatedListings);
+    }
+  };
+
+  // Clear search
   const onClearPress = useCallback(() => {
     setRefreshKey(prevKey => prevKey + 1);
     setSelectedItem('');
   }, []);
-  //search
+
+  // Search icon
   const searchIcon = (
     <View style={{backgroundColor: 'red', padding: 10}}>
       <Image
@@ -118,87 +121,65 @@ const HomeScreen = () => {
     </View>
   );
 
-  const locationPermissionHandler = () => {
-    Alert.alert(
-      'Location Permission',
-      'Location Permission is required in the app.',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        {
-          text: 'Settings',
-          onPress: () => {
-            Linking.openSettings();
-          },
-        },
-      ],
-      {
-        cancelable: false,
-      },
-    );
-    setPermissionAlertShown(true);
-    AsyncStorage.setItem('locationPermissionAlertShown', 'true');
-  };
-
-  //Banner Slider Api
+  // Banner Slider API call
   const Banner = async () => {
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     try {
       setLoader(true);
-      const response = await axios({
-        method: 'POST',
-        url: homescreen,
-      });
-      // console.log('Home response', response?.data);
+      const response = await axios.post(homescreen);
       if (response?.data?.status === true) {
         setLoader(false);
-        setSLider(response?.data?.slider);
-        setCategoryList(response?.data?.category);
+        setSlider(response.data.slider);
+        const translatedCategories = await Promise.all(
+          response.data.category.map(async item => {
+            const translatedTitle = await translateText(item.title, lang);
+            return {
+              ...item,
+              title: translatedTitle,
+            };
+          }),
+        );
+        setCategoryList(translatedCategories);
       }
     } catch (error) {
-      // console.log('error', error?.response?.data?.message);
       setLoader(false);
     }
   };
-  //refresh
+
+  // Refresh handler
   const onRefreshing = useCallback(() => {
     setSelectedItem('');
     setRefresh(true);
+    fetchTranslatedProductListings();
     Banner();
     setTimeout(() => {
       setRefresh(false);
-      setRefreshKey(prevKey => prevKey + 1); // Increment key to force reset after refresh
+      setRefreshKey(prevKey => prevKey + 1);
     }, 500);
   }, []);
 
-  //useeffect
+  // Effect to handle component mounting and focus
   useEffect(() => {
     Banner();
     getLocation();
-  }, [isfocus, navigation]);
-
-  // useEffect(() => {
-  //   // Check if alert has been shown before
-  //   const checkAlertState = async () => {
-  //     const alertShown = await AsyncStorage.getItem(
-  //       'locationPermissionAlertShown',
-  //     );
-  //     if (Platform.OS === 'ios' && location === '' && alertShown !== 'true') {
-  //       locationPermissionHandler();
-  //     }
-  //   };
-  //   checkAlertState();
-  // }, [location]);
+    fetchTranslatedProductListings();
+  }, [isFocus, navigation]);
 
   useEffect(() => {
-    const listner = navigation.addListener('focus', () => {
+    const listener = navigation.addListener('focus', () => {
       setRefreshKey(prevKey => prevKey + 1);
+      fetchTranslatedProductListings();
       setSelectedItem('');
     });
-    return listner;
-  }, [navigation]);
+    return listener;
+  }, [navigation, isFocus]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchTranslatedProductListings();
+    };
+    fetchData();
+  }, [isFocus, navigation, productListing]);
 
   return (
     <ScreenBackgroundHome>
@@ -216,9 +197,11 @@ const HomeScreen = () => {
             closeOnBlur={true}
             key={refreshKey}
             closeOnSubmit={false}
-            onSelectItem={item => setSelectedItem(item?.title || '')}
+            onSelectItem={item => {
+              setSelectedItem(item?.title || '');
+            }}
             onChangeText={text => setSelectedItem(text)}
-            dataSet={productListing}
+            dataSet={translatedProductList}
             onClear={onClearPress}
             inputHeight={50}
             showChevron={false}
@@ -250,6 +233,7 @@ const HomeScreen = () => {
             }}
           />
         </View>
+
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -261,10 +245,7 @@ const HomeScreen = () => {
             />
           }
           contentContainerStyle={{flexGrow: 1, paddingBottom: 30}}>
-          <View
-            style={{
-              paddingHorizontal: width * 0.03,
-            }}>
+          <View style={{paddingHorizontal: width * 0.03}}>
             <SwiperFlatList
               autoplay
               autoplayDelay={2}
@@ -289,44 +270,40 @@ const HomeScreen = () => {
               }}
             />
           </View>
+
           <View style={styles.secondHalf}>
-            {categoryList.length > 6 && (
+            {categoryList.length > 8 && (
               <TouchableOpacity
                 style={{alignSelf: 'flex-end'}}
                 onPress={() =>
                   navigation.navigate('Categories', {data: categoryList})
                 }>
-                <Text style={styles.seemore}>See More</Text>
+                <Text style={styles.seemore}>{t('See More')}</Text>
               </TouchableOpacity>
             )}
-            <View style={[styles.container]}>
+            <View style={styles.container}>
               <FlatList
                 data={categoryList}
                 key={`${numColumns}`}
-                // keyExtractor={(item, index) => index.toString()}
                 showsVerticalScrollIndicator={false}
                 numColumns={numColumns}
-                renderItem={({item}) => {
-                  return (
-                    <TouchableOpacity
-                      style={[styles.box, styles.boxWithShadow]}
-                      onPress={() =>
-                        navigation.navigate('ParticularCategory', {data: item})
-                      }>
-                      <Image
-                        source={{uri: item.category_icon}}
-                        style={{height: 24, width: 24}}
-                        resizeMode="contain"
-                      />
-                      <Text numberOfLines={1} style={styles.CategoryText}>
-                        {item.title}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                }}
-                ItemSeparatorComponent={() => {
-                  return <View style={styles.seperator} />;
-                }}
+                renderItem={({item}) => (
+                  <TouchableOpacity
+                    style={[styles.box, styles.boxWithShadow]}
+                    onPress={() =>
+                      navigation.navigate('ParticularCategory', {data: item})
+                    }>
+                    <Image
+                      source={{uri: item.category_icon}}
+                      style={{height: 24, width: 24, tintColor: COLORS.primary}}
+                      resizeMode="contain"
+                    />
+                    <Text numberOfLines={1} style={styles.CategoryText}>
+                      {item.title}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                ItemSeparatorComponent={() => <View style={styles.seperator} />}
               />
             </View>
 
@@ -343,6 +320,7 @@ const HomeScreen = () => {
                 {t('recent')}
               </Text>
             </View>
+
             <View style={{alignItems: 'center'}}>
               <RecentList search={search} />
             </View>
@@ -354,27 +332,7 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
-
 const styles = StyleSheet.create({
-  search: {
-    backgroundColor: COLORS.darkgray,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: Platform.OS === 'ios' ? 5 : 0,
-    borderRadius: 10,
-    marginTop: height * 0.01,
-  },
-  textInput: {
-    flex: 1,
-    backgroundColor: COLORS.darkgray,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    fontSize: fontScale * 16,
-    fontFamily: FONTS.Inter400,
-    color: COLORS.white,
-  },
   slide: {
     width: Dimensions.get('window').width,
     alignItems: 'center',
@@ -436,7 +394,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.Inter600,
     lineHeight: 21,
     paddingLeft: 5,
-    marginTop: Platform.OS == 'ios' ? 0 : 8,
+    marginTop: Platform.OS === 'ios' ? 0 : 8,
   },
   container: {
     borderWidth: 1,
@@ -445,3 +403,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default HomeScreen;

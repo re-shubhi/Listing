@@ -25,6 +25,8 @@ import axios from 'axios';
 import {forgotpassword_send_request} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { translateText } from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -45,7 +47,8 @@ const ForgotPassword = () => {
 
   //ForgotPassword Api
   const PasswordForgot = async values => {
-    console.log('EMAIL', values);
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
+    // console.log('EMAIL', values);
     try {
       setLoader(true);
       const response = await axios({
@@ -55,22 +58,26 @@ const ForgotPassword = () => {
           email: values.email,
         },
       });
-      console.log('Response Email', response);
+      // console.log('Response Email', response);
       if (response?.data?.status === true) {
+        const message = await translateText(response?.data?.message,lang)
         setLoader(false);
         showMessage({
-          message: response?.data?.message,
+          message: message,
           type: 'success',
+          style:{alignItems:'flex-start'}
         });
         navigation?.navigate('OtpScreen',{tempId:response?.data?.tempId,email:response?.data?.email});
       }
     } catch (error) {
       // console.log('Errorr Forgot', error);
       if (error?.response?.data?.status === false) {
+        const message = await translateText(error?.response?.data?.message,lang)
         setLoader(false);
         showMessage({
-          message: error?.response?.data?.message,
+          message:message ,
           type: 'danger',
+          style:{alignItems:'flex-start'}
         });
       }
     }

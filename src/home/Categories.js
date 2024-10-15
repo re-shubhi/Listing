@@ -13,16 +13,18 @@ import ScreenWithBackground from '../components/ScreenWithBackground';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import CategoryListData from './CategoryListData';
 import {useNavigation} from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Categories = (props) => {
   const navigation = useNavigation();
+  const {t} = useTranslation();
   const [numColumns, setNumColumns] = useState(4);
   const {data} = props?.route?.params;
   console.log("CATEGORYYY",data)
+
   return (
     <ScreenWithBackground>
       <SafeAreaView style={styles.container}>
@@ -30,7 +32,7 @@ const Categories = (props) => {
           backicon={true}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
-          headerText={'Categories'}
+          headerText={t('Categories')}
         />
         <View style={styles.fullScreenRed}>
           <FlatList

@@ -15,29 +15,77 @@ import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import ScreenWithBackground from '../components/ScreenWithBackground';
-import axios from 'axios';
-import {getNotification} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../restapi/AuthContext';
-import moment from 'moment';
 import ScreenLoader from '../components/ScreenLoader';
 import {useTranslation} from 'react-i18next';
+import {translateText} from '../../services/translationService'; 
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ReviewListing = props => {
   const navigation = useNavigation();
+  const isFocus = useIsFocused();
   const {t} = useTranslation();
   const isRTL = I18nManager.isRTL;
   const [loader, setLoader] = useState(false);
   const [reviewData, setReviewData] = useState([]);
+  const [translatedWishlist, setTranslatedWishlist] = useState([]);
   const {data} = props?.route?.params;
-  // console.log('data-->>>', data?.productReview);
+
+
+  //function to convert numbers
+  const convertToArabicNumbers = (text) => {
+    const arabicDigits = '٠١٢٣٤٥٦٧٨٩'; // Arabic numerals 0-9
+    const englishDigits = '0123456789'; // Western numerals 0-9
+  
+    return text.replace(/\d/g, (digit) => arabicDigits[englishDigits.indexOf(digit)]);
+  };
+  
 
   useEffect(() => {
-    setReviewData(data?.productReview);
-  }, []);
+    setReviewData(data?.productReview || []);
+  }, [isFocus, data]);
+
+  const fetchTranslatedWishlist = async () => {
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
+    
+    if (reviewData && reviewData.length > 0) {
+      try {
+        const translatedList = await Promise.all(
+          reviewData.map(async item => {
+            try {
+              const translatedName = await translateText(item.customerName, lang);
+              const translatedReview = await translateText(item.review, lang);
+              return {
+                ...item,
+                customerName: translatedName,
+                review:translatedReview,
+              };
+            } catch (translationError) {
+              // console.error('Translation failed for item:', item, translationError);
+              return item; // Fallback to original item if translation fails
+            }
+          })
+        );
+        setTranslatedWishlist(translatedList);
+      } catch (error) {
+        // console.error('Error fetching translated wishlist:', error);
+        setTranslatedWishlist([]); 
+      }
+    } else {
+      setTranslatedWishlist([]);
+    }
+  };
+  
+
+  useEffect(()=>{
+    const fetchData = async () =>{
+      await fetchTranslatedWishlist()
+    }
+    fetchData()
+  },[isFocus,reviewData])
 
   return (
     <ScreenWithBackground>
@@ -49,94 +97,70 @@ const ReviewListing = props => {
           tintColor={COLORS.white}
         />
         <View style={styles.RemainingScreen}>
-          <FlatList
-            data={reviewData}
-            keyExtractor={item => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{paddingBottom: 60}}
-            // inverted
-            renderItem={({item}) => {
-              return (
-                <>
-                  <View style={styles.container}>
-                    <Image
-                      source={
-                        data?.image
-                          ? {uri: data?.image}
-                          : require('../assets/images/pictures/profile3.png')
-                      }
-                      style={{
-                        height: 50,
-                        width: 50,
-                        borderRadius: 10,
-                        marginTop: Platform.OS === 'ios' ? 5 : 10,
-                      }}
-                      resizeMode="cover"
-                    />
-                    <View style={{flex: 1}}>
-                      <Text style={[styles.nameText, {alignSelf: isRTL?'flex-start':'flex-end'}]}>
-                        {item.customerName}
-                      </Text>
-                      <Text
-                        style={{
-                          ...styles.nameText,
+          {translatedWishlist.length > 0 ? (
+            <FlatList
+              data={translatedWishlist}
+              keyExtractor={item => item.id.toString()} // Ensure keyExtractor is consistent
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: 60}}
+              renderItem={({item}) => (
+                <View style={styles.container}>
+                  <Image
+                    source={require('../assets/images/icons/review.png')
+                    }
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.textContainer}>
+                    <Text style={[styles.nameText, {alignSelf: 'flex-start'}]}>
+                      {item.customerName}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.nameText,
+                        {
                           fontFamily: FONTS.Inter400,
                           paddingTop: 2,
                           fontSize: fontScale * 14,
-                          alignSelf: isRTL?'flex-start':'flex-end'
-                        }}>
-                        {item.review}
+                          alignSelf: 'flex-start',
+                        },
+                      ]}>
+                      {item.review}
+                    </Text>
+                    <View style={styles.ratingContainer}>
+                      <Image
+                        source={require('../assets/images/icons/star2.png')}
+                        style={styles.starImage}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.ratingText}>
+                        {item?.rating}
                       </Text>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          columnGap: 5,
-                          paddingTop: 5,
-                        }}>
-                        <Image
-                          source={require('../assets/images/icons/star2.png')}
-                          style={{height: 16, width: 16}}
-                          resizeMode="contain"
-                        />
-                        <Text
-                          style={{
-                            ...styles.nameText,
-                            fontSize: fontScale * 12,
-                            fontFamily: FONTS.Inter400,
-                            lineHeight: 17,
-                          }}>
-                          {item?.rating}
-                        </Text>
-                      </View>
                     </View>
                   </View>
-                </>
-              );
-            }}
-            ListEmptyComponent={() => {
-              return (
-                <View
-                  style={{
-                    justifyContent: 'center',
-                    height: height * 0.7,
-                    backgroundColor: COLORS.white,
-                    alignItems: 'center',
-                  }}>
-                  <Text style={{fontSize: fontScale * 16, color: COLORS.black}}>
-                    No reviews
+                </View>
+              )}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>
+                    {t('No reviews')}
                   </Text>
                 </View>
-              );
-            }}
-          />
+              )}
+            />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                {t('No reviews')}
+              </Text>
+            </View>
+          )}
         </View>
         {loader && <ScreenLoader isProcessing={loader} />}
       </SafeAreaView>
     </ScreenWithBackground>
   );
 };
-
-export default ReviewListing;
 
 const styles = StyleSheet.create({
   screen: {
@@ -158,11 +182,37 @@ const styles = StyleSheet.create({
     color: COLORS.black,
     lineHeight: 18,
   },
-  content: {
-    fontSize: fontScale * 14,
-    color: COLORS.base,
+  image: {
+    height: 40,
+    width: 40,
+    alignSelf:'center'
+  },
+  textContainer: {
+    flex: 1,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    columnGap: 5,
+    paddingTop: 5,
+  },
+  starImage: {
+    height: 16,
+    width: 16,
+  },
+  ratingText: {
+    fontSize: fontScale * 12,
     fontFamily: FONTS.Inter400,
-    lineHeight: 18,
+    lineHeight: 17,
+  },
+  emptyContainer: {
+    justifyContent: 'center',
+    height: height * 0.7,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: fontScale * 16,
+    color: COLORS.black,
   },
   container: {
     flexDirection: 'row',
@@ -171,6 +221,7 @@ const styles = StyleSheet.create({
     paddingVertical: height * 0.01,
     borderBottomWidth: 0.5,
     borderColor: COLORS.base,
-    // alignItems: 'center',
   },
 });
+
+export default ReviewListing;

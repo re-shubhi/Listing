@@ -16,19 +16,21 @@ import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import CardData from '../heart/CardData';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../restapi/AuthContext';
 import {addRemoveWishlist} from '../restapi/ApiConfig';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {showMessage} from 'react-native-flash-message';
 import GuestModal from '../components/GuestModal';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
+import {translateText} from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const ParticularCategory = props => {
   const navigation = useNavigation();
+  const isFocus = useIsFocused();
   const {t} = useTranslation();
   const [numColumns, setNumColumns] = useState(2);
   const [isGuest, setIsGuest] = useState(false);
@@ -37,12 +39,60 @@ const ParticularCategory = props => {
   const [likeItems, setLikedItems] = useState({});
   const {data} = props?.route?.params;
   // console.log('CATEGORY name---', data?.title);
+  const [translatedCategoryName, setTranslatedCategoryName] = useState('');
+  const [translatedwishlist, setTransaltedwishlist] = useState([]);
+
   const {productListing, ListWishlist, location, wishlist} =
     useContext(AuthContext);
   // console.log('PARTICULAR--productListing', productListing);
 
-  const Listing = productListing?.filter(item => item.category == data?.title);
+  useEffect(() => {
+    const translatedCategory = async () => {
+      if (data?.title) {
+        try {
+          const translation = await translateText(data?.title, 'en');
+          console.log('🚀 ~ translatedCategory ~ translation:', translation);
+          setTranslatedCategoryName(translation);
+        } catch (error) {
+          console.log('🚀 ~ useEffect ~ error:', error);
+        }
+      }
+    };
+    translatedCategory();
+  }, [data?.title]);
+
+  const Listing = productListing?.filter(
+    item => item.category.toLowerCase() == translatedCategoryName.toLowerCase(),
+  );
   // console.log('LISTINGG', Listing);
+
+  const fetchTranslatedWishList = async () => {
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
+    {
+      Listing && Listing.length > 0;
+      const translatedList = await Promise.all(
+        Listing.map(async item => {
+          const translatedTitle = await translateText(item.title, lang);
+          const translatedAddress = await translateText(item.address, lang);
+          const translatedRating = await translateText(item.rating, lang);
+          return {
+            ...item,
+            title: translatedTitle,
+            address: translatedAddress,
+            rating:translatedRating
+          };
+        }),
+      );
+      setTransaltedwishlist(translatedList);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchTranslatedWishList();
+    };
+    fetchData();
+  }, [isFocus, Listing]);
 
   useEffect(() => {
     // Calculate distances for all items when location or productListing changes
@@ -89,6 +139,7 @@ const ParticularCategory = props => {
   const AddRemove = async id => {
     // console.log('ListWishlist====idddd', id);
     const token = await AsyncStorage.getItem('token');
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     try {
       const response = await axios({
         method: 'POST',
@@ -102,9 +153,14 @@ const ParticularCategory = props => {
       });
       // console.log('resss addd/remove---', response?.data);
       if (response?.data?.status === true) {
+        const translatedMessage = await translateText(
+          response?.data?.message,
+          lang,
+        );
         showMessage({
-          message: response?.data?.message,
+          message: translatedMessage,
           type: 'success',
+          style: {alignItems: 'flex-start'},
         });
         setLikedItems(prevState => ({
           ...prevState,
@@ -171,7 +227,9 @@ const ParticularCategory = props => {
                 style={{height: 18, width: 18}}
                 resizeMode="contain"
               />
-              <Text style={styles.rate}>{Math.ceil(itemDistance)}  {t("km")}</Text>
+              <Text style={styles.rate}>
+                {Math.ceil(itemDistance)} {t('km')}
+              </Text>
             </View>
           </View>
         </View>
@@ -220,7 +278,7 @@ const ParticularCategory = props => {
 
         <View style={styles.fullScreenRed}>
           <FlatList
-            data={Listing}
+            data={translatedwishlist}
             key={`${numColumns}`} // Change key when numColumns changes
             numColumns={numColumns}
             showsVerticalScrollIndicator={false}
@@ -237,7 +295,7 @@ const ParticularCategory = props => {
                     backgroundColor: COLORS.white,
                     alignItems: 'center',
                   }}>
-                  <Text>No Data Found</Text>
+                  <Text>{t("No data found")}</Text>
                 </View>
               );
             }}

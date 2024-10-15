@@ -10,17 +10,13 @@ import {
   Image,
   Modal,
   TouchableOpacity,
+  I18nManager,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import MidTabs from './MidTabs';
-
-const {height, width, fontScale} = Dimensions.get('screen');
-
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import Reviews from './Reviews';
-import About from './About';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Header from '../components/Header';
 import axios from 'axios';
@@ -30,7 +26,10 @@ import {AuthContext} from '../restapi/AuthContext';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GuestModal from '../components/GuestModal';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
+import { translateText } from '../../services/translationService';
+
+const {height, width, fontScale} = Dimensions.get('screen');
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -38,6 +37,7 @@ const DetailScreen = props => {
   const navigation = useNavigation();
   const {t} = useTranslation();
   const isfocus = useIsFocused();
+  const isRTL = I18nManager.isRTL;
   const [scrollY] = useState(new Animated.Value(0));
   const HEADER_MAX_HEIGHT = 290;
   const HEADER_MIN_HEIGHT = Platform.OS == 'ios' ? 100 : height * 0.07;
@@ -65,6 +65,8 @@ const DetailScreen = props => {
   const [detail, setDetail] = useState([]);
   const [loader, setLoader] = useState(false);
   const [distance, setDistance] = useState(null);
+  const [translatedTitle, setTranslatedTitle] = useState('');
+  const [translatedAddress, setTranslatedAddress] = useState('');
   const {location, addressLocation} = useContext(AuthContext);
   const [isGuest, setIsGuest] = useState(false);
   const showGuestModal = () => {
@@ -96,9 +98,6 @@ const DetailScreen = props => {
       setLoader(false);
     }
   };
-  // console.log('00000', detail);
-  // console.log('locationlocation', location);
-  // console.log('locationloaddressLocationcation', addressLocation);
   const lat1 = location?.coords?.latitude;
   const lon1 = location?.coords?.longitude;
   const lat2 = parseFloat(detail?.[0]?.latitude);
@@ -161,6 +160,26 @@ const DetailScreen = props => {
     checkUserStatus();
   }, []);
 
+  useEffect(() => {
+    if (detail.length > 0) {
+      
+      const fetchTranslations = async () => {
+        const lang = await AsyncStorage.getItem('languageSelected')|| 'en'
+        try {
+          const titleTranslation = await translateText(detail[0].title, lang); 
+          const addressTranslation = await translateText(detail[0].address, lang); 
+          //console.log("🚀 ~ fetchTranslations ~ addressTranslation:", addressTranslation)
+          setTranslatedTitle(titleTranslation);
+          setTranslatedAddress(addressTranslation);
+        } catch (error) {
+          console.error('Translation error:', error);
+        }
+      };
+      fetchTranslations();
+    }
+  }, [detail]);
+
+
   return (
     <View style={styles.screen}>
       <Animated.View style={[styles.header, {height: headerHeight}]}>
@@ -208,9 +227,9 @@ const DetailScreen = props => {
         showsVerticalScrollIndicator={false}>
         <View style={styles.scrollViewContent}>
           <View style={[styles.container]}>
-            <View style={{rowGap: 4, width: width * 0.65}}>
-              <Text style={styles.heading}>{detail?.[0]?.title}</Text>
-              <Text style={styles.address}>{detail?.[0]?.address}</Text>
+            <View style={{rowGap: 4, width: width * 0.65, alignItems:'flex-start'}}>
+              <Text style={styles.heading}>{translatedTitle || detail?.[0]?.title}</Text>
+              <Text style={styles.address}> {translatedAddress || detail?.[0]?.address}</Text>
               <View style={{flexDirection: 'row', columnGap: 5, paddingTop: 5}}>
                 <Image
                   source={require('../assets/images/icons/star2.png')}
@@ -225,10 +244,12 @@ const DetailScreen = props => {
                   onPress={() =>
                     isGuest
                       ? showGuestModal()
-                      : navigation.navigate('ReviewListing',{data: detail?.[0]})
+                      : navigation.navigate('ReviewListing', {
+                          data: detail?.[0],
+                        })
                   }>
                   <Text style={styles.rate}>
-                    ( {detail?.[0]?.review} {t("reviews")} )
+                    ( {detail?.[0]?.review} {t('reviews')} )
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -240,7 +261,7 @@ const DetailScreen = props => {
                   styles.heading,
                   {color: COLORS.white, fontSize: fontScale * 15},
                 ]}>
-                {Math.ceil(distance)} {t("km")}
+                {Math.ceil(distance)} {t('km')}
               </Text>
             </View>
           </View>
@@ -258,9 +279,10 @@ const DetailScreen = props => {
             />
             <View style={{width: width * 0.6}}>
               <Text style={[styles.address, {fontSize: fontScale * 13}]}>
-                {detail?.[0]?.address}
+              {translatedAddress || detail?.[0]?.address}
               </Text>
               <TouchableOpacity
+              style={{alignSelf:'flex-start'}}
                 onPress={() => {
                   isGuest
                     ? showGuestModal()
@@ -274,7 +296,7 @@ const DetailScreen = props => {
                       paddingTop: 5,
                     },
                   ]}>
-                  {t("Open on maps")}
+                  {t('Open on maps')}
                 </Text>
               </TouchableOpacity>
             </View>

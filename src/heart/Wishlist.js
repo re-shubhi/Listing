@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {
   Dimensions,
   FlatList,
+  I18nManager,
   Image,
   Platform,
   SafeAreaView,
@@ -14,22 +15,25 @@ import ScreenWithBackground from '../components/ScreenWithBackground';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
-import CardData from './CardData';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {addRemoveWishlist, getWishList} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../restapi/AuthContext';
 import {showMessage} from 'react-native-flash-message';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
+import {translateText} from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const Wishlist = () => {
   const navigation = useNavigation();
+  const isFocus = useIsFocused();
+  const isRTL = I18nManager.isRTL;
   const {t} = useTranslation();
   const [distance, setDistance] = useState({});
   const [likedItems, setLikedItems] = useState({});
+  const [translatedwishlist, setTransaltedwishlist] = useState([]);
   const [numColumns, setNumColumns] = useState(2); // State for the number of columns
   const {ListWishlist, wishlist, location} = useContext(AuthContext);
 
@@ -72,6 +76,7 @@ const Wishlist = () => {
   const AddRemove = async id => {
     // console.log('ListWishlist----idd', id);
     const token = await AsyncStorage.getItem('token');
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     try {
       const response = await axios({
         method: 'POST',
@@ -85,9 +90,14 @@ const Wishlist = () => {
       });
       // console.log('resss addd/remove---', response?.data);
       if (response?.data?.status === true) {
+        const translatedMessage = await translateText(
+          response?.data?.message,
+          lang,
+        );
         showMessage({
-          message: response?.data?.message,
+          message: translatedMessage,
           type: 'success',
+          style: {alignItems: 'flex-start'},
         });
         await ListWishlist();
       }
@@ -95,6 +105,7 @@ const Wishlist = () => {
       // console.log('error add', error?.response?.data);
     }
   };
+
 
   const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
@@ -127,7 +138,12 @@ const Wishlist = () => {
             />
           </TouchableOpacity>
         </View>
-        <Text numberOfLines={1} style={styles.address}>
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.address,
+            {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+          ]}>
           {item.address}
         </Text>
         <View style={styles.lastcontainer}>
@@ -145,12 +161,51 @@ const Wishlist = () => {
               style={{height: 18, width: 18}}
               resizeMode="contain"
             />
-            <Text style={styles.rate}>{Math.ceil(itemDistance)} km </Text>
+            <Text style={styles.rate}>{Math.ceil(itemDistance)} {t('km')} </Text>
           </View>
         </View>
       </View>
     );
   };
+  
+    //function to convert numbers
+    const convertToArabicNumbers = text => {
+      const arabicDigits = '٠١٢٣٤٥٦٧٨٩'; // Arabic numerals 0-9
+      const englishDigits = '0123456789'; // Western numerals 0-9
+  
+      return text.replace(
+        /\d/g,
+        digit => arabicDigits[englishDigits.indexOf(digit)],
+      );
+    };
+
+  const fetchTranslatedWishList = async () => {
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
+    {
+      wishlist && wishlist.length > 0;
+      const translatedList = await Promise.all(
+        wishlist.map(async item => {
+          const translatedTitle = await translateText(item.title, lang);
+          const translatedAddress = await translateText(item.address, lang);
+          const translatedRating = await translateText(item.rating, lang);
+          return {
+            ...item,
+            title: translatedTitle,
+            address: translatedAddress,
+            rating:translatedRating
+          };
+        }),
+      );
+      setTransaltedwishlist(translatedList);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchTranslatedWishList();
+    };
+    fetchData();
+  }, [isFocus, wishlist]);
 
   useEffect(() => {
     ListWishlist();
@@ -163,11 +218,11 @@ const Wishlist = () => {
           backicon={true}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
-          headerText={t("wishlist")}
+          headerText={t('wishlist')}
         />
         <View style={styles.fullScreenRed}>
           <FlatList
-            data={wishlist}
+            data={translatedwishlist}
             key={`${numColumns}`} // Change key when numColumns changes
             numColumns={numColumns}
             showsVerticalScrollIndicator={false}
@@ -185,7 +240,7 @@ const Wishlist = () => {
                     backgroundColor: COLORS.white,
                     alignItems: 'center',
                   }}>
-                  <Text>{t("No data found")}</Text>
+                  <Text>{t('No data found')}</Text>
                 </View>
               );
             }}

@@ -32,6 +32,8 @@ import {
 } from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { translateText } from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -71,6 +73,7 @@ const OtpScreen = ({route}) => {
 
   //Otp verification Api
   const OtpVerifyApi = async () => {
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
     try {
       setLoader(true);
       const response = await axios({
@@ -83,10 +86,12 @@ const OtpScreen = ({route}) => {
       });
       // console.log('OTP res--', response);
       if (response?.data?.status === true) {
+        const message = await translateText(response?.data?.message,lang)
         setLoader(false);
         showMessage({
-          message: response?.data?.message,
+          message: message,
           type: 'success',
+          style:{alignItems:'flex-start'}
         });
         navigation?.dispatch(
           CommonActions.reset({
@@ -99,9 +104,11 @@ const OtpScreen = ({route}) => {
       // console.log('error', error);
       setLoader(false);
       if (error?.response?.data?.status === false) {
+        const message = await translateText(error?.response?.data?.message,lang)
         showMessage({
-          message: error?.response?.data?.message,
+          message: message,
           type: 'danger',
+          style:{alignItems:'flex-start'}
         });
       }
     }
@@ -109,6 +116,7 @@ const OtpScreen = ({route}) => {
 
   //Resend Otp Api
   const ResendApi = async () => {
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
     try {
       setLoader(true)
       const response = await axios({
@@ -116,13 +124,15 @@ const OtpScreen = ({route}) => {
         url: forgotpassword_send_request,
         data: {email: email},
       });
-      console.log('resend Res--', response);
+      // console.log('resend Res--', response);
       if(response?.data?.status === true)
         {
+          const message = await translateText(response?.data?.message,lang)
           setLoader(false)
           showMessage({
-            message:response?.data?.message,
-            type:'success'
+            message:message,
+            type:'success',
+            style:{alignItems:'flex-start'}
           })
         }
     } catch (error) {

@@ -26,6 +26,8 @@ import {ServerUrl, register} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import {useTranslation} from 'react-i18next';
 import {I18nManager} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { translateText } from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -74,8 +76,9 @@ const Register = () => {
   };
   //api for register
   const RegisterApi = async values => {
-    // console.log('values-----', values);
+    console.log('values-----', values);
     // console.log("callingCode",countryCode)
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
     try {
       setLoader(true);
       const response = await axios({
@@ -91,11 +94,13 @@ const Register = () => {
         },
       });
       // console.log('response---', response?.data);
+      const message = await translateText(response?.data?.message,lang)
       if (response?.data?.status == true) {
         setLoader(false);
         showMessage({
-          message: response?.data?.message,
+          message: message,
           type: 'success',
+          style:{alignItems:'flex-start'}
         });
         navigation.dispatch(
           CommonActions.reset({
@@ -107,12 +112,14 @@ const Register = () => {
         );
       }
     } catch (error) {
-      // console.log('error Register', error);
+      // console.log('error Register', error?.response);
       setLoader(false);
       if (error?.response?.data?.status === false) {
+        const message = await translateText(error?.response?.data?.message,lang)
         showMessage({
-          message: error?.response?.data?.message,
+          message: message,
           type: 'danger',
+          style:{alignItems:'flex-start'}
         });
       }
     }

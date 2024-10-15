@@ -14,6 +14,7 @@ import {
   PermissionsAndroid,
   KeyboardAvoidingView,
   ScrollView,
+  I18nManager,
 } from 'react-native';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
@@ -56,6 +57,7 @@ const validationSchema = Yup.object().shape({
 const EditProfile = () => {
   const navigation = useNavigation();
   const {t} = useTranslation();
+  const isRTL = I18nManager.isRTL;
   const {userData, getProfileData} = useContext(AuthContext);
   // console.log('🚀 ~ EditProfile ~ userData:', userData);
   const [value, setValue] = useState(userData?.gender || '');
@@ -106,7 +108,7 @@ const EditProfile = () => {
           setFieldValue('profilePic', image.path);
         })
         .catch(error => {
-          console.log(error);
+          // console.log(error);
         });
     }, 1000);
   };
@@ -124,7 +126,7 @@ const EditProfile = () => {
           setFieldValue('profilePic', image.path);
         })
         .catch(error => {
-          console.log(error);
+          // console.log(error);
         });
     }, 1000);
   };
@@ -169,7 +171,7 @@ const EditProfile = () => {
         navigation?.navigate('ProfileScreen');
       }
     } catch (error) {
-      console.log('error', error);
+      // console.log('error', error);
       setLoader(false);
     }
   };

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {AuthContext} from '../restapi/AuthContext';
 import {addRemoveWishlist} from '../restapi/ApiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,23 +19,44 @@ import {showMessage} from 'react-native-flash-message';
 import axios from 'axios';
 import useDebounce from '../restapi/useDebounce';
 import GuestModal from '../components/GuestModal';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
+import {translateText} from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
 const PopularList = ({search}) => {
   const navigation = useNavigation();
+  const isFocus = useIsFocused();
   const {t} = useTranslation();
   const isRTL = I18nManager.isRTL;
   const [distance, setDistance] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
+  const [translatedProductList, setTranslatedProductList] = useState([]);
   const {productListing, ListWishlist, location, wishlist} =
     useContext(AuthContext);
   const [likedItems, setLikedItems] = useState({});
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  console.log("🚀 ~ PopularList ~ productListing:", productListing)
+  // Debounced search term
+  const debouncedSearch = useDebounce(search, 500);
 
-  // console.log('s<PopularList search={search} />', search);
-  const debouncedSearchTerm = useDebounce(search, 500);
+  useEffect(() => {
+    const fetchTranslatedCategory = async () => {
+      if (debouncedSearch) {
+        try {
+          const translation = await translateText(debouncedSearch, 'en');
+          console.log("🚀 ~ fetchTranslatedCategory ~ translation:", translation)
+          setDebouncedSearchTerm(translation);
+        } catch (error) {
+          console.log('Error fetching translation:', error);
+        }
+      } else {
+        setDebouncedSearchTerm('');
+      }
+    };
+    fetchTranslatedCategory();
+  }, [debouncedSearch]);
 
   useEffect(() => {
     // Calculate distances for all items when location or productListing changes
@@ -80,10 +101,10 @@ const PopularList = ({search}) => {
     return deg * (Math.PI / 180);
   }
 
-  // Api to add remove wishList
+  // Api to add/remove wishList
   const AddRemove = async id => {
-    // console.log('ListWishlist====idddd', id);
     const token = await AsyncStorage.getItem('token');
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     try {
       const response = await axios({
         method: 'POST',
@@ -95,11 +116,15 @@ const PopularList = ({search}) => {
           product_id: id,
         },
       });
-      // console.log('resss addd/remove---', response?.data);
       if (response?.data?.status === true) {
+        const translatedMessage = await translateText(
+          response?.data?.message,
+          lang,
+        );
         showMessage({
-          message: response?.data?.message,
+          message: translatedMessage,
           type: 'success',
+          style: {alignItems: 'flex-start'},
         });
         // Toggle liked status for the item
         setLikedItems(prevState => ({
@@ -109,24 +134,52 @@ const PopularList = ({search}) => {
         await ListWishlist();
       }
     } catch (error) {
-      // console.log('error add', error?.response);
+      console.log('Error adding/removing wishlist item:', error?.response);
     }
   };
 
-  const popularlist = productListing.filter(
-    item => item.product_type === 'popular',
-  );
-  // Popular Listing
-  const popularItems = debouncedSearchTerm
-    ? popularlist.filter(item =>
-        item.title.toLowerCase().includes(search.toLowerCase()),
-      )
-    : popularlist;
+  const filterPopularItems = () => {
+    return productListing.filter(
+      item =>
+        item.product_type === 'popular' &&
+        item.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
+    );
+  };
+
+  const fetchTranslatedPopularListings = async items => {
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
+    if (items.length > 0) {
+      const translatedListings = await Promise.all(
+        items.map(async item => {
+          const translatedTitle = await translateText(item.title, lang);
+          const translatedAddress = await translateText(item.address, lang);
+          return {
+            ...item,
+            title: translatedTitle,
+            address: translatedAddress,
+            rating: item.rating, // Rating does not need translation
+          };
+        }),
+      );
+      setTranslatedProductList(translatedListings);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const filteredPopularItems = filterPopularItems();
+      if (filteredPopularItems.length > 0) {
+        await fetchTranslatedPopularListings(filteredPopularItems);
+      } else {
+        setTranslatedProductList([]);
+      }
+    };
+    fetchData();
+  }, [debouncedSearchTerm, isFocus, productListing, location, wishlist]);
 
   const showGuestModal = () => {
     setShowModal(true);
   };
-  // Function to hide the guest registration modal
   const hideGuestModal = () => {
     setShowModal(false);
   };
@@ -176,7 +229,13 @@ const PopularList = ({search}) => {
             </TouchableOpacity>
           </View>
           <View style={{width: width * 0.5}}>
-            <Text style={styles.address}>{item?.address.substring(0, 30)}</Text>
+            <Text
+              style={[
+                styles.address,
+                {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+              ]}>
+              {item?.address.substring(0, 30)}
+            </Text>
           </View>
           <View style={styles.lastcontainer}>
             <View style={{flexDirection: 'row', columnGap: 5}}>
@@ -195,7 +254,7 @@ const PopularList = ({search}) => {
               />
               <Text style={styles.rate}>
                 {' '}
-                {itemDistance > 0 ? Math.ceil(itemDistance) : 0}  {t("km")}
+                {itemDistance > 0 ? Math.ceil(itemDistance) : 0} {t('km')}
               </Text>
             </View>
           </View>
@@ -204,9 +263,8 @@ const PopularList = ({search}) => {
     );
   };
 
-  //For Guest Check
+  // For Guest Check
   useEffect(() => {
-    // Check user status from AsyncStorage
     const checkUserStatus = async () => {
       try {
         const userStatus = await AsyncStorage.getItem('userStatus');
@@ -228,11 +286,14 @@ const PopularList = ({search}) => {
 
   return (
     <View>
-      {popularItems.length > 0 && (
+      {translatedProductList.length > 0 && (
         <>
-          <Text style={[styles.headingText,{  alignSelf: isRTL ? 'right' : 'left',}]}>{t("popular")}</Text>
+          <Text
+            style={[styles.headingText, {alignSelf: isRTL ? 'right' : 'left'}]}>
+            {t('popular')}
+          </Text>
           <FlatList
-            data={popularItems}
+            data={translatedProductList}
             keyExtractor={item => item.id.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}

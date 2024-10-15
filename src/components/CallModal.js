@@ -23,9 +23,9 @@ export default function CallModal({
   props,
   callData,
 }) {
+  const {t} = useTranslation();
   const [isPointsDeducted, setIsPointsDeducted] = useState(false);
   // console.log("CALLLL ",callData)
-  const { t } = useTranslation();
   const MakeCall = () => {
     const phoneNumber = callData?.mobilenumber;
     const androidDial = `tel:${phoneNumber}`;
@@ -62,7 +62,7 @@ export default function CallModal({
             />
           </View>
 
-          <Text style={styles.headText}>Contact {callData?.title}</Text>
+          <Text style={styles.headText}>{t('Contact')} {callData?.title}</Text>
           <View
             style={{
               flexDirection: 'row',
@@ -77,7 +77,7 @@ export default function CallModal({
               resizeMode="contain"
             />
 
-            <Text style={styles.descText}>{' +'} {callData?.mobilenumber}</Text>
+            <Text style={styles.descText}>{callData?.mobilenumber}</Text>
           </View>
 
           <View
@@ -104,7 +104,7 @@ export default function CallModal({
                   textAlign: 'center',
                   fontWeight: '500',
                 }}>
-                {t("Call Now")}
+              {t('Call Now')}
               </Text>
             </TouchableOpacity>
           </View>

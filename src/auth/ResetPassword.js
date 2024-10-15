@@ -25,6 +25,8 @@ import axios from 'axios';
 import {reset_password} from '../restapi/ApiConfig';
 import ScreenLoader from '../components/ScreenLoader';
 import {useTranslation} from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { translateText } from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -57,6 +59,7 @@ const ResetPassword = ({route}) => {
   };
 
   const PasswordResetApi = async values => {
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
     try {
       setLoader(true);
       const response = await axios({
@@ -70,10 +73,12 @@ const ResetPassword = ({route}) => {
       });
       // console.log('Reset Res--', response);
       if (response?.data?.status === true) {
+        const message = await translateText(response?.data?.message,lang)
         setLoader(false);
         showMessage({
-          message: response?.data?.message,
+          message:message,
           type: 'success',
+          style:{alignItems:'flex-start'}
         });
         navigation?.dispatch(
           CommonActions?.reset({

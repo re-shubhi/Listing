@@ -36,6 +36,7 @@ import ScreenLoader from '../components/ScreenLoader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
 import {useTranslation} from 'react-i18next';
+import { translateText } from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -102,6 +103,7 @@ const Login = props => {
 
   //Login Api
   const LoginApi = async values => {
+    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
     try {
       setLoader(true);
       const response = await axios({
@@ -118,9 +120,11 @@ const Login = props => {
         setLoader(false);
         await AsyncStorage.setItem('token', response?.data?.token);
         await AsyncStorage.setItem('userStatus', 'registered');
+        const message = await translateText(response?.data?.message,lang)
         showMessage({
-          message: response?.data?.message,
+          message:message,
           type: 'success',
+          style:{alignItems:'flex-start'}
         });
         navigation?.dispatch(
           CommonActions.reset({
@@ -133,9 +137,11 @@ const Login = props => {
       // console.log('Login error---', error);
       setLoader(false);
       if (error?.response?.data?.status === false) {
+        const message = await translateText(error?.response?.data?.message,lang)
         showMessage({
-          message: error?.response?.data?.message,
+          message: message,
           type: 'danger',
+          style:{alignItems:'flex-start'}
         });
       }
     }
