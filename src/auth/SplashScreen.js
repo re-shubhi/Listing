@@ -57,7 +57,7 @@ const SplashScreen = () => {
       try {
         setTimeout(async () => {
           await checkUserStatus();
-        }, 5000)
+        }, 4000)
 
       } catch (error) {
         console.error('Error initializing app:', error);
