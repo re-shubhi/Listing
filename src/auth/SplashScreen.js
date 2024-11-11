@@ -1,6 +1,6 @@
-import React, {useEffect} from 'react';
-import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
-import {CommonActions, useIsFocused, useNavigation} from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { Image, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
@@ -9,8 +9,8 @@ import { useTranslation } from 'react-i18next';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
-  const {t} = useTranslation();
-;
+  const { t } = useTranslation();
+  ;
   // Function to check user status and navigate accordingly
   const checkUserStatus = async () => {
     try {
@@ -22,21 +22,21 @@ const SplashScreen = () => {
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes: [{name: 'BottomTabNavigation'}],
+            routes: [{ name: 'BottomTabNavigation' }],
           }),
         );
       } else if (userStatus != 'registered' && !token) {
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes: [{name: 'HomeScreen'}],
+            routes: [{ name: 'HomeScreen' }],
           }),
         );
       } else if (userStatus === 'registered' && !token) {
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes: [{name: 'Login'}],
+            routes: [{ name: 'Login' }],
           }),
         );
       }
@@ -45,7 +45,7 @@ const SplashScreen = () => {
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{name: 'Login'}],
+          routes: [{ name: 'Login' }],
         }),
       );
     }
@@ -54,9 +54,11 @@ const SplashScreen = () => {
   // Effect to handle navigation based on user status
   useEffect(() => {
     const initializeApp = async () => {
-    
       try {
-        await checkUserStatus();
+        setTimeout(async () => {
+          await checkUserStatus();
+        }, 5000)
+
       } catch (error) {
         console.error('Error initializing app:', error);
       }
@@ -69,13 +71,9 @@ const SplashScreen = () => {
     <SafeAreaView style={styles.screen}>
       <StatusBar backgroundColor={COLORS.initial} barStyle={'dark-content'} />
       <View style={styles.container}>
-        <Text style={styles.welcome}>{t('Welcome')}</Text>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{...styles.name, color: COLORS.primary}}>{t('L')}</Text>
-          <Text style={styles.name}>
-            {t('isting')} {t('App')}
-          </Text>
-        </View>
+        <Image source={require('../assets/images/pictures/app_Logo.jpg')}
+          style={{ height: 500, width: 500 }}
+          resizeMode='contain' />
       </View>
     </SafeAreaView>
   );
@@ -86,7 +84,7 @@ export default SplashScreen;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: COLORS.initial,
+    backgroundColor: COLORS.yellow,
     justifyContent: 'center',
   },
   container: {

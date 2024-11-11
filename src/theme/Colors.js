@@ -11,7 +11,7 @@ const COLORS = {
     secondary:"#5F5F5F",
     red:"#rgb(234,67,53)",
     darkgray:"#211F1F",
-    cardsBorderColor:"#dfdfdf"
-
+    cardsBorderColor:"#dfdfdf",
+    yellow:"rgb(254, 206, 0)"
 }
 export default COLORS;
