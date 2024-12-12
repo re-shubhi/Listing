@@ -100,14 +100,19 @@ export default function MidTabs(props) {
           <View>
             <View>
               {expand ? (
-                <View style={{right: isRTL ? -10 : 0}}>
+                <View
+                
+                style={{right: isRTL ? -10 : 0}}
+                
+                >
                   <HTMLView
                     value={translation || detail?.[0]?.about_product}
                     stylesheet={styles}
                   />
                   <TouchableOpacity
                     onPress={toggleExpand}
-                    style={{alignSelf: isRTL ? 'flex-start' : 'flex-end'}}>
+                    // style={{alignSelf: isRTL ? 'flex-start' : 'flex-end'}}
+                    >
                     <Text style={styles.seeText}>{t('See less')}</Text>
                   </TouchableOpacity>
                 </View>
@@ -166,8 +171,14 @@ export default function MidTabs(props) {
     const handleCommentChange = text => {
       if (isGuest) {
         showGuestModal();
-      } else setComment(text);
+      } else {
+        setComment(text);
+        if (text.trim().length > 0) {
+          setError(''); // Clear the error message
+        }
+      }
     };
+    
     const handleSubmit = () => {
       if (comment === '') {
         setError(t('Please enter your comment'));
@@ -209,7 +220,7 @@ export default function MidTabs(props) {
           navigation?.navigate('BottomTabNavigation');
         }
       } catch (error) {
-        // console.log('Error Rating', error?.response?.data);
+        console.log('Error Rating', error?.response?.data);
         setLoader(false);
         if (error?.response?.data?.message === 'Unauthenticated.') {
           showGuestModal();
@@ -229,7 +240,7 @@ export default function MidTabs(props) {
               backgroundColor: COLORS.white,
               flex: 1,
               padding: 20,
-              paddingBottom: 50,
+              paddingBottom: 30,
             }}>
             <Text style={styles.textheading}>{t('How was the Service?')}</Text>
             <AirbnbRating
@@ -263,7 +274,6 @@ export default function MidTabs(props) {
               <Button
                 buttonTxt={t('Submit')}
                 onPress={isGuest ? showGuestModal : handleSubmit}
-                // disabled={rating === 0}
               />
             </View>
           </View>

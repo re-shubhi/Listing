@@ -37,7 +37,7 @@ const PopularList = ({search}) => {
     useContext(AuthContext);
   const [likedItems, setLikedItems] = useState({});
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  console.log("🚀 ~ PopularList ~ productListing:", productListing)
+  // console.log("", productListing)
   // Debounced search term
   const debouncedSearch = useDebounce(search, 500);
 

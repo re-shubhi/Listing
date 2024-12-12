@@ -197,7 +197,7 @@ const Notification = () => {
                     alignItems: 'center',
                   }}>
                   <Text style={{fontSize: fontScale * 16, color: COLORS.black}}>
-                    {t('No data found')}
+                    {/* {t('No data found')} */}
                   </Text>
                 </View>
               );

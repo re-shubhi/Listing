@@ -13,36 +13,45 @@ import FONTS from '../theme/Fonts';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const Header = ({headerText, tintColor, backicon,backgroundColor,textcolor}) => {
+const Header = ({
+  headerText,
+  tintColor,
+  backicon,
+  backgroundColor,
+  textcolor,
+}) => {
   const navigation = useNavigation();
   return (
     <View
       style={{
-        paddingVertical: height*0.02,
+        paddingVertical: height * 0.004,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor:backgroundColor
+        backgroundColor: backgroundColor,
       }}>
       <TouchableOpacity
-        style={{height: 20, width: 20}}
+        style={{height: 50, width: 50}}
         onPress={() => {
           navigation.goBack();
         }}>
         {backicon && (
           <Image
-            source={require('../assets/images/icons/backicon.png')}
+            source={require('../assets/images/icons/chevron.left.png')}
             style={{
-              height: 20,
-              width: 20,
-              marginLeft: 10,
+              height: 45,
+              width: 45,
+              // marginLeft: 10,
               tintColor: tintColor,
             }}
             resizeMode="contain"
           />
         )}
       </TouchableOpacity>
-      <Text style={[styles.text,{color:textcolor?textcolor:COLORS.white}]}>{headerText}</Text>
+      <Text
+        style={[styles.text, {color: textcolor ? textcolor : COLORS.white}]}>
+        {headerText}
+      </Text>
       <View style={{height: 24, width: 24, marginLeft: 10}}></View>
     </View>
   );

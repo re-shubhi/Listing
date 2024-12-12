@@ -92,7 +92,7 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     fetchAndTranslateUserData();
-  }, [userData]);
+  }, []);
 
   return (
     <>
@@ -172,7 +172,7 @@ const ProfileScreen = () => {
               <Text style={styles.subText}>{userData?.dob}</Text>
             </View>
           </View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.logout}
             onPress={() => setLanguageModalVisible(true)}>
             <Image
@@ -181,7 +181,7 @@ const ProfileScreen = () => {
               resizeMode="contain"
             />
             <Text style={styles.iconText}>{t('Change Language')}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={styles.logout}
             onPress={() => setModalVisible(true)}>

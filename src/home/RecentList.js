@@ -219,7 +219,7 @@ const RecentList = ({search}) => {
           numberOfLines={1}
           style={[
             styles.address,
-            {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+            // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
           ]}>
           {item?.address.substring(0, 30)}
         </Text>

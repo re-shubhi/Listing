@@ -194,7 +194,7 @@ const DetailScreen = props => {
           source={{uri: detail?.[0]?.image}}
         />
         <Animated.View style={{marginTop: 35}}>
-          <Header backicon={true} tintColor={COLORS.white} />
+          <Header backicon={true} tintColor={COLORS.black} />
         </Animated.View>
         <Animated.View style={{marginTop: Platform.OS === 'ios' ? 225 : 190}}>
           <View />
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
     right: 15,
-    bottom: Platform.OS === 'ios' ? 45 : 10,
+    bottom: Platform.OS === 'ios' ? 60 : 10,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },

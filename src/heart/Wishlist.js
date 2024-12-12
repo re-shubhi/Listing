@@ -142,7 +142,7 @@ const Wishlist = () => {
           numberOfLines={1}
           style={[
             styles.address,
-            {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+            // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
           ]}>
           {item.address}
         </Text>
@@ -240,7 +240,7 @@ const Wishlist = () => {
                     backgroundColor: COLORS.white,
                     alignItems: 'center',
                   }}>
-                  <Text>{t('No data found')}</Text>
+                  {/* <Text>{t('No data found')}</Text> */}
                 </View>
               );
             }}
