@@ -110,7 +110,11 @@ const Wishlist = () => {
   const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     return (
-      <View style={[styles.card, styles.boxWithShadow]}>
+      <TouchableOpacity 
+      onPress={() =>
+        navigation.navigate('DetailScreen', {data: item?.category_id})
+      }
+      style={[styles.card, styles.boxWithShadow]}>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('DetailScreen', {data: item?.category_id})
@@ -164,7 +168,7 @@ const Wishlist = () => {
             <Text style={styles.rate}>{Math.ceil(itemDistance)} {t('km')} </Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
   

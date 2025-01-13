@@ -189,7 +189,11 @@ const PopularList = ({search}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     const isLiked = likedItems[item?.id];
     return (
-      <View style={[styles.box, styles.boxWithShadow]}>
+      <TouchableOpacity 
+      onPress={() =>
+        navigation.navigate('DetailScreen', {data: item?.category_id})
+      }
+      style={[styles.box, styles.boxWithShadow]}>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('DetailScreen', {data: item?.category_id})
@@ -259,7 +263,7 @@ const PopularList = ({search}) => {
             </View>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 

@@ -37,18 +37,19 @@ const RecentList = ({search}) => {
   const [distance, setDistance] = useState({});
   const [likedItems, setLikedItems] = useState({});
   const [translatedProductList, setTranslatedProductList] = useState([]);
-  const {productListing, ListWishlist, location, wishlist} = useContext(AuthContext);
-  
+  const {productListing, ListWishlist, location, wishlist} =
+    useContext(AuthContext);
+
   // Debounce the search term to avoid excessive re-renders
   const debouncedSearchTerm = useDebounce(search, 500);
 
   // Filter and translate product listings based on the search term
   const filterAndTranslateProductListings = async () => {
     const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
-    
+
     // Filter products based on the debounced search term
     const filteredProducts = productListing.filter(item =>
-      item.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      item.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
     );
 
     // Translate the filtered products
@@ -61,7 +62,7 @@ const RecentList = ({search}) => {
           title: translatedTitle,
           address: translatedAddress,
         };
-      })
+      }),
     );
 
     setTranslatedProductList(translatedProduct);
@@ -162,11 +163,14 @@ const RecentList = ({search}) => {
       });
 
       if (response?.data?.status === true) {
-        const translatedMessage = await translateText(response?.data?.message, lang);
+        const translatedMessage = await translateText(
+          response?.data?.message,
+          lang,
+        );
         showMessage({
           message: translatedMessage,
           type: 'success',
-          style: {alignItems: 'flex-start'}
+          style: {alignItems: 'flex-start'},
         });
         setLikedItems(prevState => ({
           ...prevState,
@@ -181,12 +185,15 @@ const RecentList = ({search}) => {
 
   // Render item function for FlatList
   const renderItem = ({item}) => {
+    // console.log("item",item)
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     const isLiked = likedItems[item?.id];
     return (
-      <View style={[styles.card, styles.boxWithShadow]}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('DetailScreen', {data: item?.id})}
+        style={[styles.card, styles.boxWithShadow]}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+          onPress={() => navigation.navigate('DetailScreen', {data: item?.id})}>
           <Image
             source={{uri: item?.image}}
             style={styles.banner}
@@ -195,15 +202,15 @@ const RecentList = ({search}) => {
         </TouchableOpacity>
         <View style={styles.content}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+            onPress={() =>
+              navigation.navigate('DetailScreen', {data: item?.id})
+            }>
             <Text numberOfLines={1} style={styles.CardTitle}>
               {item.title}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() =>
-              isGuest ? showGuestModal() : AddRemove(item?.id)
-            }>
+            onPress={() => (isGuest ? showGuestModal() : AddRemove(item?.id))}>
             <Image
               source={
                 isLiked
@@ -243,7 +250,7 @@ const RecentList = ({search}) => {
             </Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 

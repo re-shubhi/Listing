@@ -20,18 +20,15 @@ import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Header from '../components/Header';
 import axios from 'axios';
-import {productDetails} from '../restapi/ApiConfig';
-import ScreenLoader from '../components/ScreenLoader';
+import {addRemoveWishlist, productDetails} from '../restapi/ApiConfig';
 import {AuthContext} from '../restapi/AuthContext';
-import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GuestModal from '../components/GuestModal';
 import {useTranslation} from 'react-i18next';
-import { translateText } from '../../services/translationService';
+import {translateText} from '../../services/translationService';
+import {showMessage} from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
-
-const Tab = createMaterialTopTabNavigator();
 
 const DetailScreen = props => {
   const navigation = useNavigation();
@@ -43,6 +40,16 @@ const DetailScreen = props => {
   const HEADER_MIN_HEIGHT = Platform.OS == 'ios' ? 100 : height * 0.07;
   const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
   const [showModal, setShowModal] = useState(false);
+  const {data} = props?.route?.params;
+  console.log('category_id---->>>', data);
+  const [detail, setDetail] = useState([]);
+  const [loader, setLoader] = useState(false);
+  const [distance, setDistance] = useState(null);
+  const [translatedTitle, setTranslatedTitle] = useState('');
+  const [translatedAddress, setTranslatedAddress] = useState('');
+  const {location, ListWishlist, wishlist} = useContext(AuthContext);
+  const [isGuest, setIsGuest] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   //header Hieght
   const headerHeight = scrollY.interpolate({
@@ -60,15 +67,7 @@ const DetailScreen = props => {
     outputRange: [0, -50],
     extrapolate: 'clamp',
   });
-  const {data} = props?.route?.params;
-  // console.log('category_id', data);
-  const [detail, setDetail] = useState([]);
-  const [loader, setLoader] = useState(false);
-  const [distance, setDistance] = useState(null);
-  const [translatedTitle, setTranslatedTitle] = useState('');
-  const [translatedAddress, setTranslatedAddress] = useState('');
-  const {location, addressLocation} = useContext(AuthContext);
-  const [isGuest, setIsGuest] = useState(false);
+
   const showGuestModal = () => {
     setShowModal(true);
   };
@@ -88,7 +87,7 @@ const DetailScreen = props => {
           id: data,
         },
       });
-      // console.log('Details---', response);
+      console.log('Details---', response?.data?.data);
       if (response?.data?.status === true) {
         setLoader(false);
         setDetail(response?.data?.data);
@@ -98,6 +97,43 @@ const DetailScreen = props => {
       setLoader(false);
     }
   };
+
+  // Check if the product is in the wishlist
+  useEffect(() => {
+    const liked = wishlist?.some(product => product?.product_id === data);
+    setIsLiked(liked);
+  }, [wishlist, data]);
+
+  // Api to add/remove wishList
+  const AddRemove = async id => {
+    console.log(id);
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios({
+        method: 'POST',
+        url: addRemoveWishlist,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          product_id: id,
+        },
+      });
+      console.log('res------', response?.data);
+      if (response?.data?.status === true) {
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+          style: {alignItems: 'flex-start'},
+        });
+        setIsLiked(!isLiked);
+        await ListWishlist();
+      }
+    } catch (error) {
+      console.log('Error adding/removing wishlist item:', error?.message);
+    }
+  };
+
   const lat1 = location?.coords?.latitude;
   const lon1 = location?.coords?.longitude;
   const lat2 = parseFloat(detail?.[0]?.latitude);
@@ -162,12 +198,14 @@ const DetailScreen = props => {
 
   useEffect(() => {
     if (detail.length > 0) {
-      
       const fetchTranslations = async () => {
-        const lang = await AsyncStorage.getItem('languageSelected')|| 'en'
+        const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
         try {
-          const titleTranslation = await translateText(detail[0].title, lang); 
-          const addressTranslation = await translateText(detail[0].address, lang); 
+          const titleTranslation = await translateText(detail[0].title, lang);
+          const addressTranslation = await translateText(
+            detail[0].address,
+            lang,
+          );
           //console.log("🚀 ~ fetchTranslations ~ addressTranslation:", addressTranslation)
           setTranslatedTitle(titleTranslation);
           setTranslatedAddress(addressTranslation);
@@ -178,7 +216,6 @@ const DetailScreen = props => {
       fetchTranslations();
     }
   }, [detail]);
-
 
   return (
     <View style={styles.screen}>
@@ -193,11 +230,55 @@ const DetailScreen = props => {
           ]}
           source={{uri: detail?.[0]?.image}}
         />
-        <Animated.View style={{marginTop: 35}}>
+        <Animated.View
+          style={{
+            marginTop: 30,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingRight: 15,
+          }}>
           <Header backicon={true} tintColor={COLORS.black} />
+          <TouchableOpacity
+            onPress={() => {
+              isGuest ? showGuestModal() : AddRemove(data);
+            }}>
+            <Image
+              source={
+                isLiked
+                  ? require('../assets/images/icons/heart2.png') // Liked
+                  : require('../assets/images/icons/heartBlank.png') // Not Liked
+              }
+              style={{height: 25, width: 25}}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
         </Animated.View>
-        <Animated.View style={{marginTop: Platform.OS === 'ios' ? 225 : 190}}>
+        <Animated.View style={{marginTop: Platform.OS === 'ios' ? 225 : 180}}>
           <View />
+          <TouchableOpacity
+            onPress={() =>
+              isGuest
+                ? showGuestModal()
+                : navigation?.navigate('StoreQRCode', {data: detail?.[0]})
+            }
+            style={{
+              backgroundColor: COLORS.white,
+              width: 50,
+              height: 30,
+              left: 15,
+              bottom: Platform.OS === 'ios' ? 60 : 20,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 8,
+            }}>
+            <Image
+              source={require('../assets/images/icons/qr-code.png')}
+              resizeMode="contain"
+              style={{height: 15, width: 15}}
+            />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.Btn}
             onPress={() =>
@@ -227,9 +308,19 @@ const DetailScreen = props => {
         showsVerticalScrollIndicator={false}>
         <View style={styles.scrollViewContent}>
           <View style={[styles.container]}>
-            <View style={{rowGap: 4, width: width * 0.65, alignItems:'flex-start'}}>
-              <Text style={styles.heading}>{translatedTitle || detail?.[0]?.title}</Text>
-              <Text style={styles.address}> {translatedAddress || detail?.[0]?.address}</Text>
+            <View
+              style={{
+                rowGap: 4,
+                width: width * 0.65,
+                alignItems: 'flex-start',
+              }}>
+              <Text style={styles.heading}>
+                {translatedTitle || detail?.[0]?.title}
+              </Text>
+              <Text style={styles.address}>
+                {' '}
+                {translatedAddress || detail?.[0]?.address}
+              </Text>
               <View style={{flexDirection: 'row', columnGap: 5, paddingTop: 5}}>
                 <Image
                   source={require('../assets/images/icons/star2.png')}
@@ -279,10 +370,10 @@ const DetailScreen = props => {
             />
             <View style={{width: width * 0.6}}>
               <Text style={[styles.address, {fontSize: fontScale * 13}]}>
-              {translatedAddress || detail?.[0]?.address}
+                {translatedAddress || detail?.[0]?.address}
               </Text>
               <TouchableOpacity
-              style={{alignSelf:'flex-start'}}
+                style={{alignSelf: 'flex-start'}}
                 onPress={() => {
                   isGuest
                     ? showGuestModal()
@@ -395,7 +486,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
     right: 15,
-    bottom: Platform.OS === 'ios' ? 60 : 10,
+    bottom: Platform.OS === 'ios' ? 60 : 20,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
