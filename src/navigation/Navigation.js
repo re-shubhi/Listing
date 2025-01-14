@@ -20,6 +20,9 @@ import IntroductionScreen from '../home/Introduction';
 import HomeScreen from '../home/HomeScreen';
 import ReviewListing from '../home/ReviewListing';
 import LanguageSelectionScreen from '../auth/LanguageSelectionScreen';
+import StoreQRCode from '../home/StoreQRCode';
+import PopularSeeAll from '../home/PopularSeeAll';
+import RecentSeeAll from '../home/RecentSeeAll';
 
 const Stack = createNativeStackNavigator();
 
@@ -55,8 +58,11 @@ const Navigation = () => {
         <Stack.Screen name="DetailScreen" component={DetailScreen} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="MapScreen" component={MapScreen} />
+        <Stack.Screen name="StoreQRCode" component={StoreQRCode} />
         <Stack.Screen name="GridImageView" component={GridImageView} />
         <Stack.Screen name="ReviewListing" component={ReviewListing} />
+        <Stack.Screen name="PopularSeeAll" component={PopularSeeAll} />
+        <Stack.Screen name="RecentSeeAll" component={RecentSeeAll} />
       </Stack.Navigator>
     </NavigationContainer>
   );

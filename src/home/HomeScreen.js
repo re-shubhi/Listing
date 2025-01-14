@@ -309,18 +309,31 @@ const HomeScreen = () => {
 
             <View>
               <PopularList search={search} />
-              <Text
-                style={[
-                  styles.headingText,
-                  {
-                    marginTop: Platform.OS === 'ios' ? 10 : 0,
-                    alignSelf: isRTL ? 'right' : 'left',
-                  },
-                ]}>
-                {t('recent')}
-              </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginTop: Platform.OS == 'ios' ? 20 : 8,
+                }}>
+                <Text
+                  style={[
+                    styles.headingText,
+                    {
+                      marginTop: Platform.OS === 'ios' ? 10 : 0,
+                      alignSelf: isRTL ? 'right' : 'left',
+                    },
+                  ]}>
+                  {t('recent')}
+                </Text>
+                {productListing.length > 6 && (
+                  <TouchableOpacity
+                    onPress={() => navigation?.navigate('RecentSeeAll')}>
+                    <Text style={styles.seeAll}>See all</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
-
             <View style={{alignItems: 'center'}}>
               <RecentList search={search} />
             </View>
@@ -401,6 +414,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: COLORS.cardsBorderColor,
     alignItems: 'center',
+  },
+  seeAll: {
+    color: COLORS.primary,
+    fontSize: fontScale * 15,
+    fontFamily: FONTS.Inter500,
+    lineHeight: 21,
   },
 });
 

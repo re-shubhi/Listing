@@ -46,7 +46,10 @@ const PopularList = ({search}) => {
       if (debouncedSearch) {
         try {
           const translation = await translateText(debouncedSearch, 'en');
-          console.log("🚀 ~ fetchTranslatedCategory ~ translation:", translation)
+          console.log(
+            '🚀 ~ fetchTranslatedCategory ~ translation:',
+            translation,
+          );
           setDebouncedSearchTerm(translation);
         } catch (error) {
           console.log('Error fetching translation:', error);
@@ -189,11 +192,11 @@ const PopularList = ({search}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     const isLiked = likedItems[item?.id];
     return (
-      <TouchableOpacity 
-      onPress={() =>
-        navigation.navigate('DetailScreen', {data: item?.category_id})
-      }
-      style={[styles.box, styles.boxWithShadow]}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('DetailScreen', {data: item?.category_id})
+        }
+        style={[styles.box, styles.boxWithShadow]}>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('DetailScreen', {data: item?.category_id})
@@ -205,12 +208,7 @@ const PopularList = ({search}) => {
           />
         </TouchableOpacity>
         <View style={{rowGap: 4}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingRight: 15,
-            }}>
+          <View style={styles.subHeading}>
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('DetailScreen', {data: item?.category_id})
@@ -236,7 +234,7 @@ const PopularList = ({search}) => {
             <Text
               style={[
                 styles.address,
-                {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
               ]}>
               {item?.address.substring(0, 30)}
             </Text>
@@ -292,10 +290,27 @@ const PopularList = ({search}) => {
     <View>
       {translatedProductList.length > 0 && (
         <>
-          <Text
-            style={[styles.headingText, {alignSelf: isRTL ? 'right' : 'left'}]}>
-            {t('popular')}
-          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: Platform.OS == 'ios' ? 20 : 8,
+            }}>
+            <Text
+              style={[
+                styles.headingText,
+                {alignSelf: isRTL ? 'right' : 'left'},
+              ]}>
+              {t('popular')}
+            </Text>
+            {translatedProductList.length > 3 && (
+              <TouchableOpacity
+                onPress={() => navigation?.navigate('PopularSeeAll')}>
+                <Text style={[styles.seeAll]}>See all</Text>
+              </TouchableOpacity>
+            )}
+          </View>
           <FlatList
             data={translatedProductList}
             keyExtractor={item => item.id.toString()}
@@ -364,6 +379,16 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.Inter600,
     lineHeight: 21,
     paddingLeft: 5,
-    marginTop: Platform.OS == 'ios' ? 20 : 8,
+  },
+  seeAll: {
+    color: COLORS.primary,
+    fontSize: fontScale * 15,
+    fontFamily: FONTS.Inter500,
+    lineHeight: 21,
+  },
+  subHeading: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingRight: 15,
   },
 });

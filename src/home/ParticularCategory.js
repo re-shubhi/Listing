@@ -79,7 +79,7 @@ const ParticularCategory = props => {
             ...item,
             title: translatedTitle,
             address: translatedAddress,
-            rating:translatedRating
+            rating: translatedRating,
           };
         }),
       );
@@ -178,7 +178,9 @@ const ParticularCategory = props => {
     const isLiked = likeItems[item?.id];
     return (
       <>
-        <View style={[styles.card, styles.boxWithShadow]}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('DetailScreen', {data: item})}
+          style={[styles.card, styles.boxWithShadow]}>
           <TouchableOpacity
             onPress={() => navigation.navigate('DetailScreen', {data: item})}>
             <Image
@@ -232,7 +234,7 @@ const ParticularCategory = props => {
               </Text>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
       </>
     );
   };
@@ -295,7 +297,7 @@ const ParticularCategory = props => {
                     backgroundColor: COLORS.white,
                     alignItems: 'center',
                   }}>
-                  <Text>{t("No data found")}</Text>
+                  <Text>{t('No data found')}</Text>
                 </View>
               );
             }}

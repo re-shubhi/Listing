@@ -11,64 +11,36 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ScreenWithBackground from '../components/ScreenWithBackground';
+import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
-import {AuthContext} from '../restapi/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {addRemoveWishlist} from '../restapi/ApiConfig';
 import axios from 'axios';
+import {addRemoveWishlist, getWishList} from '../restapi/ApiConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AuthContext} from '../restapi/AuthContext';
 import {showMessage} from 'react-native-flash-message';
-import useDebounce from '../restapi/useDebounce';
-import GuestModal from '../components/GuestModal';
 import {useTranslation} from 'react-i18next';
 import {translateText} from '../../services/translationService';
+import GuestModal from '../components/GuestModal';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
-const RecentList = ({search}) => {
+const PopularSeeAll = () => {
   const navigation = useNavigation();
   const isFocus = useIsFocused();
   const {t} = useTranslation();
   const isRTL = I18nManager.isRTL;
-  const [numColumns, setNumColumns] = useState(2);
-  const [showModal, setShowModal] = useState(false);
-  const [isGuest, setIsGuest] = useState(false);
   const [distance, setDistance] = useState({});
-  const [likedItems, setLikedItems] = useState({});
   const [translatedProductList, setTranslatedProductList] = useState([]);
   const {productListing, ListWishlist, location, wishlist} =
     useContext(AuthContext);
+  const [likedItems, setLikedItems] = useState({});
+  const [numColumns, setNumColumns] = useState(2);
+  const [showModal, setShowModal] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
-  // Debounce the search term to avoid excessive re-renders
-  const debouncedSearchTerm = useDebounce(search, 500);
-
-  // Filter and translate product listings based on the search term
-  const filterAndTranslateProductListings = async () => {
-    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
-
-    // Filter products based on the debounced search term
-    const filteredProducts = productListing.filter(item =>
-      item.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
-    );
-
-    // Translate the filtered products
-    const translatedProduct = await Promise.all(
-      filteredProducts.map(async item => {
-        const translatedTitle = await translateText(item.title, lang);
-        const translatedAddress = await translateText(item.address, lang);
-        return {
-          ...item,
-          title: translatedTitle,
-          address: translatedAddress,
-        };
-      }),
-    );
-
-    setTranslatedProductList(translatedProduct);
-  };
-
-  // Calculate distances and liked items when dependencies change
   useEffect(() => {
     // Calculate distances for all items when location or productListing changes
     const distances = {};
@@ -83,14 +55,11 @@ const RecentList = ({search}) => {
 
     // Initialize liked state based on wishlist
     const initialLikedItems = {};
-    wishlist?.forEach(item => {
-      initialLikedItems[item?.product_id] = true;
+    wishlist.forEach(item => {
+      initialLikedItems[item.product_id] = true;
     });
     setLikedItems(initialLikedItems);
-
-    // Fetch and translate products when dependencies change
-    filterAndTranslateProductListings();
-  }, [debouncedSearchTerm, isFocus, productListing, location, wishlist]);
+  }, [location, productListing, wishlist]);
 
   // Function to calculate distance
   function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -115,38 +84,7 @@ const RecentList = ({search}) => {
     return deg * (Math.PI / 180);
   }
 
-  // Function to show guest modal
-  const showGuestModal = () => {
-    setShowModal(true);
-  };
-
-  // Function to hide guest modal
-  const hideGuestModal = () => {
-    setShowModal(false);
-  };
-
-  // Check user status and set guest status
-  useEffect(() => {
-    const checkUserStatus = async () => {
-      try {
-        const userStatus = await AsyncStorage.getItem('userStatus');
-        const token = await AsyncStorage.getItem('token');
-
-        if (userStatus === 'registered' && token) {
-          setIsGuest(false);
-        } else {
-          setIsGuest(true);
-        }
-      } catch (error) {
-        console.error('Error fetching user status:', error);
-        setIsGuest(true);
-      }
-    };
-
-    checkUserStatus();
-  }, []);
-
-  // API call to add or remove item from wishlist
+  // Api to add/remove wishList
   const AddRemove = async id => {
     const token = await AsyncStorage.getItem('token');
     const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
@@ -161,7 +99,6 @@ const RecentList = ({search}) => {
           product_id: id,
         },
       });
-
       if (response?.data?.status === true) {
         const translatedMessage = await translateText(
           response?.data?.message,
@@ -172,6 +109,7 @@ const RecentList = ({search}) => {
           type: 'success',
           style: {alignItems: 'flex-start'},
         });
+        // Toggle liked status for the item
         setLikedItems(prevState => ({
           ...prevState,
           [id]: !prevState[id],
@@ -179,20 +117,65 @@ const RecentList = ({search}) => {
         await ListWishlist();
       }
     } catch (error) {
-      console.error('Error adding/removing from wishlist:', error);
+      console.log('Error adding/removing wishlist item:', error?.response);
     }
   };
 
-  // Render item function for FlatList
+  const filterPopularItems = () => {
+    return productListing.filter(item => item.product_type === 'popular');
+  };
+
+  const fetchTranslatedPopularListings = async items => {
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
+    if (items.length > 0) {
+      const translatedListings = await Promise.all(
+        items.map(async item => {
+          const translatedTitle = await translateText(item.title, lang);
+          const translatedAddress = await translateText(item.address, lang);
+          return {
+            ...item,
+            title: translatedTitle,
+            address: translatedAddress,
+            rating: item.rating, // Rating does not need translation
+          };
+        }),
+      );
+      setTranslatedProductList(translatedListings);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const filteredPopularItems = filterPopularItems();
+      if (filteredPopularItems.length > 0) {
+        await fetchTranslatedPopularListings(filteredPopularItems);
+      } else {
+        setTranslatedProductList([]);
+      }
+    };
+    fetchData();
+  }, [isFocus, productListing, location, wishlist]);
+
+  const showGuestModal = () => {
+    setShowModal(true);
+  };
+  const hideGuestModal = () => {
+    setShowModal(false);
+  };
+
   const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     const isLiked = likedItems[item?.id];
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('DetailScreen', {data: item?.id})}
+        onPress={() =>
+          navigation.navigate('DetailScreen', {data: item?.category_id})
+        }
         style={[styles.card, styles.boxWithShadow]}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('DetailScreen', {data: item?.id})}>
+          onPress={() =>
+            navigation.navigate('DetailScreen', {data: item?.category_id})
+          }>
           <Image
             source={{uri: item?.image}}
             style={styles.banner}
@@ -202,14 +185,16 @@ const RecentList = ({search}) => {
         <View style={styles.content}>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('DetailScreen', {data: item?.id})
+              navigation.navigate('DetailScreen', {data: item?.category_id})
             }>
             <Text numberOfLines={1} style={styles.CardTitle}>
               {item.title}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => (isGuest ? showGuestModal() : AddRemove(item?.id))}>
+            onPress={() =>
+              isGuest ? showGuestModal() : AddRemove(item?.category_id)
+            }>
             <Image
               source={
                 isLiked
@@ -227,7 +212,7 @@ const RecentList = ({search}) => {
             styles.address,
             // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
           ]}>
-          {item?.address.substring(0, 30)}
+          {item.address}
         </Text>
         <View style={styles.lastcontainer}>
           <View style={{flexDirection: 'row', columnGap: 5}}>
@@ -245,7 +230,7 @@ const RecentList = ({search}) => {
               resizeMode="contain"
             />
             <Text style={styles.rate}>
-              {itemDistance > 0 ? Math.ceil(itemDistance) : 0} {t('km')}
+              {Math.ceil(itemDistance)} {t('km')}{' '}
             </Text>
           </View>
         </View>
@@ -253,40 +238,107 @@ const RecentList = ({search}) => {
     );
   };
 
+    // For Guest Check
+    useEffect(() => {
+      const checkUserStatus = async () => {
+        try {
+          const userStatus = await AsyncStorage.getItem('userStatus');
+          const token = await AsyncStorage.getItem('token');
+  
+          if (userStatus === 'registered' && token) {
+            setIsGuest(false);
+          } else {
+            setIsGuest(true);
+          }
+        } catch (error) {
+          console.error('Error fetching user status:', error);
+          setIsGuest(true);
+        }
+      };
+  
+      checkUserStatus();
+    }, []);
+
   return (
-    <>
-      <FlatList
-        data={translatedProductList.slice(0, 6)}
-        key={`${numColumns}`}
-        numColumns={numColumns}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: 30}}
-        renderItem={renderItem}
-        ItemSeparatorComponent={() => <View style={styles.seperator} />}
-        ListEmptyComponent={() => (
-          <View
-            style={{
-              justifyContent: 'center',
-              height: height * 0.2,
-              backgroundColor: COLORS.white,
-              alignItems: 'center',
-            }}>
-            <Text>{t('No data found')}</Text>
-          </View>
-        )}
-      />
+    <ScreenWithBackground>
+      <SafeAreaView style={styles.container}>
+        <Header
+          backicon={true}
+          backgroundColor={COLORS.base}
+          tintColor={COLORS.white}
+          headerText={t('popular')}
+        />
+        <View style={styles.fullScreenRed}>
+          <FlatList
+            data={translatedProductList}
+            key={`${numColumns}`} // Change key when numColumns changes
+            numColumns={numColumns}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{paddingBottom: 30}}
+            renderItem={renderItem}
+            ItemSeparatorComponent={() => {
+              return <View style={styles.seperator} />;
+            }}
+            ListEmptyComponent={() => {
+              return (
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    height: height * 0.7,
+                    backgroundColor: COLORS.white,
+                    alignItems: 'center',
+                  }}>
+                  {/* <Text>{t('No data found')}</Text> */}
+                </View>
+              );
+            }}
+          />
+        </View>
+      </SafeAreaView>
       <GuestModal
         visible={showModal}
         onClose={hideGuestModal}
         navigation={navigation}
       />
-    </>
+    </ScreenWithBackground>
   );
 };
 
-export default RecentList;
+export default PopularSeeAll;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  fullScreenRed: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    marginTop: height * 0.02,
+    marginHorizontal: width * 0.02,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    alignItems: 'center',
+    paddingVertical: Platform.OS === 'ios' ? height * 0.01 : height * 0.005,
+  },
+  CardTitle: {
+    fontSize: fontScale * 16,
+    fontFamily: FONTS.Inter600,
+    lineHeight: 21,
+    color: COLORS.black,
+  },
+  address: {
+    fontSize: fontScale * 14,
+    lineHeight: 19,
+    fontFamily: FONTS.Inter400,
+    color: COLORS.base,
+    paddingHorizontal: 5,
+  },
+  rate: {
+    fontSize: fontScale * 13,
+    lineHeight: 19,
+    fontFamily: FONTS.Inter400,
+    color: COLORS.base,
+  },
   card: {
     backgroundColor: COLORS.white,
     maxWidth: width * 0.44,
@@ -301,16 +353,6 @@ const styles = StyleSheet.create({
     width: width * 0.42,
     alignSelf: 'center',
     borderRadius: 10,
-  },
-  boxWithShadow: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 2,
   },
   content: {
     flexDirection: 'row',
@@ -329,23 +371,20 @@ const styles = StyleSheet.create({
     height: Platform.OS === 'ios' ? 10 : 0,
     backgroundColor: 'transparent',
   },
-  CardTitle: {
-    fontSize: fontScale * 16,
-    fontFamily: FONTS.Inter600,
+  boxWithShadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 2,
+  },
+  seeAll: {
+    color: COLORS.primary,
+    fontSize: fontScale * 15,
+    fontFamily: FONTS.Inter500,
     lineHeight: 21,
-    color: COLORS.base,
-  },
-  address: {
-    fontSize: fontScale * 14,
-    lineHeight: 19,
-    fontFamily: FONTS.Inter400,
-    color: COLORS.base,
-    paddingHorizontal: 5,
-  },
-  rate: {
-    fontSize: fontScale * 13,
-    lineHeight: 19,
-    fontFamily: FONTS.Inter400,
-    color: COLORS.base,
   },
 });
