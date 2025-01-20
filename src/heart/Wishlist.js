@@ -106,15 +106,14 @@ const Wishlist = () => {
     }
   };
 
-
   const renderItem = ({item}) => {
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     return (
-      <TouchableOpacity 
-      onPress={() =>
-        navigation.navigate('DetailScreen', {data: item?.category_id})
-      }
-      style={[styles.card, styles.boxWithShadow]}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('DetailScreen', {data: item?.category_id})
+        }
+        style={[styles.card, styles.boxWithShadow]}>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('DetailScreen', {data: item?.category_id})
@@ -165,23 +164,25 @@ const Wishlist = () => {
               style={{height: 18, width: 18}}
               resizeMode="contain"
             />
-            <Text style={styles.rate}>{Math.ceil(itemDistance)} {t('km')} </Text>
+            <Text style={styles.rate}>
+              {Math.ceil(itemDistance)} {t('km')}{' '}
+            </Text>
           </View>
         </View>
       </TouchableOpacity>
     );
   };
-  
-    //function to convert numbers
-    const convertToArabicNumbers = text => {
-      const arabicDigits = '٠١٢٣٤٥٦٧٨٩'; // Arabic numerals 0-9
-      const englishDigits = '0123456789'; // Western numerals 0-9
-  
-      return text.replace(
-        /\d/g,
-        digit => arabicDigits[englishDigits.indexOf(digit)],
-      );
-    };
+
+  //function to convert numbers
+  const convertToArabicNumbers = text => {
+    const arabicDigits = '٠١٢٣٤٥٦٧٨٩'; // Arabic numerals 0-9
+    const englishDigits = '0123456789'; // Western numerals 0-9
+
+    return text.replace(
+      /\d/g,
+      digit => arabicDigits[englishDigits.indexOf(digit)],
+    );
+  };
 
   const fetchTranslatedWishList = async () => {
     const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
@@ -196,7 +197,7 @@ const Wishlist = () => {
             ...item,
             title: translatedTitle,
             address: translatedAddress,
-            rating:translatedRating
+            rating: translatedRating,
           };
         }),
       );

@@ -10,7 +10,7 @@ import {
   Modal,
   I18nManager,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState,useCallback} from 'react';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
@@ -25,7 +25,7 @@ import ScreenLoader from '../components/ScreenLoader';
 import Button from '../components/Button';
 import {showMessage} from 'react-native-flash-message';
 import {useTranslation} from 'react-i18next';
-import { translateText } from '../../services/translationService';
+import {translateText} from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -39,6 +39,7 @@ const Notification = () => {
   const {userData} = useContext(AuthContext);
   const [loader, setLoader] = useState(false);
   const [delId, seDelId] = useState(false);
+  const [dataFetched, setDataFetched] = useState(false); 
 
   const closeModal = () => {
     setModalVisible(false);
@@ -47,7 +48,7 @@ const Notification = () => {
   const DeleteNotification = async idToDelete => {
     // console.log('🚀 ~ DeleteNotification ~ idToDelete:', idToDelete);
     const token = await AsyncStorage.getItem('token');
-    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     // console.log("🚀 ~ DeleteNotification ~ token:", token)
     try {
       const res = await axios({
@@ -66,7 +67,7 @@ const Notification = () => {
         showMessage({
           message: translatedDate,
           type: 'success',
-          style:{alignItems:'flex-start'}
+          style: {alignItems: 'flex-start'},
         });
         await NotidyData();
       }
@@ -75,9 +76,11 @@ const Notification = () => {
     }
   };
 
-  const NotidyData = async () => {
+
+
+  const NotidyData = useCallback(async () => {
     const token = await AsyncStorage.getItem('token');
-    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     try {
       setLoader(true);
       const response = await axios({
@@ -87,31 +90,35 @@ const Notification = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       if (response?.data?.status === true) {
-        // setNotification(response?.data?.data?.reverse());
-        const translatedNotifications = await Promise.all(response?.data?.data.map(async (item) => {
-          const translatedTitle = await translateText(item.message, lang); 
-          const translatedDate = await translateText(item.created_at, lang); 
-          return {
-            ...item,
-            message: translatedTitle,
-            created_at:translatedDate,
-          };
-        }));
+        const translatedNotifications = await Promise.all(
+          response?.data?.data.map(async (item) => {
+            const translatedTitle = await translateText(item.message, lang);
+            const translatedDate = await translateText(item.created_at, lang);
+            return {
+              ...item,
+              message: translatedTitle,
+              created_at: translatedDate,
+            };
+          })
+        );
         setNotification(translatedNotifications.reverse());
-        // console.log('response Notification---', response?.data?.data.reverse());
+        setDataFetched(true);
         setLoader(false);
       }
     } catch (error) {
       console.log('error--', error?.response?.data);
       setLoader(false);
     }
-  };
+  }, [setLoader, setNotification]);
+  
 
   useEffect(() => {
-    NotidyData();
-  }, [isfocus]);
+    if (!dataFetched) {
+      NotidyData(); // Fetch data only if it hasn't been fetched yet
+    }
+  }, [dataFetched, NotidyData]);
 
   return (
     <ScreenWithBackground>
@@ -128,14 +135,12 @@ const Notification = () => {
             keyExtractor={item => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{paddingBottom: 60}}
+            initialNumToRender={10}
             // inverted
             renderItem={({item}) => {
               return (
                 <>
-                  <View
-                    style={[
-                      styles.container
-                    ]}>
+                  <View style={[styles.container]}>
                     <View
                       style={[
                         styles.bell,
@@ -152,7 +157,11 @@ const Notification = () => {
                         resizeMode="cover"
                       />
                     </View>
-                    <View style={{flex: 1,alignItems: isRTL ? 'flex-start' : 'flex-start'}}>
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: isRTL ? 'flex-start' : 'flex-start',
+                      }}>
                       <Text
                         style={{
                           ...styles.nameText,

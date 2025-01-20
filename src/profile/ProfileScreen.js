@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   Dimensions,
   Image,
@@ -11,29 +11,34 @@ import {
   View,
   Modal,
 } from 'react-native';
-import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
-import { I18nManager } from 'react-native';
+import {
+  CommonActions,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
+import {I18nManager} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../../services/i18n';
 import Header from '../components/Header';
 import COLORS from '../theme/Colors';
 import FONTS from '../theme/Fonts';
 import Button from '../components/Button';
-import { AuthContext } from '../restapi/AuthContext';
-import { useTranslation } from 'react-i18next';
+import {AuthContext} from '../restapi/AuthContext';
+import {useTranslation} from 'react-i18next';
 import RNRestart from 'react-native-restart';
-import { translateText } from '../../services/translationService'; 
+import {translateText} from '../../services/translationService';
 
-const { height, width, fontScale } = Dimensions.get('screen');
+const {height, width, fontScale} = Dimensions.get('screen');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const isfocus = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
-// Initialize userData state
-  const { userData, setUserData, getProfileData } = useContext(AuthContext);
+  const [dataFetched, setDataFetched] = useState(false);
+  // Initialize userData state
+  const {userData, setUserData, getProfileData} = useContext(AuthContext);
 
   const closeModal = () => {
     setModalVisible(false);
@@ -46,13 +51,13 @@ const ProfileScreen = () => {
       navigation?.dispatch(
         CommonActions?.reset({
           index: 0,
-          routes: [{ name: 'Login' }],
+          routes: [{name: 'Login'}],
         }),
       );
     }, 500);
   };
 
-  const changeLanguage = async (lang) => {
+  const changeLanguage = async lang => {
     setLanguageModalVisible(false);
     // Update the language in i18n
     i18n.changeLanguage(lang);
@@ -74,7 +79,7 @@ const ProfileScreen = () => {
   };
 
   const fetchAndTranslateUserData = async () => {
-    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     if (userData) {
       setUserData({
         ...userData,
@@ -83,12 +88,13 @@ const ProfileScreen = () => {
         gender: await translateText(userData.gender, lang),
         dob: await translateText(userData.dob, lang),
       });
+      setDataFetched(true);
     }
   };
 
   useEffect(() => {
-    getProfileData();
-  }, [isfocus]);
+    if (!dataFetched) getProfileData();
+  }, [isfocus, dataFetched]);
 
   useEffect(() => {
     fetchAndTranslateUserData();
@@ -105,14 +111,19 @@ const ProfileScreen = () => {
           tintColor={COLORS.white}
         />
         <View style={styles.container}>
-          <View style={{ borderRadius: 100, borderWidth: 1, borderColor: COLORS?.white }}>
+          <View
+            style={{
+              borderRadius: 100,
+              borderWidth: 1,
+              borderColor: COLORS?.white,
+            }}>
             <Image
               source={
                 userData?.profileImage
-                  ? { uri: userData?.profileImage }
+                  ? {uri: userData?.profileImage}
                   : require('../assets/images/pictures/profile3.png')
               }
-              style={{ height: 100, width: 100, borderRadius: 100 }}
+              style={{height: 100, width: 100, borderRadius: 100}}
               resizeMode="cover"
             />
           </View>
@@ -187,7 +198,7 @@ const ProfileScreen = () => {
             onPress={() => setModalVisible(true)}>
             <Image
               source={require('../assets/images/icons/exit.png')}
-              style={{ height: 20, width: 20, tintColor: COLORS.base }}
+              style={{height: 20, width: 20, tintColor: COLORS.base}}
               resizeMode="contain"
             />
             <Text style={styles.iconText}>{t('Logout')}</Text>
@@ -198,10 +209,10 @@ const ProfileScreen = () => {
             <View style={styles.modalContent}>
               <Image
                 source={require('../assets/images/icons/exit.png')}
-                style={{ height: 25, width: 25, tintColor: COLORS.base }}
+                style={{height: 25, width: 25, tintColor: COLORS.base}}
                 resizeMode="contain"
               />
-              <Text style={[styles.iconText, { marginTop: 20 }]}>
+              <Text style={[styles.iconText, {marginTop: 20}]}>
                 {t('Are you sure you want to Logout?')}
               </Text>
               <View style={styles.logoutBox}>
@@ -219,16 +230,32 @@ const ProfileScreen = () => {
             </View>
           </View>
         </Modal>
-        <Modal visible={languageModalVisible} onRequestClose={() => setLanguageModalVisible(false)} transparent>
+        <Modal
+          visible={languageModalVisible}
+          onRequestClose={() => setLanguageModalVisible(false)}
+          transparent>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.Heading}>{t('Select Language')}</Text>
-              <View style={{ alignItems: "center", rowGap: 5, marginTop: 10 }}>
+              <View style={{alignItems: 'center', rowGap: 5, marginTop: 10}}>
                 <TouchableOpacity onPress={() => changeLanguage('en')}>
-                  <Text style={[styles.iconText, { color: COLORS.black, fontFamily: FONTS.Inter800 }]}>{t('English')}</Text>
+                  <Text
+                    style={[
+                      styles.iconText,
+                      {color: COLORS.black, fontFamily: FONTS.Inter800},
+                    ]}>
+                    {t('English')}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => changeLanguage('ar')}>
-                  <Text style={[styles.iconText, { color: COLORS.black, fontFamily: FONTS.Inter800 }]}> (Arabic) عربي </Text>
+                  <Text
+                    style={[
+                      styles.iconText,
+                      {color: COLORS.black, fontFamily: FONTS.Inter800},
+                    ]}>
+                    {' '}
+                    (Arabic) عربي{' '}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -350,6 +377,5 @@ const styles = StyleSheet.create({
     columnGap: 20,
   },
 });
-
 
 export default ProfileScreen;
