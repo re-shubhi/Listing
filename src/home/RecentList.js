@@ -131,7 +131,6 @@ const RecentList = ({search}) => {
       try {
         const userStatus = await AsyncStorage.getItem('userStatus');
         const token = await AsyncStorage.getItem('token');
-
         if (userStatus === 'registered' && token) {
           setIsGuest(false);
         } else {

@@ -169,12 +169,12 @@ const PopularSeeAll = () => {
     return (
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate('DetailScreen', {data: item?.category_id})
+          navigation.navigate('DetailScreen', {data: item?.id})
         }
         style={[styles.card, styles.boxWithShadow]}>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate('DetailScreen', {data: item?.category_id})
+            navigation.navigate('DetailScreen', {data: item?.id})
           }>
           <Image
             source={{uri: item?.image}}
@@ -185,7 +185,7 @@ const PopularSeeAll = () => {
         <View style={styles.content}>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('DetailScreen', {data: item?.category_id})
+              navigation.navigate('DetailScreen', {data: item?.id})
             }>
             <Text numberOfLines={1} style={styles.CardTitle}>
               {item.title}
@@ -193,7 +193,7 @@ const PopularSeeAll = () => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() =>
-              isGuest ? showGuestModal() : AddRemove(item?.category_id)
+              isGuest ? showGuestModal() : AddRemove(item?.id)
             }>
             <Image
               source={

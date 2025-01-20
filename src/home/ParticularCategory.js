@@ -179,10 +179,10 @@ const ParticularCategory = props => {
     return (
       <>
         <TouchableOpacity
-          onPress={() => navigation.navigate('DetailScreen', {data: item})}
+          onPress={() => navigation.navigate('DetailScreen', {data: item?.id})}
           style={[styles.card, styles.boxWithShadow]}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+            onPress={() => navigation.navigate('DetailScreen', {data: item?.id})}>
             <Image
               source={{uri: item?.image}}
               style={styles.banner}
@@ -191,7 +191,7 @@ const ParticularCategory = props => {
           </TouchableOpacity>
           <View style={styles.content}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('DetailScreen', {data: item})}>
+              onPress={() => navigation.navigate('DetailScreen', {data: item?.id})}>
               <Text numberOfLines={1} style={styles.CardTitle}>
                 {item.title}
               </Text>

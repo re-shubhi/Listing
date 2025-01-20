@@ -189,17 +189,18 @@ const PopularList = ({search}) => {
 
   // Render item function for FlatList
   const renderItem = ({item}) => {
+    // console.log("itemitem",item)
     const itemDistance = distance[item.id]?.toFixed(2) || '';
     const isLiked = likedItems[item?.id];
     return (
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate('DetailScreen', {data: item?.category_id})
+          navigation.navigate('DetailScreen', {data: item?.id})
         }
         style={[styles.box, styles.boxWithShadow]}>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate('DetailScreen', {data: item?.category_id})
+            navigation.navigate('DetailScreen', {data: item?.id})
           }>
           <Image
             source={{uri: item?.image}}
@@ -211,13 +212,13 @@ const PopularList = ({search}) => {
           <View style={styles.subHeading}>
             <TouchableOpacity
               onPress={() =>
-                navigation.navigate('DetailScreen', {data: item?.category_id})
+                navigation.navigate('DetailScreen', {data: item?.id})
               }>
               <Text style={styles.CardTitle}>{item.title}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() =>
-                isGuest ? showGuestModal() : AddRemove(item?.category_id)
+                isGuest ? showGuestModal() : AddRemove(item?.id)
               }>
               <Image
                 source={
