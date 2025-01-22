@@ -30,6 +30,7 @@ import CallModal from '../components/CallModal';
 import {useTranslation} from 'react-i18next';
 import {I18nManager} from 'react-native';
 import {translateText} from '../../services/translationService';
+import ReviewComponent from './ReviewComponent';
 
 const isRTL = I18nManager.isRTL;
 
@@ -275,6 +276,9 @@ export default function MidTabs(props) {
                 buttonTxt={t('Submit')}
                 onPress={isGuest ? showGuestModal : handleSubmit}
               />
+            </View>
+            <View style={{flexGrow:1,backgroundColor:COLORS.white}}>
+              <ReviewComponent data={detail}/>
             </View>
           </View>
           {loader && <ScreenLoader isProcessing={loader} />}

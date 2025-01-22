@@ -78,7 +78,6 @@ const ReviewListing = props => {
       setTranslatedWishlist([]);
     }
   };
-  
 
   useEffect(()=>{
     const fetchData = async () =>{
