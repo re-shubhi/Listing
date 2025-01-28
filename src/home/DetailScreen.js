@@ -254,11 +254,11 @@ const DetailScreen = props => {
             />
           </TouchableOpacity>
         </Animated.View>
-        <Animated.View style={{marginTop: Platform.OS === 'ios' ? 240 : 180}}>
+        <Animated.View style={{marginTop: Platform.OS === 'ios' ? 210 : 180}}>
           <View />
 
           {/* QR code */}
-          {/* <TouchableOpacity
+          <TouchableOpacity
             onPress={() =>
               isGuest
                 ? showGuestModal()
@@ -279,7 +279,7 @@ const DetailScreen = props => {
               resizeMode="contain"
               style={{height: 15, width: 15}}
             />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.Btn}
