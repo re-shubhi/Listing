@@ -1,4 +1,5 @@
-export const ServerUrl = "https://awakeinfotech.info/business-listing-app";
+// export const ServerUrl = "https://awakeinfotech.info/business-listing-app";
+export const ServerUrl = "https://yellowdaleel.com";
 
 export const register = ServerUrl + "/api/register";
 export const otpVerify = ServerUrl + "/api/otpVerify";
@@ -18,4 +19,5 @@ export const getWishList = ServerUrl + "/api/getWishList";
 export const addRemoveWishlist = ServerUrl + "/api/addRemoveWishlist";
 export const getNotification = ServerUrl + "/api/getNotification";
 export const notificationDelete = ServerUrl + "/api/notificationDelete";
+export const deleteaccount = ServerUrl + "/api/delete-account";
 

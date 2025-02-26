@@ -27,7 +27,7 @@ import ScreenLoader from '../components/ScreenLoader';
 import {useTranslation} from 'react-i18next';
 import {I18nManager} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { translateText } from '../../services/translationService';
+import {translateText} from '../../services/translationService';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -78,7 +78,7 @@ const Register = () => {
   const RegisterApi = async values => {
     console.log('values-----', values);
     // console.log("callingCode",countryCode)
-    const lang = await AsyncStorage.getItem('languageSelected') || 'en';
+    const lang = (await AsyncStorage.getItem('languageSelected')) || 'en';
     try {
       setLoader(true);
       const response = await axios({
@@ -94,13 +94,13 @@ const Register = () => {
         },
       });
       // console.log('response---', response?.data);
-      const message = await translateText(response?.data?.message,lang)
+      const message = await translateText(response?.data?.message, lang);
       if (response?.data?.status == true) {
         setLoader(false);
         showMessage({
           message: message,
           type: 'success',
-          style:{alignItems:'flex-start'}
+          style: {alignItems: 'flex-start'},
         });
         navigation.dispatch(
           CommonActions.reset({
@@ -115,11 +115,14 @@ const Register = () => {
       // console.log('error Register', error?.response);
       setLoader(false);
       if (error?.response?.data?.status === false) {
-        const message = await translateText(error?.response?.data?.message,lang)
+        const message = await translateText(
+          error?.response?.data?.message,
+          lang,
+        );
         showMessage({
           message: message,
           type: 'danger',
-          style:{alignItems:'flex-start'}
+          style: {alignItems: 'flex-start'},
         });
       }
     }
@@ -180,7 +183,7 @@ const Register = () => {
                     <Text
                       style={[
                         styles.errorText,
-                        {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                        // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
                       ]}>
                       {errors.username}
                     </Text>
@@ -203,7 +206,7 @@ const Register = () => {
                     <Text
                       style={[
                         styles.errorText,
-                        {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                        // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
                       ]}>
                       {errors.email}
                     </Text>
@@ -226,7 +229,7 @@ const Register = () => {
                         flex: 1,
                         borderWidth: 0,
                         borderColor: 'transparent',
-                        textAlign: isRTL ? 'right' : 'left',
+                        // textAlign: isRTL ? 'right' : 'left',
                       },
                     ]}
                     placeholder={t('Password')}
@@ -253,7 +256,13 @@ const Register = () => {
                   </TouchableOpacity>
                 </View>
                 {errors.password && touched.password && (
-                  <Text style={[styles.errorText,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{errors.password}</Text>
+                  <Text
+                    style={[
+                      styles.errorText,
+                      // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                    ]}>
+                    {errors.password}
+                  </Text>
                 )}
                 <View style={[styles.textinputPassword, {marginTop: 10}]}>
                   <TextInput
@@ -290,7 +299,13 @@ const Register = () => {
                   </TouchableOpacity>
                 </View>
                 {errors.confirmPassword && touched.confirmPassword && (
-                  <Text style={[styles.errorText,{alignSelf: isRTL ? 'flex-start' : 'flex-end'}]}>{errors.confirmPassword}</Text>
+                  <Text
+                    style={[
+                      styles.errorText,
+                      // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+                    ]}>
+                    {errors.confirmPassword}
+                  </Text>
                 )}
                 <View style={{marginTop: 15}}>
                   <Button buttonTxt={t('Register')} onPress={handleSubmit} />

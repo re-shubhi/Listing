@@ -27,6 +27,9 @@ import {AuthContext} from '../restapi/AuthContext';
 import {useTranslation} from 'react-i18next';
 import RNRestart from 'react-native-restart';
 import {translateText} from '../../services/translationService';
+import axios from 'axios';
+import {deleteaccount} from '../restapi/ApiConfig';
+import {showMessage} from 'react-native-flash-message';
 
 const {height, width, fontScale} = Dimensions.get('screen');
 
@@ -37,10 +40,30 @@ const ProfileScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const [dataFetched, setDataFetched] = useState(false);
+  const [modalType, setModalType] = useState('logout');
   // Initialize userData state
   const {userData, setUserData, getProfileData} = useContext(AuthContext);
 
   const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleLogout = () => {
+    setModalType('logout');
+    setModalVisible(true);
+  };
+
+  const handleDeleteAccount = () => {
+    setModalType('delete');
+    setModalVisible(true);
+  };
+
+  const confirmAction = () => {
+    if (modalType === 'logout') {
+      logout();
+    } else {
+      deleteAccount();
+    }
     setModalVisible(false);
   };
 
@@ -55,6 +78,36 @@ const ProfileScreen = () => {
         }),
       );
     }, 500);
+  };
+
+  const deleteAccount = async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: deleteaccount,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // console.log('responseresponse', response);
+      if (response?.data?.status === true) {
+        showMessage({
+          message: response?.data?.message,
+          type: 'success',
+        });
+        logout()
+      }
+    } catch (error) {
+      console.log('Error--->', error);
+      showMessage(
+        {
+          message:"Something went wrong. Please try again later.",
+          type:'danger'
+        }
+      )
+    }
   };
 
   const changeLanguage = async lang => {
@@ -183,6 +236,7 @@ const ProfileScreen = () => {
               <Text style={styles.subText}>{userData?.dob}</Text>
             </View>
           </View>
+          {/* Language Change */}
           {/* <TouchableOpacity
             style={styles.logout}
             onPress={() => setLanguageModalVisible(true)}>
@@ -193,9 +247,9 @@ const ProfileScreen = () => {
             />
             <Text style={styles.iconText}>{t('Change Language')}</Text>
           </TouchableOpacity> */}
-          <TouchableOpacity
-            style={styles.logout}
-            onPress={() => setModalVisible(true)}>
+
+          {/* Logout Button */}
+          <TouchableOpacity style={styles.logout} onPress={handleLogout}>
             <Image
               source={require('../assets/images/icons/exit.png')}
               style={{height: 20, width: 20, tintColor: COLORS.base}}
@@ -203,22 +257,44 @@ const ProfileScreen = () => {
             />
             <Text style={styles.iconText}>{t('Logout')}</Text>
           </TouchableOpacity>
+          {/* Delete account Button */}
+          <TouchableOpacity style={styles.logout} onPress={handleDeleteAccount}>
+            <Image
+              source={require('../assets/images/icons/deleteaccount.png')}
+              style={{height: 20, width: 20, tintColor: COLORS.red}}
+              resizeMode="contain"
+            />
+            <Text style={[styles.iconText, {color: COLORS.red}]}>
+              {t('Delete Account')}
+            </Text>
+          </TouchableOpacity>
         </View>
+        {/* logout modal & delete account modal */}
         <Modal visible={modalVisible} onRequestClose={closeModal} transparent>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Image
-                source={require('../assets/images/icons/exit.png')}
-                style={{height: 25, width: 25, tintColor: COLORS.base}}
+                source={
+                  modalType === 'logout'
+                    ? require('../assets/images/icons/exit.png')
+                    : require('../assets/images/icons/deleteaccount.png')
+                }
+                style={{
+                  height: 30,
+                  width: 30,
+                  tintColor: modalType === 'logout' ? COLORS.base : COLORS.red,
+                }}
                 resizeMode="contain"
               />
               <Text style={[styles.iconText, {marginTop: 20}]}>
-                {t('Are you sure you want to Logout?')}
+                {modalType === 'logout'
+                  ? t('Are you sure you want to Logout?')
+                  : t('Are you sure you want to delete account?')}
               </Text>
               <View style={styles.logoutBox}>
                 <Button
                   buttonTxt={t('Yes')}
-                  onPress={logout}
+                  onPress={confirmAction}
                   width={width * 0.28}
                 />
                 <Button
@@ -230,6 +306,9 @@ const ProfileScreen = () => {
             </View>
           </View>
         </Modal>
+        {/* Delete Account */}
+
+        {/* selecte language modal */}
         <Modal
           visible={languageModalVisible}
           onRequestClose={() => setLanguageModalVisible(false)}

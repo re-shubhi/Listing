@@ -82,7 +82,7 @@ const ReviewComponent = ({data}) => {
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: 20,
+              marginBottom: 10,
               paddingBottom:10,
               borderBottomWidth:1,
               borderColor: COLORS.base,

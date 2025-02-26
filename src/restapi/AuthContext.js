@@ -164,7 +164,7 @@ const AuthContextProvider = ({children}) => {
           title: search || ' ',
         },
       });
-      console.log('Response Product ---', response?.data);
+      // console.log('Response Product ---', response?.data);
       if (response?.data?.status === true) {
         setProductListing(response?.data?.data);
       }
@@ -189,7 +189,7 @@ const AuthContextProvider = ({children}) => {
         setWishlist(response?.data?.list);
       }
     } catch (error) {
-      console.log('error wishlist', error?.response);
+      // console.log('error wishlist', error?.response);
     }
   };
 

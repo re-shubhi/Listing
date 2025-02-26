@@ -172,7 +172,7 @@ const Phone = ({
           </TouchableOpacity>
           <View style={styles.verticalLine} />
           <TextInput
-            style={[styles.textinput, {textAlign: isRTL ? 'right' : 'left'}]}
+            style={[styles.textinput]}
             placeholder={t('Phone number')}
             value={values}
             onChangeText={handleChange('phoneNumber')}
@@ -186,7 +186,7 @@ const Phone = ({
           <Text
             style={[
               styles.validation,
-              {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
+              // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
             ]}>
             {errors.phoneNumber}
           </Text>

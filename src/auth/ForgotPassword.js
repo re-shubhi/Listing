@@ -58,7 +58,7 @@ const ForgotPassword = () => {
           email: values.email,
         },
       });
-      // console.log('Response Email', response);
+      console.log('Response Email', response);
       if (response?.data?.status === true) {
         const message = await translateText(response?.data?.message,lang)
         setLoader(false);

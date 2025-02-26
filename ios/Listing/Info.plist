@@ -40,9 +40,9 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need access to your location to provide personalized content and improve your experience while using the app.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to allow you to select and upload photos within the app.</string>
+	<string>This app requires access to your photo library so you can select and upload images for your profile.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to let you take photos within the app.</string>
+	<string>This app needs access to the camera to allow users to take profile pictures and upload them to their accounts.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires access to the microphone to enable voice recording features.</string>
 	<key>UIAppFonts</key>
