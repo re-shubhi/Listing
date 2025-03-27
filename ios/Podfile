@@ -10,7 +10,7 @@ end
 node_require('react-native/scripts/react_native_pods.rb')
 node_require('react-native-permissions/scripts/setup.rb')
 
-platform :ios, '13.4'
+platform :ios, '14'
 prepare_react_native_project!
 
 setup_permissions([
@@ -46,12 +46,16 @@ target 'Listing' do
   # React Native Maps dependencies
   rn_maps_path = '../node_modules/react-native-maps'
   pod 'react-native-google-maps', :path => rn_maps_path
+  pod 'GoogleMaps','8.4.0'
+  pod 'Google-Maps-iOS-Utils','5.0.0'
   config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :hermes_enabled => true, 
+    :production => true 
   )
 
   target 'ListingTests' do

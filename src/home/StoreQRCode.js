@@ -7,7 +7,6 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import ScreenWithBackground from '../components/ScreenWithBackground';
 import FONTS from '../theme/Fonts';
 import Header from '../components/Header';
@@ -19,7 +18,7 @@ const StoreQRCode = props => {
   const {data} = props?.route?.params;
   console.log('StoreQRCode---------->>>', data?.qrcode);
 
-  const storeURL = data?.qrcode; // The link to the store
+  const storeURL = data?.qrcode; // The link to the storex
 
   return (
     <ScreenWithBackground>
