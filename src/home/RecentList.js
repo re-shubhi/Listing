@@ -244,7 +244,7 @@ const RecentList = ({search}) => {
               resizeMode="contain"
             />
             <Text style={styles.rate}>
-              {itemDistance > 0 ? Math.ceil(itemDistance) : 0} {t('km')}
+              {itemDistance > 0 ? Math.ceil(itemDistance) : "--"} {t('km')}
             </Text>
           </View>
         </View>

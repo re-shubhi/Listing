@@ -11,6 +11,8 @@ import {
   Modal,
   TouchableOpacity,
   I18nManager,
+  Alert,
+  Linking,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import FONTS from '../theme/Fonts';
@@ -217,6 +219,24 @@ const DetailScreen = props => {
     }
   }, [detail]);
 
+  const handleMapNavigation = () => {
+    if (location) {
+      navigation.navigate('MapScreen', {data: detail?.[0]});
+    } else {
+      Alert.alert(
+        'Location Required',
+        'This feature needs location access. Go to Settings?',
+        [
+          { text: 'Cancel' },
+          {
+            text: 'Settings',
+            onPress: () => Linking.openSettings()
+          }
+        ]
+      );
+    }
+  };
+
   return (
     <View style={styles.screen}>
       <Animated.View style={[styles.header, {height: headerHeight}]}>
@@ -354,7 +374,7 @@ const DetailScreen = props => {
                   styles.heading,
                   {color: COLORS.white, fontSize: fontScale * 15},
                 ]}>
-                {Math.ceil(distance)} {t('km')}
+                {distance > 0 ? Math.ceil(distance) : "--"} {t('km')}
               </Text>
             </View>
           </View>
@@ -379,7 +399,7 @@ const DetailScreen = props => {
                 onPress={() => {
                   isGuest
                     ? showGuestModal()
-                    : navigation.navigate('MapScreen', {data: detail?.[0]});
+                    :handleMapNavigation()
                 }}>
                 <Text
                   style={[

@@ -34,6 +34,8 @@ const AuthContextProvider = ({children}) => {
     },
   };
 
+  const IOS_PERMISSION_FLAG_KEY = 'ios_location_permission_denied';
+
   //*************************requestPermissionLocation********************
   async function requestPermissionLocation() {
     try {
@@ -43,44 +45,66 @@ const AuthContextProvider = ({children}) => {
           {
             title: 'Listing App Location Permission',
             message:
-              "Listing App needs access to your device's location to provide accurate information.",
+              "Listing App needs access to your device's location to provide accurate business listings and recommendations.",
             buttonNeutral: 'Ask Me Later',
             buttonNegative: 'Cancel',
             buttonPositive: 'OK',
           },
         );
         return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } else if (Platform.OS === 'ios') {
-        const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-        if (result === 'granted') {
-          return true;
-        } else if (result === 'blocked') {
-          // Alert the user and provide an option to open settings
+      } 
+      
+      if (Platform.OS === 'ios') {
+        const isDenied = await AsyncStorage.getItem(IOS_PERMISSION_FLAG_KEY);
+  
+        if (isDenied === 'true') {
+          console.log('User previously denied permission on iOS. Not requesting again.');
           Alert.alert(
-            'Location Permission Required',
-            'Please enable location services in your settings to use this feature.',
-            [
-              {
-                text: 'Settings',
-                onPress: () => openSettings(),
-              },
-              {
-                text: 'Cancel',
-                style: 'cancel',
-              },
-            ],
+            'Location Permission Needed',
+            'Location access is required to show the distance from your location to businesses. You can enable it later in Settings.',
+          [{ text: 'OK' }]
+            [{ text: 'OK' }]
           );
           return false;
-        } else {
+        }
+  
+        const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+  
+        if (result === 'granted') {
+          console.log('Location permission granted on iOS');
+          return true;
+        }
+  
+        if (result === 'denied') {
+          console.log('Location permission denied on iOS');
+          await AsyncStorage.setItem(IOS_PERMISSION_FLAG_KEY, 'true');  // Store flag only on iOS
+          Alert.alert(
+            'Location Permission Needed',
+           'Location access is required to show the distance from your location to businesses. You can enable it later in Settings.',
+          [{ text: 'OK' }]
+            [{ text: 'OK' }]
+          );
           return false;
         }
+  
+        if (result === 'blocked') {
+          console.log('Location permission blocked on iOS');
+          await AsyncStorage.setItem(IOS_PERMISSION_FLAG_KEY, 'true');  // Store flag only on iOS
+          Alert.alert(
+            'Location Access Denied',
+            'You can enable location later in Settings.',
+            [{ text: 'OK' }]
+          );
+          return false;
+        }
+  
+        return false;
       }
     } catch (err) {
       console.error('Permission error:', err);
       return false;
     }
   }
-
   //*************************FETCH ADDRESSS********************
   const fetchLocationAddress = async (latitude, longitude) => {
     try {

@@ -161,7 +161,7 @@ const HomeScreen = () => {
   // Effect to handle component mounting and focus
   useEffect(() => {
     Banner();
-    getLocation();
+    // getLocation();
     fetchTranslatedProductListings();
   }, [isFocus, navigation]);
 

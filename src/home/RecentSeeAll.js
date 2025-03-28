@@ -230,7 +230,7 @@ const RecentSeeAll = () => {
               resizeMode="contain"
             />
             <Text style={styles.rate}>
-              {Math.ceil(itemDistance)} {t('km')}{' '}
+            {itemDistance > 0 ? Math.ceil(itemDistance) : "--"} {t('km')}
             </Text>
           </View>
         </View>
