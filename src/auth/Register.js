@@ -46,11 +46,11 @@ const Register = () => {
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         t('Invalid email'),
       ),
-    phoneNumber: Yup.string()
-      .required(t('Phone number is required.'))
-      .min(8, t('Phone number must be atleast 8 characters.'))
-      .max(15, t('Phone number must be atmost 15 characters.'))
-      .matches(/^\d+$/, t('Invalid phone number. Only digits are allowed.')),
+    // phoneNumber: Yup.string()
+    //   .required(t('Phone number is required.'))
+    //   .min(8, t('Phone number must be atleast 8 characters.'))
+    //   .max(15, t('Phone number must be atmost 15 characters.'))
+    //   .matches(/^\d+$/, t('Invalid phone number. Only digits are allowed.')),
     password: Yup.string()
       .required(t('Password is required'))
       .min(8, t('Password must be atleast 8 characters.')),
@@ -87,8 +87,8 @@ const Register = () => {
         data: {
           name: values.username,
           email: values.email,
-          phone_code: countryCode?.callingCode,
-          mobile: values.phoneNumber,
+          phone_code: countryCode?.callingCode ?? '' ,
+          mobile: values.phoneNumber ?? '',
           password: values.confirmPassword,
           deviceType: Platform.OS == 'ios' ? '2' : '1',
         },

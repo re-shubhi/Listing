@@ -182,15 +182,16 @@ const Phone = ({
             maxLength={17}
           />
         </View>
-        {touched.phoneNumber && errors.phoneNumber && (
+        {/* {touched.phoneNumber && errors.phoneNumber && ( */}
           <Text
             style={[
               styles.validation,
               // {alignSelf: isRTL ? 'flex-start' : 'flex-end'},
             ]}>
-            {errors.phoneNumber}
+            {/* {errors.phoneNumber} */}
+            * Optional
           </Text>
-        )}
+        {/* )} */}
       </View>
     </SafeAreaView>
   );
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.25)',
     marginRight: 0,
-    marginLeft: 5,
+    marginLeft: 10,
   },
   textinput: {
     backgroundColor: COLORS.white,
