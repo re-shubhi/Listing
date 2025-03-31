@@ -43,7 +43,7 @@ const DetailScreen = props => {
   const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
   const [showModal, setShowModal] = useState(false);
   const {data} = props?.route?.params;
-  console.log('category_id---->>>', data);
+  // console.log('category_id---->>>', data);
   const [detail, setDetail] = useState([]);
   const [loader, setLoader] = useState(false);
   const [distance, setDistance] = useState(null);
@@ -89,7 +89,7 @@ const DetailScreen = props => {
           id: data,
         },
       });
-      console.log('Details---', response?.data?.data);
+      // console.log('Details---', response?.data?.data);
       if (response?.data?.status === true) {
         setLoader(false);
         setDetail(response?.data?.data);
@@ -108,7 +108,7 @@ const DetailScreen = props => {
 
   // Api to add/remove wishList
   const AddRemove = async id => {
-    console.log(id);
+    // console.log(id);
     const token = await AsyncStorage.getItem('token');
     try {
       const response = await axios({
@@ -121,7 +121,7 @@ const DetailScreen = props => {
           product_id: id,
         },
       });
-      console.log('res------', response?.data);
+      // console.log('res------', response?.data);
       if (response?.data?.status === true) {
         showMessage({
           message: response?.data?.message,

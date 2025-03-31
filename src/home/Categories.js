@@ -23,7 +23,7 @@ const Categories = (props) => {
   const {t} = useTranslation();
   const [numColumns, setNumColumns] = useState(4);
   const {data} = props?.route?.params;
-  console.log("CATEGORYYY",data)
+  // console.log("CATEGORYYY",data)
 
   return (
     <ScreenWithBackground>

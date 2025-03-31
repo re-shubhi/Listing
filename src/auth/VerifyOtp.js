@@ -39,7 +39,7 @@ const VerifyOtp = ({route}) => {
   const {t} = useTranslation();
   const isRTL = I18nManager.isRTL;
   const userId = route?.params?.userId;
-  console.log("userId",userId)
+  // console.log("userId",userId)
   const CELL_COUNT = 4;
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
@@ -81,7 +81,7 @@ const VerifyOtp = ({route}) => {
           userId: userId,
         },
       });
-      console.log('res---', response);
+      // console.log('res---', response);
       if (response?.data?.status === true) {
         const message = await translateText(response?.data?.message,lang)
         await AsyncStorage.setItem('userStatus', 'registered');
@@ -99,7 +99,7 @@ const VerifyOtp = ({route}) => {
         );
       }
     } catch (error) {
-      console.log('Error Otp', error);
+      // console.log('Error Otp', error);
       if (error?.response?.data?.status === false) {
         setLoader(false);
         // const message = await translateText(error?.response?.data?.message,lang)
