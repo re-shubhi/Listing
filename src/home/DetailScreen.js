@@ -14,27 +14,27 @@ import {
   Alert,
   Linking,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import FONTS from '../theme/Fonts';
 import COLORS from '../theme/Colors';
 import MidTabs from './MidTabs';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
 import axios from 'axios';
-import {addRemoveWishlist, productDetails} from '../restapi/ApiConfig';
-import {AuthContext} from '../restapi/AuthContext';
+import { addRemoveWishlist, productDetails } from '../restapi/ApiConfig';
+import { AuthContext } from '../restapi/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GuestModal from '../components/GuestModal';
-import {useTranslation} from 'react-i18next';
-import {translateText} from '../../services/translationService';
-import {showMessage} from 'react-native-flash-message';
+import { useTranslation } from 'react-i18next';
+import { translateText } from '../../services/translationService';
+import { showMessage } from 'react-native-flash-message';
 
-const {height, width, fontScale} = Dimensions.get('screen');
+const { height, width, fontScale } = Dimensions.get('screen');
 
 const DetailScreen = props => {
   const navigation = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const isfocus = useIsFocused();
   const isRTL = I18nManager.isRTL;
   const [scrollY] = useState(new Animated.Value(0));
@@ -42,14 +42,14 @@ const DetailScreen = props => {
   const HEADER_MIN_HEIGHT = Platform.OS == 'ios' ? 100 : height * 0.07;
   const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
   const [showModal, setShowModal] = useState(false);
-  const {data} = props?.route?.params;
+  const { data } = props?.route?.params;
   // console.log('category_id---->>>', data);
   const [detail, setDetail] = useState([]);
   const [loader, setLoader] = useState(false);
   const [distance, setDistance] = useState(null);
   const [translatedTitle, setTranslatedTitle] = useState('');
   const [translatedAddress, setTranslatedAddress] = useState('');
-  const {location, ListWishlist, wishlist} = useContext(AuthContext);
+  const { location, ListWishlist, wishlist } = useContext(AuthContext);
   const [isGuest, setIsGuest] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
@@ -126,7 +126,7 @@ const DetailScreen = props => {
         showMessage({
           message: response?.data?.message,
           type: 'success',
-          style: {alignItems: 'flex-start'},
+          style: { alignItems: 'flex-start' },
         });
         setIsLiked(!isLiked);
         await ListWishlist();
@@ -149,9 +149,9 @@ const DetailScreen = props => {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // Distance in kilometers
@@ -221,7 +221,7 @@ const DetailScreen = props => {
 
   const handleMapNavigation = () => {
     if (location) {
-      navigation.navigate('MapScreen', {data: detail?.[0]});
+      navigation.navigate('MapScreen', { data: detail?.[0] });
     } else {
       Alert.alert(
         'Location Required',
@@ -239,16 +239,16 @@ const DetailScreen = props => {
 
   return (
     <View style={styles.screen}>
-      <Animated.View style={[styles.header, {height: headerHeight}]}>
+      <Animated.View style={[styles.header, { height: headerHeight }]}>
         <Animated.Image
           style={[
             styles.backgroundImage,
             {
               opacity: imageOpacity,
-              transform: [{translateY: imageTranslate}],
+              transform: [{ translateY: imageTranslate }],
             },
           ]}
-          source={{uri: detail?.[0]?.image}}
+          source={{ uri: detail?.[0]?.image }}
         />
         <Animated.View
           style={{
@@ -269,12 +269,12 @@ const DetailScreen = props => {
                   ? require('../assets/images/icons/heart2.png') // Liked
                   : require('../assets/images/icons/heartBlank.png') // Not Liked
               }
-              style={{height: 25, width: 25}}
+              style={{ height: 25, width: 25 }}
               resizeMode="contain"
             />
           </TouchableOpacity>
         </Animated.View>
-        <Animated.View style={{marginTop: Platform.OS === 'ios' ? 210 : 180}}>
+        <Animated.View style={{ marginTop: Platform.OS === 'ios' ? 210 : 180 }}>
           <View />
 
           {/* QR code */}
@@ -282,7 +282,7 @@ const DetailScreen = props => {
             onPress={() =>
               isGuest
                 ? showGuestModal()
-                : navigation?.navigate('StoreQRCode', {data: detail?.[0]})
+                : navigation?.navigate('StoreQRCode', { data: detail?.[0] })
             }
             style={{
               backgroundColor: COLORS.white,
@@ -297,25 +297,23 @@ const DetailScreen = props => {
             <Image
               source={require('../assets/images/icons/qr-code.png')}
               resizeMode="contain"
-              style={{height: 15, width: 15}}
+              style={{ height: 15, width: 15 }}
             />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.Btn}
             onPress={() =>
-              isGuest
-                ? showGuestModal()
-                : props.navigation.navigate('GridImageView', {
-                    data: detail?.[0]?.galleryData,
-                  })
+              props.navigation.navigate('GridImageView', {
+                data: detail?.[0]?.galleryData
+              })
             }>
             <Image
               resizeMode="contain"
-              style={{height: 15, width: 15}}
+              style={{ height: 15, width: 15 }}
               source={require('../assets/images/icons/imgIcon.png')}
             />
-            <Text style={{color: '#000', fontWeight: '800'}}>
+            <Text style={{ color: '#000', fontWeight: '800' }}>
               {detail?.[0]?.galleryData.length}
             </Text>
           </TouchableOpacity>
@@ -323,10 +321,10 @@ const DetailScreen = props => {
       </Animated.View>
       <ScrollView
         onScroll={Animated.event([
-          {nativeEvent: {contentOffset: {y: scrollY}}},
+          { nativeEvent: { contentOffset: { y: scrollY } } },
         ])}
         scrollEventThrottle={16}
-        contentContainerStyle={{flexGrow: 1, marginBottom: 40}}
+        contentContainerStyle={{ flexGrow: 1, marginBottom: 40 }}
         showsVerticalScrollIndicator={false}>
         <View style={styles.scrollViewContent}>
           <View style={[styles.container]}>
@@ -343,23 +341,20 @@ const DetailScreen = props => {
                 {' '}
                 {translatedAddress || detail?.[0]?.address}
               </Text>
-              <View style={{flexDirection: 'row', columnGap: 5, paddingTop: 5}}>
+              <View style={{ flexDirection: 'row', columnGap: 5, paddingTop: 5 }}>
                 <Image
                   source={require('../assets/images/icons/star2.png')}
-                  style={{height: 16, width: 16}}
+                  style={{ height: 16, width: 16 }}
                   resizeMode="contain"
                 />
                 <Text style={styles.rate}>
                   {Math.ceil(detail?.[0]?.rating)}
                 </Text>
                 <TouchableOpacity
-                  style={{marginLeft: 8}}
-                  onPress={() =>
-                    isGuest
-                      ? showGuestModal()
-                      : navigation.navigate('ReviewListing', {
-                          data: detail?.[0],
-                        })
+                  style={{ marginLeft: 8 }}
+                  onPress={() => navigation.navigate('ReviewListing', {
+                    data: detail?.[0],
+                  })
                   }>
                   <Text style={styles.rate}>
                     ( {detail?.[0]?.review} {t('reviews')} )
@@ -367,12 +362,12 @@ const DetailScreen = props => {
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={[styles.distanceCont, {width: width * 0.28}]}>
+            <View style={[styles.distanceCont, { width: width * 0.28 }]}>
               <Text
                 numberOfLines={1}
                 style={[
                   styles.heading,
-                  {color: COLORS.white, fontSize: fontScale * 15},
+                  { color: COLORS.white, fontSize: fontScale * 15 },
                 ]}>
                 {distance > 0 ? Math.ceil(distance) : "--"} {t('km')}
               </Text>
@@ -390,16 +385,14 @@ const DetailScreen = props => {
               }}
               resizeMode="contain"
             />
-            <View style={{width: width * 0.6}}>
-              <Text style={[styles.address, {fontSize: fontScale * 13}]}>
+            <View style={{ width: width * 0.6 }}>
+              <Text style={[styles.address, { fontSize: fontScale * 13 }]}>
                 {translatedAddress || detail?.[0]?.address}
               </Text>
               <TouchableOpacity
-                style={{alignSelf: 'flex-start'}}
+                style={{ alignSelf: 'flex-start' }}
                 onPress={() => {
-                  isGuest
-                    ? showGuestModal()
-                    :handleMapNavigation()
+                  handleMapNavigation()
                 }}>
                 <Text
                   style={[
@@ -414,7 +407,7 @@ const DetailScreen = props => {
               </TouchableOpacity>
             </View>
           </View>
-          <MidTabs route={{params: {detail}}} />
+          <MidTabs route={{ params: { detail } }} />
         </View>
         {/* {loader && <ScreenLoader isProcessing={loader} />} */}
       </ScrollView>

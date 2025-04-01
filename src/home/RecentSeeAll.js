@@ -266,7 +266,7 @@ const RecentSeeAll = () => {
           backicon={true}
           backgroundColor={COLORS.base}
           tintColor={COLORS.white}
-          headerText={t('popular')}
+          headerText={t('recent')}
         />
         <View style={styles.fullScreenRed}>
           <FlatList
